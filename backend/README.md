@@ -130,12 +130,60 @@ and a `DaySummary`. Same config and menus always produce the same day.
   affinity, daypart appeal (blended between neighbouring dayparts), log price,
   log portion and bakery bias. Each purchase records its `UtilityBreakdown`.
 
+## Competitor pricing
+
+Over a run of days, The Bakery reprices in response to grandma. Run it with:
+
+```bash
+uv run python run_season.py --days 28 --cut fall_parfait=6.50@2
+```
+
+Every run also simulates the same season with The Bakery frozen, so the report
+shows what grandma keeps against what the response takes back, in both share
+and gross profit.
+
+**Who watches whom** (`competition/rivalry.py`) — pairs are found by taste, not
+declared by hand: each of The Bakery's items tracks the nearest item on
+grandma's menu, using the flavour meters plus a penalty for not sharing
+categories (the meters alone can't separate a lemon square from a pumpkin
+parfait). Add an item and it starts competing automatically.
+
+**How they respond** (`competition/pricing.py`) — three separate delays sit
+between grandma's move and the answer, which is what makes it read as a real
+competitor rather than a mirror:
+
+| knob | what it models | default |
+|---|---|---|
+| `observation_lag_days` | they act on the price they last *saw*; competitor checks happen on a round | 4 |
+| `review_every_days` | prices only move on review day — approvals, reprinted boards | 7 |
+| `adjustment_rate` | they close part of the gap, not all of it; jumping straight there makes both shops oscillate | 0.4 |
+
+They watch grandma's posted prices (stale) and their own till (current). Share
+of each rivalry pair decides *whether* they act at all:
+
+- below `losing_below` (50%) they cut toward `undercut` (12%) under her price
+- above `harvesting_above` (65%) they raise instead — a chain that's winning
+  harvests margin rather than chasing
+- in between they hold
+
+Prices are clamped to a floor and ceiling around their opening price and
+snapped to menu-board endings (`.95`/`.49`). Grandma never auto-reacts — she's
+the player, and two reactive sides would run away into a price war.
+
+**Running the days** (`simulation/season.py`) — `SeasonSimulator` holds the
+population fixed (one `population_seed`) and re-rolls arrivals and decisions
+each day, so a swing in share is attributable to the prices rather than to a
+different crowd. Grandma's moves are `DayProfile`s, the same overrides the API
+serves, carried forward until a later day replaces them; The Bakery's responses
+are layered on top so the player's profile never wipes a price it set.
+
 ## Layout
 
 ```
 backend/
   pyproject.toml, uv.lock
   run_simulation.py    run a day and print a report, optionally write JSON
+  run_season.py        run N days with The Bakery reacting, vs a frozen baseline
   grandma_sim/
     core/
       enums.py         allergens, dayparts, flavour categories, item categories, bakeries
@@ -156,6 +204,10 @@ backend/
     simulation/
       events.py        VisitEvent, DaySummary
       day.py           DayConfig, DaySimulator.run() -> DayResult
+      season.py        SeasonConfig, SeasonSimulator.run() -> SeasonResult
+    competition/
+      rivalry.py       find_rivalries() — which item tracks which, by taste
+      pricing.py       PricingPolicy, CompetitorPricer.review() -> Repricing
     profiles/
       overrides.py     ItemOverride, FlavorOverride, DayProfile.apply(menus)
       store.py         ProfileStore — day profiles in SQLite, carry-forward lookup
@@ -168,5 +220,11 @@ backend/
 
 - Baskets (one item per visit for now), inventory and queues.
 - Multi-day state, e.g. loyalty that moves with each visit.
-- Ingredient costs and suppliers, for the trade-war scenario. Items currently
-  carry a sticker `price` only, with no cost side, so margin can't be computed.
+- Store hours per bakery. `DayClock` has one global open/close, so grandma
+  can't open earlier to take the commuter rush she currently loses.
+- **Demand is too inelastic for a pricing sim.** Taking the Fall Parfait from
+  $4.50 to $18.00 only drops it from 19.8 to 5.8 units a day, and revenue rises
+  the whole way — so the model's answer to "what should she charge?" is
+  "more, forever". `UtilityWeights.price` is 1.0 against `taste` 3.0 and
+  `daypart` 2.0; price needs more weight, or the no-purchase option does,
+  before any pricing advice out of this sim is trustworthy.

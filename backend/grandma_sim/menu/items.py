@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from pydantic import BaseModel, Field, field_serializer
 
 from ..core.enums import Allergen, Bakery, Daypart, ItemCategory
@@ -78,10 +80,22 @@ class Menu(BaseModel):
     def safe_for(self, avoided: set[Allergen]) -> list[MenuItem]:
         return [item for item in self.items if item.safe_for(avoided)]
 
-    def closest_to(self, target: MenuItem) -> MenuItem | None:
+    def closest_to(
+        self, target: MenuItem, score: Callable[[MenuItem, MenuItem], float] | None = None
+    ) -> MenuItem | None:
         """The item here that tastes most like `target`.
 
         Point it at grandma's Fall Parfait and it finds The Bakery's Autumn
         Parfait -- the knock-off, found by taste rather than by name.
+
+        Args:
+         target: The item to match against.
+         score: How to measure the gap, lower being closer. Defaults to raw
+          taste distance; pass one that also weighs flavour categories when
+          the meters alone can't separate two items.
+
+        Returns:
+         The nearest item, or None if this menu is empty.
         """
-        return min(self.items, key=target.tastes_like, default=None)
+        measure = score or (lambda a, b: a.tastes_like(b))
+        return min(self.items, key=lambda item: measure(target, item), default=None)
