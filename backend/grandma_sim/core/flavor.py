@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import math
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_serializer
 
 from .enums import FlavorCategory
 
@@ -39,6 +39,11 @@ class FlavorProfile(BaseModel):
     fruitiness: float = Field(0.0, ge=0.0, le=1.0)
 
     categories: set[FlavorCategory] = Field(default_factory=set)
+
+    @field_serializer("categories")
+    def _sorted_categories(self, categories: set[FlavorCategory]) -> list[str]:
+        """Sets have no stable order across runs; sort so output is reproducible."""
+        return sorted(c.value for c in categories)
 
     def distance(self, other: FlavorProfile) -> float:
         """0.0 = tastes identical, 1.0 = as far apart as the meters allow.

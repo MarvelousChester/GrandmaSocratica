@@ -4,6 +4,10 @@ A day's parameters are fixed up front, so the full event log is generated in
 one go and the frontend replays it. Separate random streams drive population,
 arrivals and choices, so changing e.g. a menu price leaves the same customers
 arriving at the same times -- only their decisions move.
+
+`population_seed` fixes who lives in town; `seed` varies the day itself. Keep
+the first constant and step the second to simulate the same customers over
+consecutive days.
 """
 
 from __future__ import annotations
@@ -25,7 +29,8 @@ from .events import DaySummary, VisitEvent
 class DayConfig(BaseModel):
     """Everything that defines a day. Same config + same menus = same day."""
 
-    seed: int = 0
+    seed: int = Field(0, description="Drives arrivals and choices for this day.")
+    population_seed: int = Field(0, description="Drives who the customers are.")
     population: PopulationConfig = Field(default_factory=default_population)
     clock: DayClock = Field(default_factory=DayClock)
     choice: ChoiceConfig = Field(default_factory=ChoiceConfig)
@@ -33,6 +38,7 @@ class DayConfig(BaseModel):
 
 class DayResult(BaseModel):
     config: DayConfig
+    menus: list[Menu]
     customers: list[CustomerProfile]
     events: list[VisitEvent]
     summary: DaySummary
@@ -43,13 +49,15 @@ class DaySimulator:
 
     def __init__(self, config: DayConfig, menus: Sequence[Menu]):
         self.config = config
-        self.items = [item for menu in menus for item in menu.items]
+        self.menus = list(menus)
+        self.items = [item for menu in self.menus for item in menu.items]
         self.choice_model = ChoiceModel(config.choice, config.clock)
 
     def run(self) -> DayResult:
-        population_rng, arrival_rng, choice_rng = (
+        population_rng = np.random.default_rng(self.config.population_seed)
+        arrival_rng, choice_rng = (
             np.random.default_rng(seq)
-            for seq in np.random.SeedSequence(self.config.seed).spawn(3)
+            for seq in np.random.SeedSequence(self.config.seed).spawn(2)
         )
         customers = self.config.population.generate(population_rng)
         events = [
@@ -58,6 +66,7 @@ class DaySimulator:
         ]
         return DayResult(
             config=self.config,
+            menus=self.menus,
             customers=customers,
             events=events,
             summary=DaySummary.from_events(events),

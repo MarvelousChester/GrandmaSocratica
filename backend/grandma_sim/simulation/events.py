@@ -48,6 +48,8 @@ class DaySummary(BaseModel):
             totals.revenue += choice.price
             item_sales[choice.item_id] += 1
 
+        for totals in by_bakery.values():
+            totals.revenue = round(totals.revenue, 2)
         return cls(
             visits=len(events),
             walkaways=sum(1 for e in events if not e.choice.purchased),

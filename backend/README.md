@@ -8,15 +8,52 @@ population, the choice model, and the whole-day simulation.
 All commands run from `backend/`:
 
 ```bash
-uv sync                                   # Python 3.11+, pydantic, numpy
-uv run python -m grandma_sim.menu.store   # creates ./grandma.db, seeds 6 items per bakery
+uv sync                                   # Python 3.11+, pydantic, numpy, fastapi
+uv run python -m grandma_sim.api          # serves the API on http://127.0.0.1:8000 (docs at /docs)
+uv run python -m grandma_sim.menu.store   # rebuilds ./grandma.db from the seed menus
 uv run python -m grandma_sim.simulation   # simulates one day, prints totals (optional seed arg)
 uv run python run_simulation.py           # fuller report; --seed, --customers, --events
 uv run python run_simulation.py --json ../frontend/sample_data/day_seed0.json
 ```
 
-The DB is gitignored — rebuild any time, it's generated from
-`grandma_sim/menu/seed.py`.
+The DB is gitignored and generated from `grandma_sim/menu/seed.py`; the API
+seeds it on first start. Rebuilding with `menu.store` deletes the file, which
+also wipes any day profiles set through the API.
+
+## API
+
+Days are numbered from 1. Each day is simulated with the same customers
+(fixed `population_seed`); the day number is the seed for arrivals and
+choices, so a day is reproducible and changing its profile only changes
+decisions, never who shows up.
+
+| endpoint | |
+|---|---|
+| `GET /menu` | base menu items, both bakeries, as a flat list |
+| `PUT /days/{day}/profile` | set the profile from `day` onward (body below) |
+| `GET /days/{day}/profile` | profile in force on `day`; `source_day` says which day set it (`null` = base menus) |
+| `DELETE /days/{day}/profile` | drop the profile set on `day`; the previous one carries over again |
+| `GET /profiles` | every day that has a profile set |
+| `GET /days/{day}/menu` | menu items as they stand on `day` |
+| `GET /days/{day}/simulation` | the simulated day: `config`, `menus`, `customers`, `events`, `summary` |
+
+A profile carries forward: set on day 3, it applies to days 3, 4, 5… until a
+later day sets its own. It lists only what differs from the base menu, by item
+id; any field left out keeps its base value:
+
+```json
+{
+  "items": {
+    "fall_parfait":      { "price": 6.50 },
+    "gruyere_croissant": { "flavor": { "sweet_savoury": 0.2 } },
+    "mocha_latte":       { "available": false }
+  }
+}
+```
+
+Overridable fields: `price`, `portion_size_g`, `flavor` (`sweet_savoury`,
+`bitterness`, `fruitiness`, `categories`), `allergens`, `daypart_weights`,
+`available`. Unknown item ids or out-of-range values return 422.
 
 ## The item model
 
@@ -119,6 +156,12 @@ backend/
     simulation/
       events.py        VisitEvent, DaySummary
       day.py           DayConfig, DaySimulator.run() -> DayResult
+    profiles/
+      overrides.py     ItemOverride, FlavorOverride, DayProfile.apply(menus)
+      store.py         ProfileStore — day profiles in SQLite, carry-forward lookup
+    api/
+      service.py       SimulationService — base menus + profiles -> simulated day
+      app.py           FastAPI routes, create_app()
 ```
 
 ## Not done yet

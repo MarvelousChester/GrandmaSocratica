@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_serializer
 
 from ..core.enums import Allergen, Bakery, Daypart, ItemCategory
 from ..core.flavor import FlavorProfile
@@ -30,6 +30,11 @@ class MenuItem(BaseModel):
             "sells in the afternoon, not at 7am."
         ),
     )
+
+    @field_serializer("allergens")
+    def _sorted_allergens(self, allergens: set[Allergen]) -> list[str]:
+        """Sets have no stable order across runs; sort so output is reproducible."""
+        return sorted(a.value for a in allergens)
 
     def appeal_at(self, daypart: Daypart) -> float:
         return self.daypart_weights.get(daypart, 0.5)
