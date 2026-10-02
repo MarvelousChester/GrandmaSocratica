@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import Counter
 from collections.abc import Sequence
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
 
 from ..choice.model import Choice
 from ..core.enums import Bakery, Daypart
@@ -55,6 +55,7 @@ class DaySummary(BaseModel):
             item_sales=dict(item_sales.most_common()),
         )
 
+    @computed_field
     @property
     def purchases(self) -> int:
         return sum(t.purchases for t in self.by_bakery.values())

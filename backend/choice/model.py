@@ -11,7 +11,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 import numpy as np
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
 
 from ..core.clock import DayClock
 from ..core.enums import Bakery
@@ -47,6 +47,7 @@ class Choice(BaseModel):
     probability: float = Field(description="Chance this outcome had of happening.")
     breakdown: UtilityBreakdown | None = None
 
+    @computed_field
     @property
     def purchased(self) -> bool:
         return self.item_id is not None

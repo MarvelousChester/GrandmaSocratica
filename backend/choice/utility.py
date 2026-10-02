@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import math
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
 
 from ..core.clock import DayClock
 from ..customers.profile import CustomerProfile
@@ -45,6 +45,7 @@ class UtilityBreakdown(BaseModel):
     portion: float
     bakery: float
 
+    @computed_field
     @property
     def total(self) -> float:
         return (
