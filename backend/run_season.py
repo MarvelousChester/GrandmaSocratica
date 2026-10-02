@@ -13,8 +13,7 @@ from pathlib import Path
 
 from grandma_sim import Bakery
 from grandma_sim.customers.presets import default_population
-from grandma_sim.menu.items import Menu
-from grandma_sim.menu.recipes_seed import build_recipe_books
+from grandma_sim.menu.recipes_seed import recipe_books_by_bakery
 from grandma_sim.menu.seed import build_menus
 from grandma_sim.profiles.overrides import DayProfile, ItemOverride
 from grandma_sim.simulation.season import SeasonConfig, SeasonResult, SeasonSimulator
@@ -45,31 +44,6 @@ def build_profiles(cuts: list[tuple[int, str, float]]) -> dict[int, DayProfile]:
         standing[item_id] = ItemOverride(price=price)
         profiles[day] = DayProfile(items=dict(standing))
     return profiles
-
-
-def unit_costs(menus: list[Menu]) -> dict[str, float]:
-    """What each item costs its own bakery to make, at its base portion size."""
-    costs: dict[str, float] = {}
-    for menu, book in zip(menus, build_recipe_books()):
-        for item in menu.items:
-            costs[item.id] = book.breakdown(item).total
-    return costs
-
-
-def daily_profit(
-    result: SeasonResult, bakery: Bakery, costs: dict[str, float], owned: set[str]
-) -> list[float]:
-    """Gross profit per day: units sold x (that day's price - unit cost)."""
-    profits = []
-    for record in result.days:
-        profits.append(
-            sum(
-                units * (record.prices[item_id] - costs[item_id])
-                for item_id, units in record.summary.item_sales.items()
-                if item_id in owned
-            )
-        )
-    return profits
 
 
 def print_moves(profiles: dict[int, DayProfile], names: dict[str, str]) -> None:
@@ -106,15 +80,13 @@ def print_responses(result: SeasonResult) -> None:
         )
 
 
-def print_windows(
-    reactive: SeasonResult, flat: SeasonResult, costs: dict[str, float], owned: set[str]
-) -> None:
+def print_windows(reactive: SeasonResult, flat: SeasonResult) -> None:
     """Grandma's share and profit per review cycle, with and without the response."""
     window = reactive.config.policy.review_every_days
     live_share = reactive.share_series(Bakery.GRANDMAS)
     base_share = flat.share_series(Bakery.GRANDMAS)
-    live_profit = daily_profit(reactive, Bakery.GRANDMAS, costs, owned)
-    base_profit = daily_profit(flat, Bakery.GRANDMAS, costs, owned)
+    live_profit = reactive.profit_series(Bakery.GRANDMAS)
+    base_profit = flat.profit_series(Bakery.GRANDMAS)
 
     print(
         f"  {'days':<9}{'share':>8}{'if frozen':>11}"
@@ -170,10 +142,7 @@ def main() -> None:
 
     menus = list(build_menus())
     names = {i.id: i.name for menu in menus for i in menu.items}
-    costs = unit_costs(menus)
-    grandmas_items = {
-        i.id for m in menus if m.bakery is Bakery.GRANDMAS for i in m.items
-    }
+    books = recipe_books_by_bakery()
 
     config = SeasonConfig(
         days=args.days,
@@ -181,8 +150,10 @@ def main() -> None:
         population=default_population(args.customers),
         profiles=build_profiles(args.cut),
     )
-    reactive = SeasonSimulator(config, menus).run()
-    flat = SeasonSimulator(config.model_copy(update={"reactive": False}), menus).run()
+    reactive = SeasonSimulator(config, menus, books).run()
+    flat = SeasonSimulator(
+        config.model_copy(update={"reactive": False}), menus, books
+    ).run()
 
     if args.json:
         args.json.parent.mkdir(parents=True, exist_ok=True)
@@ -194,10 +165,7 @@ def main() -> None:
         ("Grandma's moves", lambda: print_moves(config.profiles, names)),
         ("Who watches whom", lambda: print_rivalries(reactive)),
         ("The Bakery's responses", lambda: print_responses(reactive)),
-        (
-            "Grandma's share and profit",
-            lambda: print_windows(reactive, flat, costs, grandmas_items),
-        ),
+        ("Grandma's share and profit", lambda: print_windows(reactive, flat)),
         ("Closing prices", lambda: print_prices(reactive, names)),
     ]
     for title, show in sections:

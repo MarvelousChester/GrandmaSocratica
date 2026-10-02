@@ -136,7 +136,18 @@ and a `DaySummary`. Same config and menus always produce the same day.
 - **Choice** — a multinomial logit over every allergen-safe item on both menus
   plus "buy nothing". Utility is a sum of taste match, flavour-category
   affinity, daypart appeal (blended between neighbouring dayparts), log price,
-  log portion and bakery bias. Each purchase records its `UtilityBreakdown`.
+  price markup, log portion and bakery bias. Each purchase records its
+  `UtilityBreakdown`.
+- **Price response** — customers expect each item's usual price
+  (`DayConfig.usual_prices`; the API and season use the base menu prices).
+  Charging more costs `markup * price_sensitivity * tolerance * (e^(markup% /
+  tolerance) - 1)`, so small rises barely register and big ones are
+  dealbreakers; discounts help linearly. With the defaults (`markup` 0.5,
+  `markup_tolerance` 0.07), averaged over 30 days for the Fall Parfait:
+
+  | price change | +2% | +5% | +10% | +20% | +30% | +50% |
+  |---|---|---|---|---|---|---|
+  | sales change | −2% | −6% | −15% | −45% | −79% | −99% |
 
 ## Competitor pricing
 
@@ -148,7 +159,8 @@ uv run python run_season.py --days 28 --cut fall_parfait=6.50@2
 
 Every run also simulates the same season with The Bakery frozen, so the report
 shows what grandma keeps against what the response takes back, in both share
-and gross profit.
+and gross profit. Pass recipe books to `SeasonSimulator` and each `DayRecord`
+carries that day's `ledger`; `SeasonResult.profit_series(bakery)` reads it.
 
 **Who watches whom** (`competition/rivalry.py`) — pairs are found by taste, not
 declared by hand: each of The Bakery's items tracks the nearest item on
@@ -233,9 +245,5 @@ backend/
 - Multi-day state, e.g. loyalty that moves with each visit.
 - Store hours per bakery. `DayClock` has one global open/close, so grandma
   can't open earlier to take the commuter rush she currently loses.
-- **Demand is too inelastic for a pricing sim.** Taking the Fall Parfait from
-  $4.50 to $18.00 only drops it from 19.8 to 5.8 units a day, and revenue rises
-  the whole way — so the model's answer to "what should she charge?" is
-  "more, forever". `UtilityWeights.price` is 1.0 against `taste` 3.0 and
-  `daypart` 2.0; price needs more weight, or the no-purchase option does,
-  before any pricing advice out of this sim is trustworthy.
+- Usual prices never adapt. A price held for weeks still feels like a markup
+  (or a discount) on the last day; customers should get used to it over time.

@@ -17,7 +17,7 @@ from ..menu.recipes_seed import recipe_books_by_bakery
 from ..menu.seed import build_menus
 from ..profiles.overrides import DayProfile
 from ..profiles.store import ProfileStore, ScheduledProfile
-from ..simulation.day import DayConfig, DayResult, DaySimulator
+from ..simulation.day import DayConfig, DayResult, DaySimulator, menu_prices
 
 
 class SimulationService:
@@ -25,7 +25,8 @@ class SimulationService:
 
     Every day shares `base_config` -- same population, clock and choice model
     -- and differs only in its seed (the day number) and its menus (the base
-    menus with that day's profile applied).
+    menus with that day's profile applied). Customers expect the base menu
+    prices, so a profile price above base is felt as a markup.
     """
 
     def __init__(
@@ -81,5 +82,9 @@ class SimulationService:
         return self.profile_for(day).profile.apply(self.base_menus())
 
     def simulate(self, day: int) -> DayResult:
-        config = self.base_config.model_copy(update={"seed": day})
-        return DaySimulator(config, self.menus_for(day), self.recipe_books).run()
+        base_menus = self.base_menus()
+        config = self.base_config.model_copy(
+            update={"seed": day, "usual_prices": menu_prices(base_menus)}
+        )
+        menus = self.profile_for(day).profile.apply(base_menus)
+        return DaySimulator(config, menus, self.recipe_books).run()

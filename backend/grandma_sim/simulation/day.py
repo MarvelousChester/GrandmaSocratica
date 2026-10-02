@@ -29,6 +29,11 @@ from .events import DaySummary, VisitEvent
 from .ledger import DayLedger
 
 
+def menu_prices(menus: Sequence[Menu]) -> dict[str, float]:
+    """Every item's price by id -- e.g. base menus as `DayConfig.usual_prices`."""
+    return {item.id: item.price for menu in menus for item in menu.items}
+
+
 class DayConfig(BaseModel):
     """Everything that defines a day. Same config + same menus = same day."""
 
@@ -37,6 +42,13 @@ class DayConfig(BaseModel):
     population: PopulationConfig = Field(default_factory=default_population)
     clock: DayClock = Field(default_factory=DayClock)
     choice: ChoiceConfig = Field(default_factory=ChoiceConfig)
+    usual_prices: dict[str, float] = Field(
+        default_factory=dict,
+        description=(
+            "What customers expect each item to cost, by id; prices above this "
+            "are penalised as markups. Unlisted items are judged at face value."
+        ),
+    )
 
 
 class DayResult(BaseModel):
@@ -63,7 +75,7 @@ class DaySimulator:
         self.menus = list(menus)
         self.recipe_books = recipe_books
         self.items = [item for menu in self.menus for item in menu.items]
-        self.choice_model = ChoiceModel(config.choice, config.clock)
+        self.choice_model = ChoiceModel(config.choice, config.clock, config.usual_prices)
 
     def run(self) -> DayResult:
         population_rng = np.random.default_rng(self.config.population_seed)

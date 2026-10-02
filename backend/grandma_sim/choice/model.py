@@ -8,7 +8,7 @@ more impulsive choices.
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 
 import numpy as np
 from pydantic import BaseModel, Field, computed_field
@@ -69,9 +69,14 @@ class Choice(BaseModel):
 class ChoiceModel:
     """Turns utilities into probabilities and samples a decision."""
 
-    def __init__(self, config: ChoiceConfig, clock: DayClock):
+    def __init__(
+        self,
+        config: ChoiceConfig,
+        clock: DayClock,
+        usual_prices: Mapping[str, float] | None = None,
+    ):
         self.config = config
-        self.utility = UtilityModel(config.weights, clock)
+        self.utility = UtilityModel(config.weights, clock, usual_prices)
 
     def options(
         self, customer: CustomerProfile, items: Sequence[MenuItem], minute: float

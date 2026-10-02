@@ -17,6 +17,7 @@ prices rather than to a different crowd turning up.
 from __future__ import annotations
 
 from collections import Counter
+from collections.abc import Mapping
 
 from pydantic import BaseModel, Field
 
@@ -27,10 +28,12 @@ from ..core.clock import DayClock
 from ..core.enums import Bakery
 from ..customers.population import PopulationConfig
 from ..customers.presets import default_population
+from ..menu.costing import RecipeBook
 from ..menu.items import Menu
 from ..profiles.overrides import DayProfile
-from .day import DayConfig, DaySimulator
+from .day import DayConfig, DaySimulator, menu_prices
 from .events import DaySummary
+from .ledger import DayLedger
 
 # Keeps per-day seeds far apart so consecutive days don't correlate.
 _DAY_SEED_STRIDE = 100_000
@@ -62,6 +65,9 @@ class DayRecord(BaseModel):
     day: int
     prices: dict[str, float] = Field(description="Every item's price that day.")
     summary: DaySummary
+    ledger: DayLedger | None = Field(
+        None, description="Costs and profit; None when no recipe books were given."
+    )
     repricings: list[Repricing] = Field(default_factory=list)
 
 
@@ -76,6 +82,14 @@ class SeasonResult(BaseModel):
     def revenue_series(self, bakery: Bakery) -> list[float]:
         return [record.summary.by_bakery[bakery].revenue for record in self.days]
 
+    def profit_series(self, bakery: Bakery) -> list[float]:
+        """Gross profit per day (revenue - ingredient cost). Needs recipe books."""
+        if any(record.ledger is None for record in self.days):
+            raise ValueError("season was run without recipe books, so has no costs")
+        return [
+            record.ledger.bakeries[bakery].financials.profit for record in self.days
+        ]
+
     def all_repricings(self) -> list[Repricing]:
         return [r for record in self.days for r in record.repricings]
 
@@ -83,9 +97,16 @@ class SeasonResult(BaseModel):
 class SeasonSimulator:
     """Days in sequence, with one menu reacting to the other between them."""
 
-    def __init__(self, config: SeasonConfig, base_menus: list[Menu]):
+    def __init__(
+        self,
+        config: SeasonConfig,
+        base_menus: list[Menu],
+        recipe_books: Mapping[Bakery, RecipeBook] | None = None,
+    ):
         self.config = config
         self.base_menus = [menu.model_copy(deep=True) for menu in base_menus]
+        self.recipe_books = recipe_books
+        self.usual_prices = menu_prices(self.base_menus)
 
         by_bakery = {menu.bakery: menu for menu in self.base_menus}
         self.rivalries = find_rivalries(
@@ -138,8 +159,10 @@ class SeasonSimulator:
                     population=self.config.population,
                     clock=self.config.clock,
                     choice=self.config.choice,
+                    usual_prices=self.usual_prices,
                 ),
                 menus,
+                self.recipe_books,
             ).run()
             window.update(result.summary.item_sales)
 
@@ -148,6 +171,7 @@ class SeasonSimulator:
                     day=day,
                     prices=prices,
                     summary=result.summary,
+                    ledger=result.ledger,
                     repricings=repricings,
                 )
             )

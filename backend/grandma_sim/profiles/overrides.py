@@ -67,7 +67,8 @@ class DayProfile(BaseModel):
          menus: The base menus.
 
         Returns:
-         New menus with overrides applied and unavailable items removed.
+         New menus with overrides applied and unavailable items removed. Every
+         item is a copy, so callers may modify them freely.
 
         Raises:
          ValueError: If an override names an item that isn't on any menu, or
@@ -84,7 +85,7 @@ class DayProfile(BaseModel):
             for item in menu.items:
                 override = self.items.get(item.id)
                 if override is None:
-                    items.append(item)
+                    items.append(item.model_copy(deep=True))
                 elif override.available:
                     items.append(override.apply(item))
             result.append(Menu(bakery=menu.bakery, items=items))
