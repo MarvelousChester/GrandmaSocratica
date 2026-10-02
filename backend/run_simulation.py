@@ -1,16 +1,16 @@
 """Run one simulated day against the seed menus and print a readable report.
 
     uv run python run_simulation.py --seed 3 --customers 600 --events 15
-    uv run python run_simulation.py --json frontend/sample_data/day_seed0.json
+    uv run python run_simulation.py --json ../frontend/sample_data/day_seed0.json
 """
 
 import argparse
 from collections import Counter
 from pathlib import Path
 
-from backend import Bakery, DayConfig, DayResult, DaySimulator
-from backend.customers.presets import default_population
-from backend.menu.seed import build_menus
+from grandma_sim import Bakery, DayConfig, DayResult, DaySimulator
+from grandma_sim.customers.presets import default_population
+from grandma_sim.menu.seed import build_menus
 
 BAKERY_LABELS = {Bakery.GRANDMAS: "Grandma's", Bakery.THE_BAKERY: "The Bakery"}
 WALKAWAY = "walked away"

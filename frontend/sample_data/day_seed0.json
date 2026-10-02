@@ -2276,8 +2276,8 @@
         "coffee": 0.5323944003417153
       },
       "allergens": [
-        "sesame",
-        "gluten"
+        "gluten",
+        "sesame"
       ],
       "price_sensitivity": 1.302220392879978,
       "portion_preference": -0.025149979579163373,
@@ -3220,8 +3220,8 @@
         "coffee": 0.717847237012203
       },
       "allergens": [
-        "soy",
-        "gluten"
+        "gluten",
+        "soy"
       ],
       "price_sensitivity": 0.6638007005783328,
       "portion_preference": -0.651433807039937,
@@ -4612,8 +4612,8 @@
         "cheese": 0.1909919639150197
       },
       "allergens": [
-        "sesame",
-        "gluten"
+        "gluten",
+        "sesame"
       ],
       "price_sensitivity": 1.0570253082767007,
       "portion_preference": 0.4356084100978371,
@@ -5061,8 +5061,8 @@
         "cheese": 0.29733324264422295
       },
       "allergens": [
-        "tree_nut",
-        "gluten"
+        "gluten",
+        "tree_nut"
       ],
       "price_sensitivity": 1.0872714877640004,
       "portion_preference": 0.018704223757410356,
@@ -12121,7 +12121,7 @@
         "probability": 0.13954763554277153,
         "breakdown": {
           "taste": 1.5858162017148756,
-          "category": 0.21425239593596546,
+          "category": 0.21425239593596543,
           "daypart": 0.049161440605831386,
           "price": -0.14955795199747604,
           "portion": 0.2653141255310852,

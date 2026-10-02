@@ -1,6 +1,6 @@
 """Run one day against the seed menus and print the totals.
 
-    uv run python -m backend.simulation [seed]
+    uv run python -m grandma_sim.simulation [seed]
 """
 
 import sys

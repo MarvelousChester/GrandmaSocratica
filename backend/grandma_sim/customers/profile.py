@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+import math
+
+from pydantic import BaseModel, Field, field_serializer
 
 from ..core.enums import Allergen, Bakery, FlavorCategory
 from ..core.flavor import FlavorProfile
@@ -53,6 +55,11 @@ class CustomerProfile(BaseModel):
         30.0, ge=0.0, description="Day-to-day jitter on arrival, in minutes."
     )
 
+    @field_serializer("allergens")
+    def _sorted_allergens(self, allergens: set[Allergen]) -> list[str]:
+        """Sets have no stable order across runs; sort so output is reproducible."""
+        return sorted(a.value for a in allergens)
+
     def bias_for(self, bakery: Bakery) -> float:
         return self.bakery_bias.get(bakery, 0.0)
 
@@ -60,6 +67,7 @@ class CustomerProfile(BaseModel):
         """Mean affinity over an item's flavour tags; 0 for untagged items."""
         if not categories:
             return 0.0
-        return sum(self.category_affinity.get(c, 0.0) for c in categories) / len(
+        # fsum is exact, so set iteration order can't change the result.
+        return math.fsum(self.category_affinity.get(c, 0.0) for c in categories) / len(
             categories
         )

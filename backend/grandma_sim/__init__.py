@@ -1,4 +1,4 @@
-"""Grandma's Bakeria simulation backend."""
+"""Grandma's Bakeria simulation: menus, customers, choice model, day sim."""
 
 from .choice.model import Choice, ChoiceConfig, ChoiceModel
 from .choice.utility import UtilityBreakdown, UtilityModel, UtilityWeights
