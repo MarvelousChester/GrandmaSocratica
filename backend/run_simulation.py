@@ -10,6 +10,7 @@ from pathlib import Path
 
 from grandma_sim import Bakery, DayConfig, DayResult, DaySimulator
 from grandma_sim.customers.presets import default_population
+from grandma_sim.menu.recipes_seed import recipe_books_by_bakery
 from grandma_sim.menu.seed import build_menus
 
 BAKERY_LABELS = {Bakery.GRANDMAS: "Grandma's", Bakery.THE_BAKERY: "The Bakery"}
@@ -73,6 +74,28 @@ def print_item_sales(result: DayResult, item_names: dict[str, tuple[str, Bakery]
         print(f"  {name:<26} {BAKERY_LABELS[bakery]:<12} {count:>4}")
 
 
+def print_ledger(result: DayResult, top_ingredients: int = 5) -> None:
+    """Per bakery: day totals, costliest ingredients, then profit by hour."""
+    for bakery, label in BAKERY_LABELS.items():
+        ledger = result.ledger.bakeries[bakery]
+        money = ledger.financials
+        print(
+            f"\n  {label}: revenue ${money.revenue:.2f}, ingredients "
+            f"${money.ingredient_cost:.2f}, profit ${money.profit:.2f}"
+        )
+        for usage in list(ledger.ingredients.values())[:top_ingredients]:
+            print(f"    {usage.name:<16} {usage.grams / 1000:>7.2f} kg  ${usage.cost:>7.2f}")
+
+        hourly = "  ".join(
+            f"{h.hour:02d}h ${h.financials.profit:.0f}"
+            for h in ledger.hourly
+            if h.financials.units_sold
+        )
+        print(f"    profit by hour: {hourly}")
+    if result.ledger.uncosted_items:
+        print(f"\n  no recipe (cost counted as 0): {', '.join(result.ledger.uncosted_items)}")
+
+
 def print_sample_events(result: DayResult, limit: int) -> None:
     """The first `limit` visits, with the two terms that drove each purchase."""
     print()
@@ -100,7 +123,7 @@ def main() -> None:
 
     menus = build_menus()
     config = DayConfig(seed=args.seed, population=default_population(args.customers))
-    result = DaySimulator(config, menus).run()
+    result = DaySimulator(config, menus, recipe_books_by_bakery()).run()
     if args.json:
         args.json.parent.mkdir(parents=True, exist_ok=True)
         args.json.write_text(result.model_dump_json(indent=2))
@@ -112,6 +135,7 @@ def main() -> None:
         ("By segment", lambda: print_by_segment(result)),
         ("By hour", lambda: print_by_hour(result)),
         ("Item sales", lambda: print_item_sales(result, item_names)),
+        ("Costs and profit", lambda: print_ledger(result)),
         (f"First {args.events} visits", lambda: print_sample_events(result, args.events)),
     ]
     print(f"=== Simulated day, seed {args.seed} ===")

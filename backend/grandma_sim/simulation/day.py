@@ -12,18 +12,21 @@ consecutive days.
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 
 import numpy as np
 from pydantic import BaseModel, Field
 
 from ..choice.model import ChoiceConfig, ChoiceModel
 from ..core.clock import DayClock
+from ..core.enums import Bakery
 from ..customers.population import PopulationConfig
 from ..customers.presets import default_population
 from ..customers.profile import CustomerProfile
+from ..menu.costing import RecipeBook
 from ..menu.items import Menu
 from .events import DaySummary, VisitEvent
+from .ledger import DayLedger
 
 
 class DayConfig(BaseModel):
@@ -42,14 +45,23 @@ class DayResult(BaseModel):
     customers: list[CustomerProfile]
     events: list[VisitEvent]
     summary: DaySummary
+    ledger: DayLedger | None = Field(
+        None, description="Costs and profit; None when no recipe books were given."
+    )
 
 
 class DaySimulator:
     """Runs one day of customers against a set of competing menus."""
 
-    def __init__(self, config: DayConfig, menus: Sequence[Menu]):
+    def __init__(
+        self,
+        config: DayConfig,
+        menus: Sequence[Menu],
+        recipe_books: Mapping[Bakery, RecipeBook] | None = None,
+    ):
         self.config = config
         self.menus = list(menus)
+        self.recipe_books = recipe_books
         self.items = [item for menu in self.menus for item in menu.items]
         self.choice_model = ChoiceModel(config.choice, config.clock)
 
@@ -70,7 +82,13 @@ class DaySimulator:
             customers=customers,
             events=events,
             summary=DaySummary.from_events(events),
+            ledger=self._ledger(events),
         )
+
+    def _ledger(self, events: Sequence[VisitEvent]) -> DayLedger | None:
+        if self.recipe_books is None:
+            return None
+        return DayLedger.build(events, self.menus, self.recipe_books, self.config.clock)
 
     def _arrivals(
         self, customers: Sequence[CustomerProfile], rng: np.random.Generator

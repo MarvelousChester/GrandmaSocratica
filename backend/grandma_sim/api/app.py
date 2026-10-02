@@ -6,7 +6,8 @@
     PUT    /days/{day}/profile        set the profile from that day onward
     DELETE /days/{day}/profile        drop it; the previous one carries over
     GET    /days/{day}/menu           menu items as they stand on a day
-    GET    /days/{day}/simulation     the simulated day
+    GET    /days/{day}/simulation     the simulated day, ledger included
+    GET    /days/{day}/ledger         just the day's costs, profit and ingredients
 
 Interactive docs at /docs once running.
 """
@@ -20,6 +21,7 @@ from ..menu.items import Menu, MenuItem
 from ..profiles.overrides import DayProfile
 from ..profiles.store import ScheduledProfile
 from ..simulation.day import DayResult
+from ..simulation.ledger import DayLedger
 from .service import SimulationService
 
 DEFAULT_CORS_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
@@ -86,5 +88,9 @@ def create_app(
     @app.get("/days/{day}/simulation")
     def get_simulation(day: int = DayNumber) -> DayResult:
         return service.simulate(day)
+
+    @app.get("/days/{day}/ledger")
+    def get_ledger(day: int = DayNumber) -> DayLedger:
+        return service.simulate(day).ledger
 
     return app

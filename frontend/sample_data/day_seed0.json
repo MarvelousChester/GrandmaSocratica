@@ -15123,5 +15123,1989 @@
       "autumn_parfait": 5
     },
     "purchases": 206
+  },
+  "ledger": {
+    "bakeries": {
+      "grandmas_bakeria": {
+        "financials": {
+          "units_sold": 112,
+          "revenue": 657.75,
+          "ingredient_cost": 179.31,
+          "profit": 478.44
+        },
+        "ingredients": {
+          "dark_chocolate": {
+            "name": "Dark Chocolate",
+            "grams": 1134.0,
+            "cost": 26.54
+          },
+          "cream": {
+            "name": "Cream",
+            "grams": 1988.0,
+            "cost": 18.09
+          },
+          "pecans": {
+            "name": "Pecans",
+            "grams": 544.0,
+            "cost": 17.68
+          },
+          "gruyere": {
+            "name": "Gruyere",
+            "grams": 480.0,
+            "cost": 17.47
+          },
+          "butter": {
+            "name": "Butter",
+            "grams": 1184.0,
+            "cost": 16.93
+          },
+          "flour": {
+            "name": "Flour",
+            "grams": 10151.0,
+            "cost": 15.84
+          },
+          "milk": {
+            "name": "Milk",
+            "grams": 8558.5,
+            "cost": 14.46
+          },
+          "granola": {
+            "name": "Granola",
+            "grams": 1088.0,
+            "cost": 11.32
+          },
+          "maple_syrup": {
+            "name": "Maple Syrup",
+            "grams": 435.2,
+            "cost": 11.32
+          },
+          "ham": {
+            "name": "Ham",
+            "grams": 480.0,
+            "cost": 8.74
+          },
+          "spice": {
+            "name": "Spice",
+            "grams": 108.8,
+            "cost": 5.66
+          },
+          "pumpkin": {
+            "name": "Pumpkin",
+            "grams": 1360.0,
+            "cost": 5.3
+          },
+          "egg": {
+            "name": "Egg",
+            "grams": 684.8,
+            "cost": 3.56
+          },
+          "cinnamon": {
+            "name": "Cinnamon",
+            "grams": 57.2,
+            "cost": 2.23
+          },
+          "sugar": {
+            "name": "Sugar",
+            "grams": 1048.5,
+            "cost": 2.04
+          },
+          "lemon": {
+            "name": "Lemon",
+            "grams": 336.0,
+            "cost": 1.75
+          },
+          "salt": {
+            "name": "Salt",
+            "grams": 256.0,
+            "cost": 0.33
+          },
+          "water": {
+            "name": "Water",
+            "grams": 4736.0,
+            "cost": 0.06
+          }
+        },
+        "hourly": [
+          {
+            "financials": {
+              "units_sold": 9,
+              "revenue": 47.25,
+              "ingredient_cost": 8.6,
+              "profit": 38.65
+            },
+            "ingredients": {
+              "dark_chocolate": {
+                "name": "Dark Chocolate",
+                "grams": 126.0,
+                "cost": 2.95
+              },
+              "flour": {
+                "name": "Flour",
+                "grams": 1612.5,
+                "cost": 2.52
+              },
+              "milk": {
+                "name": "Milk",
+                "grams": 925.5,
+                "cost": 1.56
+              },
+              "butter": {
+                "name": "Butter",
+                "grams": 66.0,
+                "cost": 0.94
+              },
+              "cinnamon": {
+                "name": "Cinnamon",
+                "grams": 6.6,
+                "cost": 0.26
+              },
+              "sugar": {
+                "name": "Sugar",
+                "grams": 81.0,
+                "cost": 0.16
+              },
+              "egg": {
+                "name": "Egg",
+                "grams": 26.4,
+                "cost": 0.14
+              },
+              "salt": {
+                "name": "Salt",
+                "grams": 48.0,
+                "cost": 0.06
+              },
+              "water": {
+                "name": "Water",
+                "grams": 888.0,
+                "cost": 0.01
+              }
+            },
+            "hour": 6
+          },
+          {
+            "financials": {
+              "units_sold": 24,
+              "revenue": 129.0,
+              "ingredient_cost": 26.34,
+              "profit": 102.66
+            },
+            "ingredients": {
+              "dark_chocolate": {
+                "name": "Dark Chocolate",
+                "grams": 252.0,
+                "cost": 5.9
+              },
+              "flour": {
+                "name": "Flour",
+                "grams": 2968.0,
+                "cost": 4.63
+              },
+              "butter": {
+                "name": "Butter",
+                "grams": 263.0,
+                "cost": 3.76
+              },
+              "milk": {
+                "name": "Milk",
+                "grams": 1889.0,
+                "cost": 3.19
+              },
+              "cream": {
+                "name": "Cream",
+                "grams": 140.0,
+                "cost": 1.27
+              },
+              "gruyere": {
+                "name": "Gruyere",
+                "grams": 32.0,
+                "cost": 1.16
+              },
+              "pecans": {
+                "name": "Pecans",
+                "grams": 34.0,
+                "cost": 1.1
+              },
+              "egg": {
+                "name": "Egg",
+                "grams": 162.4,
+                "cost": 0.84
+              },
+              "granola": {
+                "name": "Granola",
+                "grams": 68.0,
+                "cost": 0.71
+              },
+              "maple_syrup": {
+                "name": "Maple Syrup",
+                "grams": 27.2,
+                "cost": 0.71
+              },
+              "cinnamon": {
+                "name": "Cinnamon",
+                "grams": 17.6,
+                "cost": 0.69
+              },
+              "ham": {
+                "name": "Ham",
+                "grams": 32.0,
+                "cost": 0.58
+              },
+              "sugar": {
+                "name": "Sugar",
+                "grams": 279.0,
+                "cost": 0.54
+              },
+              "lemon": {
+                "name": "Lemon",
+                "grams": 84.0,
+                "cost": 0.44
+              },
+              "spice": {
+                "name": "Spice",
+                "grams": 6.8,
+                "cost": 0.35
+              },
+              "pumpkin": {
+                "name": "Pumpkin",
+                "grams": 85.0,
+                "cost": 0.33
+              },
+              "salt": {
+                "name": "Salt",
+                "grams": 80.0,
+                "cost": 0.1
+              },
+              "water": {
+                "name": "Water",
+                "grams": 1480.0,
+                "cost": 0.02
+              }
+            },
+            "hour": 7
+          },
+          {
+            "financials": {
+              "units_sold": 14,
+              "revenue": 65.0,
+              "ingredient_cost": 13.09,
+              "profit": 51.91
+            },
+            "ingredients": {
+              "dark_chocolate": {
+                "name": "Dark Chocolate",
+                "grams": 210.0,
+                "cost": 4.91
+              },
+              "milk": {
+                "name": "Milk",
+                "grams": 1564.5,
+                "cost": 2.64
+              },
+              "butter": {
+                "name": "Butter",
+                "grams": 175.0,
+                "cost": 2.5
+              },
+              "flour": {
+                "name": "Flour",
+                "grams": 862.5,
+                "cost": 1.35
+              },
+              "cinnamon": {
+                "name": "Cinnamon",
+                "grams": 15.4,
+                "cost": 0.6
+              },
+              "egg": {
+                "name": "Egg",
+                "grams": 89.6,
+                "cost": 0.47
+              },
+              "sugar": {
+                "name": "Sugar",
+                "grams": 196.0,
+                "cost": 0.38
+              },
+              "lemon": {
+                "name": "Lemon",
+                "grams": 28.0,
+                "cost": 0.15
+              },
+              "cream": {
+                "name": "Cream",
+                "grams": 7.0,
+                "cost": 0.06
+              },
+              "salt": {
+                "name": "Salt",
+                "grams": 16.0,
+                "cost": 0.02
+              },
+              "water": {
+                "name": "Water",
+                "grams": 296.0,
+                "cost": 0.0
+              }
+            },
+            "hour": 8
+          },
+          {
+            "financials": {
+              "units_sold": 4,
+              "revenue": 17.5,
+              "ingredient_cost": 4.16,
+              "profit": 13.34
+            },
+            "ingredients": {
+              "dark_chocolate": {
+                "name": "Dark Chocolate",
+                "grams": 84.0,
+                "cost": 1.97
+              },
+              "milk": {
+                "name": "Milk",
+                "grams": 617.0,
+                "cost": 1.04
+              },
+              "butter": {
+                "name": "Butter",
+                "grams": 44.0,
+                "cost": 0.63
+              },
+              "cinnamon": {
+                "name": "Cinnamon",
+                "grams": 4.4,
+                "cost": 0.17
+              },
+              "flour": {
+                "name": "Flour",
+                "grams": 99.0,
+                "cost": 0.15
+              },
+              "sugar": {
+                "name": "Sugar",
+                "grams": 54.0,
+                "cost": 0.11
+              },
+              "egg": {
+                "name": "Egg",
+                "grams": 17.6,
+                "cost": 0.09
+              }
+            },
+            "hour": 9
+          },
+          {
+            "financials": {
+              "units_sold": 3,
+              "revenue": 17.0,
+              "ingredient_cost": 5.44,
+              "profit": 11.56
+            },
+            "ingredients": {
+              "pecans": {
+                "name": "Pecans",
+                "grams": 34.0,
+                "cost": 1.1
+              },
+              "cream": {
+                "name": "Cream",
+                "grams": 119.0,
+                "cost": 1.08
+              },
+              "granola": {
+                "name": "Granola",
+                "grams": 68.0,
+                "cost": 0.71
+              },
+              "maple_syrup": {
+                "name": "Maple Syrup",
+                "grams": 27.2,
+                "cost": 0.71
+              },
+              "butter": {
+                "name": "Butter",
+                "grams": 44.0,
+                "cost": 0.63
+              },
+              "spice": {
+                "name": "Spice",
+                "grams": 6.8,
+                "cost": 0.35
+              },
+              "pumpkin": {
+                "name": "Pumpkin",
+                "grams": 85.0,
+                "cost": 0.33
+              },
+              "cinnamon": {
+                "name": "Cinnamon",
+                "grams": 4.4,
+                "cost": 0.17
+              },
+              "flour": {
+                "name": "Flour",
+                "grams": 99.0,
+                "cost": 0.15
+              },
+              "egg": {
+                "name": "Egg",
+                "grams": 17.6,
+                "cost": 0.09
+              },
+              "sugar": {
+                "name": "Sugar",
+                "grams": 33.0,
+                "cost": 0.06
+              },
+              "milk": {
+                "name": "Milk",
+                "grams": 22.0,
+                "cost": 0.04
+              }
+            },
+            "hour": 10
+          },
+          {
+            "financials": {
+              "units_sold": 12,
+              "revenue": 81.25,
+              "ingredient_cost": 21.25,
+              "profit": 60.0
+            },
+            "ingredients": {
+              "gruyere": {
+                "name": "Gruyere",
+                "grams": 96.0,
+                "cost": 3.49
+              },
+              "flour": {
+                "name": "Flour",
+                "grams": 2173.5,
+                "cost": 3.39
+              },
+              "cream": {
+                "name": "Cream",
+                "grams": 245.0,
+                "cost": 2.23
+              },
+              "pecans": {
+                "name": "Pecans",
+                "grams": 68.0,
+                "cost": 2.21
+              },
+              "ham": {
+                "name": "Ham",
+                "grams": 96.0,
+                "cost": 1.75
+              },
+              "butter": {
+                "name": "Butter",
+                "grams": 115.0,
+                "cost": 1.64
+              },
+              "granola": {
+                "name": "Granola",
+                "grams": 136.0,
+                "cost": 1.41
+              },
+              "maple_syrup": {
+                "name": "Maple Syrup",
+                "grams": 54.4,
+                "cost": 1.41
+              },
+              "dark_chocolate": {
+                "name": "Dark Chocolate",
+                "grams": 42.0,
+                "cost": 0.98
+              },
+              "spice": {
+                "name": "Spice",
+                "grams": 13.6,
+                "cost": 0.71
+              },
+              "pumpkin": {
+                "name": "Pumpkin",
+                "grams": 170.0,
+                "cost": 0.66
+              },
+              "milk": {
+                "name": "Milk",
+                "grams": 356.5,
+                "cost": 0.6
+              },
+              "egg": {
+                "name": "Egg",
+                "grams": 60.8,
+                "cost": 0.32
+              },
+              "lemon": {
+                "name": "Lemon",
+                "grams": 28.0,
+                "cost": 0.15
+              },
+              "sugar": {
+                "name": "Sugar",
+                "grams": 55.0,
+                "cost": 0.11
+              },
+              "cinnamon": {
+                "name": "Cinnamon",
+                "grams": 2.2,
+                "cost": 0.09
+              },
+              "salt": {
+                "name": "Salt",
+                "grams": 64.0,
+                "cost": 0.08
+              },
+              "water": {
+                "name": "Water",
+                "grams": 1184.0,
+                "cost": 0.02
+              }
+            },
+            "hour": 11
+          },
+          {
+            "financials": {
+              "units_sold": 19,
+              "revenue": 135.25,
+              "ingredient_cost": 44.83,
+              "profit": 90.42
+            },
+            "ingredients": {
+              "gruyere": {
+                "name": "Gruyere",
+                "grams": 320.0,
+                "cost": 11.65
+              },
+              "ham": {
+                "name": "Ham",
+                "grams": 320.0,
+                "cost": 5.82
+              },
+              "pecans": {
+                "name": "Pecans",
+                "grams": 136.0,
+                "cost": 4.42
+              },
+              "cream": {
+                "name": "Cream",
+                "grams": 483.0,
+                "cost": 4.4
+              },
+              "butter": {
+                "name": "Butter",
+                "grams": 261.0,
+                "cost": 3.73
+              },
+              "granola": {
+                "name": "Granola",
+                "grams": 272.0,
+                "cost": 2.83
+              },
+              "maple_syrup": {
+                "name": "Maple Syrup",
+                "grams": 108.8,
+                "cost": 2.83
+              },
+              "flour": {
+                "name": "Flour",
+                "grams": 1484.0,
+                "cost": 2.32
+              },
+              "dark_chocolate": {
+                "name": "Dark Chocolate",
+                "grams": 84.0,
+                "cost": 1.97
+              },
+              "spice": {
+                "name": "Spice",
+                "grams": 27.2,
+                "cost": 1.41
+              },
+              "pumpkin": {
+                "name": "Pumpkin",
+                "grams": 340.0,
+                "cost": 1.33
+              },
+              "milk": {
+                "name": "Milk",
+                "grams": 755.0,
+                "cost": 1.28
+              },
+              "egg": {
+                "name": "Egg",
+                "grams": 108.0,
+                "cost": 0.56
+              },
+              "lemon": {
+                "name": "Lemon",
+                "grams": 28.0,
+                "cost": 0.15
+              },
+              "sugar": {
+                "name": "Sugar",
+                "grams": 49.0,
+                "cost": 0.1
+              },
+              "salt": {
+                "name": "Salt",
+                "grams": 32.0,
+                "cost": 0.04
+              },
+              "water": {
+                "name": "Water",
+                "grams": 592.0,
+                "cost": 0.01
+              }
+            },
+            "hour": 12
+          },
+          {
+            "financials": {
+              "units_sold": 10,
+              "revenue": 67.5,
+              "ingredient_cost": 24.66,
+              "profit": 42.84
+            },
+            "ingredients": {
+              "cream": {
+                "name": "Cream",
+                "grams": 497.0,
+                "cost": 4.52
+              },
+              "pecans": {
+                "name": "Pecans",
+                "grams": 136.0,
+                "cost": 4.42
+              },
+              "granola": {
+                "name": "Granola",
+                "grams": 272.0,
+                "cost": 2.83
+              },
+              "maple_syrup": {
+                "name": "Maple Syrup",
+                "grams": 108.8,
+                "cost": 2.83
+              },
+              "dark_chocolate": {
+                "name": "Dark Chocolate",
+                "grams": 84.0,
+                "cost": 1.97
+              },
+              "spice": {
+                "name": "Spice",
+                "grams": 27.2,
+                "cost": 1.41
+              },
+              "pumpkin": {
+                "name": "Pumpkin",
+                "grams": 340.0,
+                "cost": 1.33
+              },
+              "butter": {
+                "name": "Butter",
+                "grams": 87.0,
+                "cost": 1.24
+              },
+              "gruyere": {
+                "name": "Gruyere",
+                "grams": 32.0,
+                "cost": 1.16
+              },
+              "milk": {
+                "name": "Milk",
+                "grams": 611.0,
+                "cost": 1.03
+              },
+              "ham": {
+                "name": "Ham",
+                "grams": 32.0,
+                "cost": 0.58
+              },
+              "egg": {
+                "name": "Egg",
+                "grams": 92.0,
+                "cost": 0.48
+              },
+              "lemon": {
+                "name": "Lemon",
+                "grams": 84.0,
+                "cost": 0.44
+              },
+              "flour": {
+                "name": "Flour",
+                "grams": 132.0,
+                "cost": 0.21
+              },
+              "sugar": {
+                "name": "Sugar",
+                "grams": 105.0,
+                "cost": 0.2
+              }
+            },
+            "hour": 13
+          },
+          {
+            "financials": {
+              "units_sold": 6,
+              "revenue": 34.25,
+              "ingredient_cost": 8.48,
+              "profit": 25.77
+            },
+            "ingredients": {
+              "cream": {
+                "name": "Cream",
+                "grams": 126.0,
+                "cost": 1.15
+              },
+              "pecans": {
+                "name": "Pecans",
+                "grams": 34.0,
+                "cost": 1.1
+              },
+              "dark_chocolate": {
+                "name": "Dark Chocolate",
+                "grams": 42.0,
+                "cost": 0.98
+              },
+              "flour": {
+                "name": "Flour",
+                "grams": 615.0,
+                "cost": 0.96
+              },
+              "butter": {
+                "name": "Butter",
+                "grams": 65.0,
+                "cost": 0.93
+              },
+              "granola": {
+                "name": "Granola",
+                "grams": 68.0,
+                "cost": 0.71
+              },
+              "maple_syrup": {
+                "name": "Maple Syrup",
+                "grams": 27.2,
+                "cost": 0.71
+              },
+              "milk": {
+                "name": "Milk",
+                "grams": 319.5,
+                "cost": 0.54
+              },
+              "spice": {
+                "name": "Spice",
+                "grams": 6.8,
+                "cost": 0.35
+              },
+              "pumpkin": {
+                "name": "Pumpkin",
+                "grams": 85.0,
+                "cost": 0.33
+              },
+              "egg": {
+                "name": "Egg",
+                "grams": 45.6,
+                "cost": 0.24
+              },
+              "cinnamon": {
+                "name": "Cinnamon",
+                "grams": 4.4,
+                "cost": 0.17
+              },
+              "lemon": {
+                "name": "Lemon",
+                "grams": 28.0,
+                "cost": 0.15
+              },
+              "sugar": {
+                "name": "Sugar",
+                "grams": 71.5,
+                "cost": 0.14
+              },
+              "salt": {
+                "name": "Salt",
+                "grams": 16.0,
+                "cost": 0.02
+              },
+              "water": {
+                "name": "Water",
+                "grams": 296.0,
+                "cost": 0.0
+              }
+            },
+            "hour": 14
+          },
+          {
+            "financials": {
+              "units_sold": 5,
+              "revenue": 24.75,
+              "ingredient_cost": 5.09,
+              "profit": 19.66
+            },
+            "ingredients": {
+              "dark_chocolate": {
+                "name": "Dark Chocolate",
+                "grams": 84.0,
+                "cost": 1.97
+              },
+              "milk": {
+                "name": "Milk",
+                "grams": 606.0,
+                "cost": 1.02
+              },
+              "butter": {
+                "name": "Butter",
+                "grams": 64.0,
+                "cost": 0.92
+              },
+              "egg": {
+                "name": "Egg",
+                "grams": 64.8,
+                "cost": 0.34
+              },
+              "lemon": {
+                "name": "Lemon",
+                "grams": 56.0,
+                "cost": 0.29
+              },
+              "sugar": {
+                "name": "Sugar",
+                "grams": 93.5,
+                "cost": 0.18
+              },
+              "flour": {
+                "name": "Flour",
+                "grams": 105.5,
+                "cost": 0.16
+              },
+              "cream": {
+                "name": "Cream",
+                "grams": 14.0,
+                "cost": 0.13
+              },
+              "cinnamon": {
+                "name": "Cinnamon",
+                "grams": 2.2,
+                "cost": 0.09
+              }
+            },
+            "hour": 15
+          },
+          {
+            "financials": {
+              "units_sold": 3,
+              "revenue": 13.5,
+              "ingredient_cost": 4.52,
+              "profit": 8.98
+            },
+            "ingredients": {
+              "dark_chocolate": {
+                "name": "Dark Chocolate",
+                "grams": 126.0,
+                "cost": 2.95
+              },
+              "milk": {
+                "name": "Milk",
+                "grams": 892.5,
+                "cost": 1.51
+              },
+              "sugar": {
+                "name": "Sugar",
+                "grams": 31.5,
+                "cost": 0.06
+              }
+            },
+            "hour": 16
+          },
+          {
+            "financials": {
+              "units_sold": 2,
+              "revenue": 17.0,
+              "ingredient_cost": 8.57,
+              "profit": 8.43
+            },
+            "ingredients": {
+              "pecans": {
+                "name": "Pecans",
+                "grams": 68.0,
+                "cost": 2.21
+              },
+              "cream": {
+                "name": "Cream",
+                "grams": 238.0,
+                "cost": 2.17
+              },
+              "granola": {
+                "name": "Granola",
+                "grams": 136.0,
+                "cost": 1.41
+              },
+              "maple_syrup": {
+                "name": "Maple Syrup",
+                "grams": 54.4,
+                "cost": 1.41
+              },
+              "spice": {
+                "name": "Spice",
+                "grams": 13.6,
+                "cost": 0.71
+              },
+              "pumpkin": {
+                "name": "Pumpkin",
+                "grams": 170.0,
+                "cost": 0.66
+              }
+            },
+            "hour": 17
+          },
+          {
+            "financials": {
+              "units_sold": 1,
+              "revenue": 8.5,
+              "ingredient_cost": 4.29,
+              "profit": 4.21
+            },
+            "ingredients": {
+              "pecans": {
+                "name": "Pecans",
+                "grams": 34.0,
+                "cost": 1.1
+              },
+              "cream": {
+                "name": "Cream",
+                "grams": 119.0,
+                "cost": 1.08
+              },
+              "granola": {
+                "name": "Granola",
+                "grams": 68.0,
+                "cost": 0.71
+              },
+              "maple_syrup": {
+                "name": "Maple Syrup",
+                "grams": 27.2,
+                "cost": 0.71
+              },
+              "spice": {
+                "name": "Spice",
+                "grams": 6.8,
+                "cost": 0.35
+              },
+              "pumpkin": {
+                "name": "Pumpkin",
+                "grams": 85.0,
+                "cost": 0.33
+              }
+            },
+            "hour": 18
+          },
+          {
+            "financials": {
+              "units_sold": 0,
+              "revenue": 0.0,
+              "ingredient_cost": 0.0,
+              "profit": 0.0
+            },
+            "ingredients": {},
+            "hour": 19
+          }
+        ]
+      },
+      "the_bakery": {
+        "financials": {
+          "units_sold": 94,
+          "revenue": 508.4,
+          "ingredient_cost": 73.76,
+          "profit": 434.64
+        },
+        "ingredients": {
+          "turkey": {
+            "name": "Turkey",
+            "grams": 960.0,
+            "cost": 9.36
+          },
+          "flour": {
+            "name": "Flour",
+            "grams": 10166.0,
+            "cost": 9.15
+          },
+          "espresso": {
+            "name": "Espresso",
+            "grams": 940.0,
+            "cost": 8.46
+          },
+          "milk": {
+            "name": "Milk",
+            "grams": 7741.0,
+            "cost": 7.55
+          },
+          "multigrain": {
+            "name": "Multigrain",
+            "grams": 2940.0,
+            "cost": 6.62
+          },
+          "dark_chocolate": {
+            "name": "Dark Chocolate",
+            "grams": 470.0,
+            "cost": 6.34
+          },
+          "bacon": {
+            "name": "Bacon",
+            "grams": 480.0,
+            "cost": 5.4
+          },
+          "butter": {
+            "name": "Butter",
+            "grams": 420.5,
+            "cost": 3.47
+          },
+          "cream": {
+            "name": "Cream",
+            "grams": 507.5,
+            "cost": 2.66
+          },
+          "granola": {
+            "name": "Granola",
+            "grams": 362.5,
+            "cost": 2.17
+          },
+          "bread": {
+            "name": "Bread",
+            "grams": 960.0,
+            "cost": 2.16
+          },
+          "sugar": {
+            "name": "Sugar",
+            "grams": 1677.0,
+            "cost": 1.89
+          },
+          "mayo": {
+            "name": "Mayo",
+            "grams": 480.0,
+            "cost": 1.8
+          },
+          "egg": {
+            "name": "Egg",
+            "grams": 442.8,
+            "cost": 1.33
+          },
+          "cinnamon": {
+            "name": "Cinnamon",
+            "grams": 44.2,
+            "cost": 0.99
+          },
+          "lettuce": {
+            "name": "Lettuce",
+            "grams": 320.0,
+            "cost": 0.96
+          },
+          "spice": {
+            "name": "Spice",
+            "grams": 29.0,
+            "cost": 0.87
+          },
+          "pumpkin": {
+            "name": "Pumpkin",
+            "grams": 362.5,
+            "cost": 0.82
+          },
+          "pecans": {
+            "name": "Pecans",
+            "grams": 43.5,
+            "cost": 0.82
+          },
+          "lemon": {
+            "name": "Lemon",
+            "grams": 199.5,
+            "cost": 0.6
+          },
+          "salt": {
+            "name": "Salt",
+            "grams": 392.0,
+            "cost": 0.29
+          },
+          "water": {
+            "name": "Water",
+            "grams": 7252.0,
+            "cost": 0.05
+          }
+        },
+        "hourly": [
+          {
+            "financials": {
+              "units_sold": 14,
+              "revenue": 72.6,
+              "ingredient_cost": 10.13,
+              "profit": 62.47
+            },
+            "ingredients": {
+              "flour": {
+                "name": "Flour",
+                "grams": 2055.0,
+                "cost": 1.85
+              },
+              "espresso": {
+                "name": "Espresso",
+                "grams": 188.0,
+                "cost": 1.69
+              },
+              "milk": {
+                "name": "Milk",
+                "grams": 1530.0,
+                "cost": 1.49
+              },
+              "multigrain": {
+                "name": "Multigrain",
+                "grams": 630.0,
+                "cost": 1.42
+              },
+              "dark_chocolate": {
+                "name": "Dark Chocolate",
+                "grams": 94.0,
+                "cost": 1.27
+              },
+              "cream": {
+                "name": "Cream",
+                "grams": 101.5,
+                "cost": 0.53
+              },
+              "granola": {
+                "name": "Granola",
+                "grams": 72.5,
+                "cost": 0.43
+              },
+              "butter": {
+                "name": "Butter",
+                "grams": 40.2,
+                "cost": 0.33
+              },
+              "sugar": {
+                "name": "Sugar",
+                "grams": 229.5,
+                "cost": 0.26
+              },
+              "spice": {
+                "name": "Spice",
+                "grams": 5.8,
+                "cost": 0.17
+              },
+              "pumpkin": {
+                "name": "Pumpkin",
+                "grams": 72.5,
+                "cost": 0.16
+              },
+              "pecans": {
+                "name": "Pecans",
+                "grams": 8.7,
+                "cost": 0.16
+              },
+              "egg": {
+                "name": "Egg",
+                "grams": 39.8,
+                "cost": 0.12
+              },
+              "cinnamon": {
+                "name": "Cinnamon",
+                "grams": 5.2,
+                "cost": 0.12
+              },
+              "salt": {
+                "name": "Salt",
+                "grams": 84.0,
+                "cost": 0.06
+              },
+              "lemon": {
+                "name": "Lemon",
+                "grams": 14.2,
+                "cost": 0.04
+              },
+              "water": {
+                "name": "Water",
+                "grams": 1554.0,
+                "cost": 0.01
+              }
+            },
+            "hour": 6
+          },
+          {
+            "financials": {
+              "units_sold": 18,
+              "revenue": 83.8,
+              "ingredient_cost": 10.52,
+              "profit": 73.28
+            },
+            "ingredients": {
+              "espresso": {
+                "name": "Espresso",
+                "grams": 235.0,
+                "cost": 2.11
+              },
+              "milk": {
+                "name": "Milk",
+                "grams": 1997.0,
+                "cost": 1.95
+              },
+              "dark_chocolate": {
+                "name": "Dark Chocolate",
+                "grams": 117.5,
+                "cost": 1.59
+              },
+              "flour": {
+                "name": "Flour",
+                "grams": 1756.0,
+                "cost": 1.58
+              },
+              "butter": {
+                "name": "Butter",
+                "grams": 117.0,
+                "cost": 0.97
+              },
+              "multigrain": {
+                "name": "Multigrain",
+                "grams": 420.0,
+                "cost": 0.94
+              },
+              "sugar": {
+                "name": "Sugar",
+                "grams": 468.5,
+                "cost": 0.53
+              },
+              "cinnamon": {
+                "name": "Cinnamon",
+                "grams": 23.4,
+                "cost": 0.53
+              },
+              "egg": {
+                "name": "Egg",
+                "grams": 93.6,
+                "cost": 0.28
+              },
+              "salt": {
+                "name": "Salt",
+                "grams": 56.0,
+                "cost": 0.04
+              },
+              "water": {
+                "name": "Water",
+                "grams": 1036.0,
+                "cost": 0.01
+              }
+            },
+            "hour": 7
+          },
+          {
+            "financials": {
+              "units_sold": 12,
+              "revenue": 65.65,
+              "ingredient_cost": 10.39,
+              "profit": 55.26
+            },
+            "ingredients": {
+              "espresso": {
+                "name": "Espresso",
+                "grams": 235.0,
+                "cost": 2.11
+              },
+              "milk": {
+                "name": "Milk",
+                "grams": 1906.0,
+                "cost": 1.86
+              },
+              "dark_chocolate": {
+                "name": "Dark Chocolate",
+                "grams": 117.5,
+                "cost": 1.59
+              },
+              "flour": {
+                "name": "Flour",
+                "grams": 1392.0,
+                "cost": 1.25
+              },
+              "multigrain": {
+                "name": "Multigrain",
+                "grams": 420.0,
+                "cost": 0.94
+              },
+              "turkey": {
+                "name": "Turkey",
+                "grams": 96.0,
+                "cost": 0.94
+              },
+              "bacon": {
+                "name": "Bacon",
+                "grams": 48.0,
+                "cost": 0.54
+              },
+              "sugar": {
+                "name": "Sugar",
+                "grams": 195.5,
+                "cost": 0.22
+              },
+              "bread": {
+                "name": "Bread",
+                "grams": 96.0,
+                "cost": 0.22
+              },
+              "butter": {
+                "name": "Butter",
+                "grams": 26.0,
+                "cost": 0.21
+              },
+              "mayo": {
+                "name": "Mayo",
+                "grams": 48.0,
+                "cost": 0.18
+              },
+              "cinnamon": {
+                "name": "Cinnamon",
+                "grams": 5.2,
+                "cost": 0.12
+              },
+              "lettuce": {
+                "name": "Lettuce",
+                "grams": 32.0,
+                "cost": 0.1
+              },
+              "egg": {
+                "name": "Egg",
+                "grams": 20.8,
+                "cost": 0.06
+              },
+              "salt": {
+                "name": "Salt",
+                "grams": 56.0,
+                "cost": 0.04
+              },
+              "water": {
+                "name": "Water",
+                "grams": 1036.0,
+                "cost": 0.01
+              }
+            },
+            "hour": 8
+          },
+          {
+            "financials": {
+              "units_sold": 2,
+              "revenue": 10.7,
+              "ingredient_cost": 1.77,
+              "profit": 8.93
+            },
+            "ingredients": {
+              "cream": {
+                "name": "Cream",
+                "grams": 101.5,
+                "cost": 0.53
+              },
+              "granola": {
+                "name": "Granola",
+                "grams": 72.5,
+                "cost": 0.43
+              },
+              "spice": {
+                "name": "Spice",
+                "grams": 5.8,
+                "cost": 0.17
+              },
+              "pumpkin": {
+                "name": "Pumpkin",
+                "grams": 72.5,
+                "cost": 0.16
+              },
+              "pecans": {
+                "name": "Pecans",
+                "grams": 8.7,
+                "cost": 0.16
+              },
+              "butter": {
+                "name": "Butter",
+                "grams": 14.2,
+                "cost": 0.12
+              },
+              "sugar": {
+                "name": "Sugar",
+                "grams": 57.5,
+                "cost": 0.06
+              },
+              "egg": {
+                "name": "Egg",
+                "grams": 19.0,
+                "cost": 0.06
+              },
+              "lemon": {
+                "name": "Lemon",
+                "grams": 14.2,
+                "cost": 0.04
+              },
+              "flour": {
+                "name": "Flour",
+                "grams": 19.0,
+                "cost": 0.02
+              }
+            },
+            "hour": 9
+          },
+          {
+            "financials": {
+              "units_sold": 2,
+              "revenue": 9.0,
+              "ingredient_cost": 1.4,
+              "profit": 7.6
+            },
+            "ingredients": {
+              "espresso": {
+                "name": "Espresso",
+                "grams": 47.0,
+                "cost": 0.42
+              },
+              "milk": {
+                "name": "Milk",
+                "grams": 376.0,
+                "cost": 0.37
+              },
+              "dark_chocolate": {
+                "name": "Dark Chocolate",
+                "grams": 23.5,
+                "cost": 0.32
+              },
+              "butter": {
+                "name": "Butter",
+                "grams": 14.2,
+                "cost": 0.12
+              },
+              "sugar": {
+                "name": "Sugar",
+                "grams": 52.0,
+                "cost": 0.06
+              },
+              "egg": {
+                "name": "Egg",
+                "grams": 19.0,
+                "cost": 0.06
+              },
+              "lemon": {
+                "name": "Lemon",
+                "grams": 14.2,
+                "cost": 0.04
+              },
+              "flour": {
+                "name": "Flour",
+                "grams": 19.0,
+                "cost": 0.02
+              }
+            },
+            "hour": 10
+          },
+          {
+            "financials": {
+              "units_sold": 6,
+              "revenue": 29.45,
+              "ingredient_cost": 3.32,
+              "profit": 26.13
+            },
+            "ingredients": {
+              "flour": {
+                "name": "Flour",
+                "grams": 1037.0,
+                "cost": 0.93
+              },
+              "multigrain": {
+                "name": "Multigrain",
+                "grams": 315.0,
+                "cost": 0.71
+              },
+              "espresso": {
+                "name": "Espresso",
+                "grams": 47.0,
+                "cost": 0.42
+              },
+              "milk": {
+                "name": "Milk",
+                "grams": 389.0,
+                "cost": 0.38
+              },
+              "dark_chocolate": {
+                "name": "Dark Chocolate",
+                "grams": 23.5,
+                "cost": 0.32
+              },
+              "butter": {
+                "name": "Butter",
+                "grams": 27.2,
+                "cost": 0.22
+              },
+              "sugar": {
+                "name": "Sugar",
+                "grams": 91.0,
+                "cost": 0.1
+              },
+              "egg": {
+                "name": "Egg",
+                "grams": 29.4,
+                "cost": 0.09
+              },
+              "cinnamon": {
+                "name": "Cinnamon",
+                "grams": 2.6,
+                "cost": 0.06
+              },
+              "lemon": {
+                "name": "Lemon",
+                "grams": 14.2,
+                "cost": 0.04
+              },
+              "salt": {
+                "name": "Salt",
+                "grams": 42.0,
+                "cost": 0.03
+              },
+              "water": {
+                "name": "Water",
+                "grams": 777.0,
+                "cost": 0.01
+              }
+            },
+            "hour": 11
+          },
+          {
+            "financials": {
+              "units_sold": 22,
+              "revenue": 140.1,
+              "ingredient_cost": 21.85,
+              "profit": 118.25
+            },
+            "ingredients": {
+              "turkey": {
+                "name": "Turkey",
+                "grams": 672.0,
+                "cost": 6.55
+              },
+              "bacon": {
+                "name": "Bacon",
+                "grams": 336.0,
+                "cost": 3.78
+              },
+              "flour": {
+                "name": "Flour",
+                "grams": 2434.0,
+                "cost": 2.19
+              },
+              "multigrain": {
+                "name": "Multigrain",
+                "grams": 735.0,
+                "cost": 1.65
+              },
+              "bread": {
+                "name": "Bread",
+                "grams": 672.0,
+                "cost": 1.51
+              },
+              "mayo": {
+                "name": "Mayo",
+                "grams": 336.0,
+                "cost": 1.26
+              },
+              "butter": {
+                "name": "Butter",
+                "grams": 83.0,
+                "cost": 0.68
+              },
+              "lettuce": {
+                "name": "Lettuce",
+                "grams": 224.0,
+                "cost": 0.67
+              },
+              "cream": {
+                "name": "Cream",
+                "grams": 101.5,
+                "cost": 0.53
+              },
+              "granola": {
+                "name": "Granola",
+                "grams": 72.5,
+                "cost": 0.43
+              },
+              "espresso": {
+                "name": "Espresso",
+                "grams": 47.0,
+                "cost": 0.42
+              },
+              "milk": {
+                "name": "Milk",
+                "grams": 402.0,
+                "cost": 0.39
+              },
+              "dark_chocolate": {
+                "name": "Dark Chocolate",
+                "grams": 23.5,
+                "cost": 0.32
+              },
+              "egg": {
+                "name": "Egg",
+                "grams": 96.8,
+                "cost": 0.29
+              },
+              "sugar": {
+                "name": "Sugar",
+                "grams": 244.5,
+                "cost": 0.28
+              },
+              "lemon": {
+                "name": "Lemon",
+                "grams": 57.0,
+                "cost": 0.17
+              },
+              "spice": {
+                "name": "Spice",
+                "grams": 5.8,
+                "cost": 0.17
+              },
+              "pumpkin": {
+                "name": "Pumpkin",
+                "grams": 72.5,
+                "cost": 0.16
+              },
+              "pecans": {
+                "name": "Pecans",
+                "grams": 8.7,
+                "cost": 0.16
+              },
+              "cinnamon": {
+                "name": "Cinnamon",
+                "grams": 5.2,
+                "cost": 0.12
+              },
+              "salt": {
+                "name": "Salt",
+                "grams": 98.0,
+                "cost": 0.07
+              },
+              "water": {
+                "name": "Water",
+                "grams": 1813.0,
+                "cost": 0.01
+              }
+            },
+            "hour": 12
+          },
+          {
+            "financials": {
+              "units_sold": 10,
+              "revenue": 59.2,
+              "ingredient_cost": 8.39,
+              "profit": 50.81
+            },
+            "ingredients": {
+              "turkey": {
+                "name": "Turkey",
+                "grams": 192.0,
+                "cost": 1.87
+              },
+              "flour": {
+                "name": "Flour",
+                "grams": 1345.0,
+                "cost": 1.21
+              },
+              "bacon": {
+                "name": "Bacon",
+                "grams": 96.0,
+                "cost": 1.08
+              },
+              "multigrain": {
+                "name": "Multigrain",
+                "grams": 420.0,
+                "cost": 0.94
+              },
+              "cream": {
+                "name": "Cream",
+                "grams": 101.5,
+                "cost": 0.53
+              },
+              "bread": {
+                "name": "Bread",
+                "grams": 192.0,
+                "cost": 0.43
+              },
+              "granola": {
+                "name": "Granola",
+                "grams": 72.5,
+                "cost": 0.43
+              },
+              "mayo": {
+                "name": "Mayo",
+                "grams": 96.0,
+                "cost": 0.36
+              },
+              "butter": {
+                "name": "Butter",
+                "grams": 42.8,
+                "cost": 0.35
+              },
+              "lettuce": {
+                "name": "Lettuce",
+                "grams": 64.0,
+                "cost": 0.19
+              },
+              "egg": {
+                "name": "Egg",
+                "grams": 57.0,
+                "cost": 0.17
+              },
+              "spice": {
+                "name": "Spice",
+                "grams": 5.8,
+                "cost": 0.17
+              },
+              "pumpkin": {
+                "name": "Pumpkin",
+                "grams": 72.5,
+                "cost": 0.16
+              },
+              "pecans": {
+                "name": "Pecans",
+                "grams": 8.7,
+                "cost": 0.16
+              },
+              "sugar": {
+                "name": "Sugar",
+                "grams": 114.5,
+                "cost": 0.13
+              },
+              "lemon": {
+                "name": "Lemon",
+                "grams": 42.8,
+                "cost": 0.13
+              },
+              "salt": {
+                "name": "Salt",
+                "grams": 56.0,
+                "cost": 0.04
+              },
+              "water": {
+                "name": "Water",
+                "grams": 1036.0,
+                "cost": 0.01
+              }
+            },
+            "hour": 13
+          },
+          {
+            "financials": {
+              "units_sold": 2,
+              "revenue": 9.0,
+              "ingredient_cost": 1.4,
+              "profit": 7.6
+            },
+            "ingredients": {
+              "espresso": {
+                "name": "Espresso",
+                "grams": 47.0,
+                "cost": 0.42
+              },
+              "milk": {
+                "name": "Milk",
+                "grams": 376.0,
+                "cost": 0.37
+              },
+              "dark_chocolate": {
+                "name": "Dark Chocolate",
+                "grams": 23.5,
+                "cost": 0.32
+              },
+              "butter": {
+                "name": "Butter",
+                "grams": 14.2,
+                "cost": 0.12
+              },
+              "sugar": {
+                "name": "Sugar",
+                "grams": 52.0,
+                "cost": 0.06
+              },
+              "egg": {
+                "name": "Egg",
+                "grams": 19.0,
+                "cost": 0.06
+              },
+              "lemon": {
+                "name": "Lemon",
+                "grams": 14.2,
+                "cost": 0.04
+              },
+              "flour": {
+                "name": "Flour",
+                "grams": 19.0,
+                "cost": 0.02
+              }
+            },
+            "hour": 14
+          },
+          {
+            "financials": {
+              "units_sold": 0,
+              "revenue": 0.0,
+              "ingredient_cost": 0.0,
+              "profit": 0.0
+            },
+            "ingredients": {},
+            "hour": 15
+          },
+          {
+            "financials": {
+              "units_sold": 3,
+              "revenue": 14.25,
+              "ingredient_cost": 2.53,
+              "profit": 11.72
+            },
+            "ingredients": {
+              "espresso": {
+                "name": "Espresso",
+                "grams": 94.0,
+                "cost": 0.85
+              },
+              "milk": {
+                "name": "Milk",
+                "grams": 752.0,
+                "cost": 0.73
+              },
+              "dark_chocolate": {
+                "name": "Dark Chocolate",
+                "grams": 47.0,
+                "cost": 0.63
+              },
+              "butter": {
+                "name": "Butter",
+                "grams": 14.2,
+                "cost": 0.12
+              },
+              "sugar": {
+                "name": "Sugar",
+                "grams": 75.5,
+                "cost": 0.08
+              },
+              "egg": {
+                "name": "Egg",
+                "grams": 19.0,
+                "cost": 0.06
+              },
+              "lemon": {
+                "name": "Lemon",
+                "grams": 14.2,
+                "cost": 0.04
+              },
+              "flour": {
+                "name": "Flour",
+                "grams": 19.0,
+                "cost": 0.02
+              }
+            },
+            "hour": 16
+          },
+          {
+            "financials": {
+              "units_sold": 1,
+              "revenue": 6.95,
+              "ingredient_cost": 1.5,
+              "profit": 5.45
+            },
+            "ingredients": {
+              "cream": {
+                "name": "Cream",
+                "grams": 101.5,
+                "cost": 0.53
+              },
+              "granola": {
+                "name": "Granola",
+                "grams": 72.5,
+                "cost": 0.43
+              },
+              "spice": {
+                "name": "Spice",
+                "grams": 5.8,
+                "cost": 0.17
+              },
+              "pumpkin": {
+                "name": "Pumpkin",
+                "grams": 72.5,
+                "cost": 0.16
+              },
+              "pecans": {
+                "name": "Pecans",
+                "grams": 8.7,
+                "cost": 0.16
+              },
+              "sugar": {
+                "name": "Sugar",
+                "grams": 29.0,
+                "cost": 0.03
+              }
+            },
+            "hour": 17
+          },
+          {
+            "financials": {
+              "units_sold": 2,
+              "revenue": 7.7,
+              "ingredient_cost": 0.57,
+              "profit": 7.13
+            },
+            "ingredients": {
+              "butter": {
+                "name": "Butter",
+                "grams": 27.2,
+                "cost": 0.22
+              },
+              "egg": {
+                "name": "Egg",
+                "grams": 29.4,
+                "cost": 0.09
+              },
+              "sugar": {
+                "name": "Sugar",
+                "grams": 67.5,
+                "cost": 0.08
+              },
+              "flour": {
+                "name": "Flour",
+                "grams": 71.0,
+                "cost": 0.06
+              },
+              "cinnamon": {
+                "name": "Cinnamon",
+                "grams": 2.6,
+                "cost": 0.06
+              },
+              "lemon": {
+                "name": "Lemon",
+                "grams": 14.2,
+                "cost": 0.04
+              },
+              "milk": {
+                "name": "Milk",
+                "grams": 13.0,
+                "cost": 0.01
+              }
+            },
+            "hour": 18
+          },
+          {
+            "financials": {
+              "units_sold": 0,
+              "revenue": 0.0,
+              "ingredient_cost": 0.0,
+              "profit": 0.0
+            },
+            "ingredients": {},
+            "hour": 19
+          }
+        ]
+      }
+    },
+    "uncosted_items": []
   }
 }

@@ -11,7 +11,9 @@ from pathlib import Path
 
 from ..core.enums import Bakery
 from ..menu import store as menu_store
+from ..menu.costing import RecipeBook
 from ..menu.items import Menu
+from ..menu.recipes_seed import recipe_books_by_bakery
 from ..menu.seed import build_menus
 from ..profiles.overrides import DayProfile
 from ..profiles.store import ProfileStore, ScheduledProfile
@@ -30,9 +32,11 @@ class SimulationService:
         self,
         db_path: str | Path = menu_store.DEFAULT_DB_PATH,
         base_config: DayConfig | None = None,
+        recipe_books: dict[Bakery, RecipeBook] | None = None,
     ):
         self.db_path = Path(db_path)
         self.base_config = base_config or DayConfig()
+        self.recipe_books = recipe_books or recipe_books_by_bakery()
         self.profiles = ProfileStore(self.db_path)
         self._seed_menus_if_empty()
 
@@ -78,4 +82,4 @@ class SimulationService:
 
     def simulate(self, day: int) -> DayResult:
         config = self.base_config.model_copy(update={"seed": day})
-        return DaySimulator(config, self.menus_for(day)).run()
+        return DaySimulator(config, self.menus_for(day), self.recipe_books).run()

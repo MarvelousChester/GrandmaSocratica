@@ -35,7 +35,15 @@ decisions, never who shows up.
 | `DELETE /days/{day}/profile` | drop the profile set on `day`; the previous one carries over again |
 | `GET /profiles` | every day that has a profile set |
 | `GET /days/{day}/menu` | menu items as they stand on `day` |
-| `GET /days/{day}/simulation` | the simulated day: `config`, `menus`, `customers`, `events`, `summary` |
+| `GET /days/{day}/simulation` | the simulated day: `config`, `menus`, `customers`, `events`, `summary`, `ledger` |
+| `GET /days/{day}/ledger` | just the day's costs, profit and ingredient usage |
+
+The ledger has an entry per bakery with the day's `financials` (`units_sold`,
+`revenue`, `ingredient_cost`, `profit`) and `ingredients` used (`grams`,
+`cost`, costliest first), and the same two blocks for every opening hour in
+`hourly`. Costs come from `menu/recipes_seed.py` and use that day's menu, so a
+portion override changes ingredient usage. Cost is ingredients only — no
+labour or rent yet.
 
 A profile carries forward: set on day 3, it applies to days 3, 4, 5… until a
 later day sets its own. It lists only what differs from the base menu, by item
@@ -193,6 +201,8 @@ backend/
       items.py         MenuItem, Menu
       seed.py          both menus
       store.py         SQLite schema, read/write, menu_rows()
+      costing.py       Ingredient, Pantry, Recipe, RecipeBook — what an item costs to make
+      recipes_seed.py  ingredient prices and recipes for the seed menus
     customers/
       distributions.py Normal / Beta / Uniform / Constant specs
       profile.py       CustomerProfile — one generated customer
@@ -204,6 +214,7 @@ backend/
     simulation/
       events.py        VisitEvent, DaySummary
       day.py           DayConfig, DaySimulator.run() -> DayResult
+      ledger.py        DayLedger — revenue, ingredient cost, profit, usage; per day and hour
       season.py        SeasonConfig, SeasonSimulator.run() -> SeasonResult
     competition/
       rivalry.py       find_rivalries() — which item tracks which, by taste

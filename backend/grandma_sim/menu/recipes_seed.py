@@ -5,6 +5,7 @@ price list; grandma's pays a premium for better ingredients and The Bakery
 buys in bulk, which is how the price gap on the shelf gets a cost gap behind it.
 """
 
+from ..core.enums import Bakery
 from .costing import Ingredient, Pantry, Recipe, RecipeBook, RecipeLine
 
 GRANDMAS_PRICE_FACTOR = 1.3
@@ -113,3 +114,8 @@ def build_recipe_books() -> tuple[RecipeBook, RecipeBook]:
         _book(base.scaled(GRANDMAS_PRICE_FACTOR), GRANDMAS_RECIPE_IDS),
         _book(base.scaled(THE_BAKERY_PRICE_FACTOR), THE_BAKERY_RECIPE_IDS),
     )
+
+
+def recipe_books_by_bakery() -> dict[Bakery, RecipeBook]:
+    grandmas, the_bakery = build_recipe_books()
+    return {Bakery.GRANDMAS: grandmas, Bakery.THE_BAKERY: the_bakery}
