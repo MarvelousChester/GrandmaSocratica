@@ -12,8 +12,8 @@ import json
 import sqlite3
 from pathlib import Path
 
-from .enums import Allergen, Bakery, Daypart, FlavorCategory
-from .flavor import FlavorProfile
+from ..core.enums import Allergen, Bakery, Daypart, FlavorCategory
+from ..core.flavor import FlavorProfile
 from .items import Menu, MenuItem
 
 DEFAULT_DB_PATH = Path("grandma.db")

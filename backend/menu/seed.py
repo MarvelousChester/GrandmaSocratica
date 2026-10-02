@@ -7,8 +7,8 @@ more generous -- so a customer's price sensitivity and sweet tooth actually
 pull in different directions.
 """
 
-from .enums import Allergen, Bakery, Daypart, FlavorCategory, ItemCategory
-from .flavor import FlavorProfile
+from ..core.enums import Allergen, Bakery, Daypart, FlavorCategory, ItemCategory
+from ..core.flavor import FlavorProfile
 from .items import Menu, MenuItem
 
 GRANDMAS_ITEMS = [

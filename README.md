@@ -6,11 +6,13 @@ The customer-profile weights live elsewhere and read from here.
 ## Run it
 
 ```bash
-python3 -m backend.store     # creates ./grandma.db, seeds 6 items per bakery
+uv sync                               # Python 3.11+, pydantic, numpy
+uv run python -m backend.menu.store   # creates ./grandma.db, seeds 6 items per bakery
+uv run python -m backend.simulation   # simulates one day, prints totals (optional seed arg)
 ```
 
-Python 3.11+ and `pydantic>=2`. The DB is gitignored — rebuild any time, it's
-generated from `backend/seed.py`.
+The DB is gitignored — rebuild any time, it's generated from
+`backend/menu/seed.py`.
 
 ## The item model
 
@@ -67,21 +69,54 @@ cheaper and smaller-portioned across the board, grandma's is savoury-capable,
 pricier and more generous — so a customer's price sensitivity and their sweet
 tooth pull in different directions rather than agreeing.
 
-Add items in `backend/seed.py` and re-run the build.
+Add items in `backend/menu/seed.py` and re-run the build.
+
+## Customer simulation
+
+A day is fixed up front by a `DayConfig` (seed, population, clock, choice
+parameters) and simulated in one go into a `DayResult`: the generated
+customers, a time-ordered list of `VisitEvent`s for the frontend to replay,
+and a `DaySummary`. Same config and menus always produce the same day.
+
+- **Population** — `PopulationConfig` is a mixture of `SegmentConfig`s
+  (commuter, lunch worker, student, regular in `customers/presets.py`). Each
+  segment has a share and a distribution spec (`normal`, `beta`, `uniform`,
+  `constant`) per trait, and the whole config round-trips through JSON.
+- **Arrivals** — each customer visits with their own probability, at their
+  preferred minute plus jitter. Arrivals outside opening hours don't happen.
+- **Choice** — a multinomial logit over every allergen-safe item on both menus
+  plus "buy nothing". Utility is a sum of taste match, flavour-category
+  affinity, daypart appeal (blended between neighbouring dayparts), log price,
+  log portion and bakery bias. Each purchase records its `UtilityBreakdown`.
 
 ## Layout
 
 ```
 backend/
-  enums.py   allergens, dayparts, flavour categories, item categories, bakeries
-  flavor.py  FlavorProfile — the meters, distance(), category_overlap()
-  items.py   MenuItem, Menu
-  seed.py    both menus
-  store.py   SQLite schema, read/write, menu_rows()
+  core/
+    enums.py         allergens, dayparts, flavour categories, item categories, bakeries
+    flavor.py        FlavorProfile — the meters, distance(), category_overlap()
+    clock.py         DayClock — opening hours, minute -> daypart, daypart blending
+  menu/
+    items.py         MenuItem, Menu
+    seed.py          both menus
+    store.py         SQLite schema, read/write, menu_rows()
+  customers/
+    distributions.py Normal / Beta / Uniform / Constant specs
+    profile.py       CustomerProfile — one generated customer
+    population.py    SegmentConfig, PopulationConfig.generate()
+    presets.py       default four-segment population
+  choice/
+    utility.py       UtilityWeights, UtilityModel.score() -> UtilityBreakdown
+    model.py         ChoiceConfig, ChoiceModel (logit), Choice
+  simulation/
+    events.py        VisitEvent, DaySummary
+    day.py           DayConfig, DaySimulator.run() -> DayResult
 ```
 
 ## Not done yet
 
-- Demand/tick loop — items know their appeal per daypart, nothing consumes it.
+- Baskets (one item per visit for now), inventory and queues.
+- Multi-day state, e.g. loyalty that moves with each visit.
 - Ingredient costs and suppliers, for the trade-war scenario. Items currently
   carry a sticker `price` only, with no cost side, so margin can't be computed.

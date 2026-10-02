@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
-from .enums import Allergen, Bakery, Daypart, ItemCategory
-from .flavor import FlavorProfile
+from ..core.enums import Allergen, Bakery, Daypart, ItemCategory
+from ..core.flavor import FlavorProfile
 
 
 class MenuItem(BaseModel):
