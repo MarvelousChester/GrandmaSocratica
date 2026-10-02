@@ -71,21 +71,18 @@ class CostLine(BaseModel):
 class CostBreakdown(BaseModel):
     item_id: str
     lines: list[CostLine]
-    price: float
 
     @property
     def total(self) -> float:
         return sum(line.cost for line in self.lines)
 
-    @property
-    def margin(self) -> float:
-        """Profit per unit sold."""
-        return self.price - self.total
+    def margin(self, item: MenuItem) -> float:
+        """Profit per unit sold at the item's current shelf price."""
+        return item.price - self.total
 
-    @property
-    def margin_pct(self) -> float:
+    def margin_pct(self, item: MenuItem) -> float:
         """Margin as a fraction of price (0.6 = 60% gross margin)."""
-        return self.margin / self.price if self.price else 0.0
+        return self.margin(item) / item.price if item.price else 0.0
 
     def biggest_cost(self) -> CostLine | None:
         return max(self.lines, key=lambda line: line.cost, default=None)
@@ -118,7 +115,7 @@ class Recipe(BaseModel):
                     cost=grams / 1000 * pantry.price_per_kg(line.ingredient_id),
                 )
             )
-        return CostBreakdown(item_id=item.id, lines=lines, price=item.price)
+        return CostBreakdown(item_id=item.id, lines=lines)
 
     def unit_cost(self, item: MenuItem, pantry: Pantry) -> float:
         """Cost to make one portion of `item`."""
@@ -147,4 +144,4 @@ class RecipeBook(BaseModel):
         return self.breakdown(item).total
 
     def margin(self, item: MenuItem) -> float:
-        return self.breakdown(item).margin
+        return self.breakdown(item).margin(item)
