@@ -91,8 +91,10 @@ export interface UtilityBreakdown {
   category: number
   daypart: number
   price: number
+  markup: number
   portion: number
   bakery: number
+  habit: number
   total: number
 }
 
@@ -130,9 +132,40 @@ export interface DaySummary {
   item_sales: Record<string, number>
 }
 
+// Mirrors backend/grandma_sim/simulation/ledger.py. Money in dollars, grams of ingredient.
+export interface Financials {
+  units_sold: number
+  revenue: number
+  ingredient_cost: number
+  profit: number
+}
+
+export interface IngredientUsage {
+  name: string
+  price_per_kg: number
+  grams: number
+  cost: number
+}
+
+export interface LedgerPeriod {
+  financials: Financials
+  ingredients: Record<string, IngredientUsage> // by ingredient id, costliest first
+}
+
+export interface BakeryLedger extends LedgerPeriod {
+  hourly: (LedgerPeriod & { hour: number })[]
+}
+
+export interface DayLedger {
+  bakeries: Record<Bakery, BakeryLedger>
+  uncosted_items: string[] // items with no recipe: revenue at zero cost
+}
+
 export interface DayResult {
   config: { seed: number; clock: DayClock }
+  menus: Menu[]
   customers: { id: string; segment: string }[] // plus taste traits the UI doesn't use yet
   events: VisitEvent[]
   summary: DaySummary
+  ledger: DayLedger | null
 }

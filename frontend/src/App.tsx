@@ -1,7 +1,11 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import { SegmentedControl } from '@mantine/core'
+import { useLocalStorage } from '@mantine/hooks'
 import { BAKERY_INFO, CLOCK, formatTime, MENUS, newItemId, PANEL_ORDER } from './data'
+import { DayReport, type ReportView } from './DayReport'
 import { ItemModal, type ModalTarget } from './ItemModal'
 import { MenuPanel } from './MenuPanel'
+import { buildReport } from './report'
 import { Scene } from './Scene'
 import { SketchDefs } from './Sketch'
 import type { MenuItem } from './types'
@@ -31,6 +35,14 @@ export default function App() {
     opened: false,
     target: null,
   })
+  const [view, setView] = useLocalStorage<ReportView>({ key: 'report-view', defaultValue: 'grandma' })
+  const [reportOpen, setReportOpen] = useState(false)
+  const report = useMemo(() => (sim.day ? buildReport(sim.day) : null), [sim.day])
+
+  const startDay = async () => {
+    const day = await sim.start(PANEL_ORDER.map((bakery) => ({ bakery, items: menus[bakery] })))
+    if (day) setReportOpen(true)
+  }
 
   const removeItem = (item: MenuItem) =>
     setMenus((m) => ({ ...m, [item.bakery]: m[item.bakery].filter((i) => i.id !== item.id) }))
@@ -75,16 +87,31 @@ export default function App() {
             type="button"
             className="sketch start"
             disabled={loading}
-            onClick={() => sim.start(PANEL_ORDER.map((bakery) => ({ bakery, items: menus[bakery] })))}
+            onClick={startDay}
           >
             {loading ? 'Starting…' : 'Start'}
           </button>
           <div className="status" role="status" data-error={sim.status === 'error' || undefined}>
             {status}
           </div>
+          {report && (
+            <button type="button" className="sketch report-btn" onClick={() => setReportOpen(true)}>
+              {view === 'grandma' ? 'How did it go?' : 'Day report'}
+            </button>
+          )}
+          <SegmentedControl
+            className="view-toggle"
+            value={view}
+            onChange={(v) => setView(v as ReportView)}
+            data={[
+              { value: 'grandma', label: 'Grandma' },
+              { value: 'detailed', label: 'Detailed' },
+            ]}
+          />
         </div>
       </div>
       <ItemModal opened={modal.opened} target={modal.target} onClose={closeModal} onSave={saveItem} />
+      <DayReport opened={reportOpen} report={report} view={view} onClose={() => setReportOpen(false)} />
     </div>
   )
 }

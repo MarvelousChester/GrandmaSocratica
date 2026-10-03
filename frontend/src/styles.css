@@ -230,6 +230,123 @@ button.start {
   font-size: clamp(20px, 2.5vw, 46px);
 }
 
+button.report-btn {
+  --fill: var(--yellow);
+  margin-top: -4vh;
+  padding: 0.6vh 1.4vw;
+  font-size: clamp(15px, 1.5vw, 28px);
+}
+
+.view-toggle {
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  background: var(--paper);
+  font-size: 1rem;
+}
+
+.view-toggle .mantine-SegmentedControl-indicator {
+  border: 2px solid var(--ink);
+  background: var(--pink);
+  box-shadow: none;
+}
+
+.view-toggle .mantine-SegmentedControl-label {
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+/* ---- day report ---- */
+
+.report h3,
+.report h4 {
+  margin: 0;
+  font-weight: 400;
+}
+
+.report h3 {
+  font-family: var(--title-font);
+  font-size: 1.6rem;
+}
+
+.report h4 {
+  margin: 18px 0 6px;
+  font-size: 1.2rem;
+}
+
+.report p {
+  margin: 4px 0;
+  font-size: 1.1rem;
+}
+
+.report-share {
+  display: flex;
+  overflow: hidden;
+  margin-bottom: 16px;
+  border: 2.5px solid var(--ink);
+  border-radius: 14px;
+  font-size: 1.1rem;
+}
+
+.report-share > div {
+  padding: 6px 12px;
+  white-space: nowrap;
+}
+
+.report-share > div + div {
+  border-left: 2.5px solid var(--ink);
+  text-align: right;
+}
+
+.report-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.report-notes {
+  margin: 16px 0 0;
+  padding-left: 20px;
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+.report-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  font-family: inherit;
+}
+
+.report-legend {
+  display: flex;
+  gap: 16px;
+  font-size: 0.95rem;
+}
+
+.report-legend i {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 6px;
+  border: 1.5px solid var(--ink);
+  border-radius: 3px;
+  vertical-align: -1px;
+}
+
+.report-table {
+  font-size: 1.05rem;
+}
+
+.report-table th {
+  font-weight: 400;
+  color: #6b6560;
+}
+
+.report-flag {
+  color: #c92a2a;
+  font-size: 0.85rem;
+}
+
 /* ---- item modal: off-white card, white boxes, ink outlines, pink fills ---- */
 
 .sk-modal {
