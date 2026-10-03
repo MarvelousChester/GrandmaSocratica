@@ -8,9 +8,10 @@ const data = menusFile as unknown as MenusFile
 export const CLOCK = data.clock
 export const MENUS = data.menus
 
-export const BAKERY_INFO: Record<Bakery, { name: string; roof: string; wall: string }> = {
-  the_bakery: { name: "The Bakery's", roof: '#ef8c8c', wall: '#f8c9c9' },
-  grandmas_bakeria: { name: "Grandma's", roof: '#86d886', wall: '#bef2c4' },
+// `name` is possessive for menu titles ("The Bakery's Menu"); `label` names the shop.
+export const BAKERY_INFO: Record<Bakery, { name: string; label: string; roof: string; wall: string }> = {
+  the_bakery: { name: "The Bakery's", label: 'The Bakery', roof: '#ef8c8c', wall: '#f8c9c9' },
+  grandmas_bakeria: { name: "Grandma's", label: "Grandma's", roof: '#86d886', wall: '#bef2c4' },
 }
 
 // Left to right on screen.

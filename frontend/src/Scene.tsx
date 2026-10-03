@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { BAKERY_INFO } from './data'
 import type { Bakery } from './types'
 
@@ -46,7 +47,8 @@ function Shop({ bakery, dx = 0, dy = 0 }: ShopProps) {
   )
 }
 
-export function Scene() {
+/** The street. `children` are drawn in its viewBox coordinates, on the sidewalk in front of the shops. */
+export function Scene({ children }: { children?: ReactNode }) {
   return (
     <div style={{ position: 'absolute', inset: 0, background: SKY, overflow: 'hidden' }}>
       <svg
@@ -71,6 +73,8 @@ export function Scene() {
           <Shop bakery="the_bakery" />
           <Shop bakery="grandmas_bakeria" dx={548} dy={-8} />
         </g>
+
+        {children}
 
         <rect x={-BLEED} y={1123} width={1700 + 2 * BLEED} height={BLEED} fill={ROAD} />
       </svg>

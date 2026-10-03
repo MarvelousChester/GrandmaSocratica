@@ -428,3 +428,93 @@ button.start {
   color: var(--ink);
   opacity: 0.45;
 }
+
+/* ---- day playback: metric panels ---- */
+
+.metrics {
+  --fill: #fff;
+  --radius: 2.4vw;
+  align-self: start;
+  margin-top: 4.6vh;
+  padding: 2vh 0 3vh;
+}
+
+.metrics--left {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.metrics--right {
+  grid-column: 3;
+  grid-row: 1;
+  margin-top: 5.4vh;
+}
+
+.metrics__title {
+  margin: 0;
+  padding: 0 2vw 0.6vh;
+  font-size: clamp(16px, 1.6vw, 30px);
+  font-weight: 400;
+}
+
+.metrics--right .metrics__title {
+  text-align: right;
+}
+
+.metric {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1vw;
+  padding: 2.2vh 2vw;
+}
+
+.metric__label {
+  font-family: var(--title-font);
+  font-size: clamp(20px, 2.2vw, 42px);
+}
+
+.metric__value {
+  font-size: clamp(20px, 2.2vw, 42px);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.metric__star {
+  margin-right: 0.4em;
+  color: #e8b100;
+}
+
+.sk-modal__title.sk-modal__title--yay {
+  font-size: 3rem;
+}
+
+.done__winner {
+  font-family: var(--title-font);
+  font-size: 1.8rem;
+}
+
+.done__table {
+  font-size: 1.15rem;
+}
+
+/* ---- day playback: speed and skip ---- */
+
+.controls {
+  display: flex;
+  gap: 1vw;
+  margin-top: -2vh;
+}
+
+button.control {
+  --radius: 1vw;
+  min-width: clamp(90px, 9vw, 170px);
+  height: clamp(38px, 5vh, 70px);
+  padding: 0 1vw;
+  font-size: clamp(16px, 1.6vw, 30px);
+  white-space: nowrap;
+}
+
+button.control:disabled {
+  cursor: default;
+}

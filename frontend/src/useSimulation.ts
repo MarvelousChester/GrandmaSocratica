@@ -15,15 +15,18 @@ export function useSimulation() {
   const [state, setState] = useState<State>({ status: 'idle', day: null, error: null })
   const running = useRef(false)
 
-  const start = useCallback(async (menus: Menu[]) => {
-    if (running.current) return
+  /** Resolves to the simulated day, or null if it failed (or one is already running). */
+  const start = useCallback(async (menus: Menu[]): Promise<DayResult | null> => {
+    if (running.current) return null
     running.current = true
     setState((s) => ({ ...s, status: 'loading', error: null }))
     try {
       const day = await simulateDay(menus)
       setState({ status: 'done', day, error: null })
+      return day
     } catch (e) {
       setState((s) => ({ ...s, status: 'error', error: e instanceof Error ? e.message : String(e) }))
+      return null
     } finally {
       running.current = false
     }
