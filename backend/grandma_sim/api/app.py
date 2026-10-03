@@ -50,7 +50,12 @@ DayNumber = Path(ge=0, description="Day number; 0 is opening day.")
 
 class SimulateRequest(BaseModel):
     menus: list[Menu] = Field(description="Up to one menu per bakery; items may be empty.")
-    seed: int = Field(0, ge=0, description="Varies arrivals and choices.")
+    seed: int | None = Field(
+        None,
+        ge=0,
+        description="Varies arrivals and choices. Omit for a random day; "
+        "the seed used comes back in `config.seed`.",
+    )
 
 
 def _flatten(menus: list[Menu]) -> list[MenuItem]:

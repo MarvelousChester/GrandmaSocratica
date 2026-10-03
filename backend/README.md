@@ -12,8 +12,8 @@ uv sync                                   # Python 3.11+, pydantic, numpy, fasta
 uv run python -m grandma_sim.api          # serves the API on http://127.0.0.1:8000 (docs at /docs)
 uv run python -m grandma_sim.menu.store   # rebuilds ./grandma.db from the seed menus
 uv run python -m grandma_sim.simulation   # simulates one day, prints totals (optional seed arg)
-uv run python run_simulation.py           # fuller report; --seed, --customers, --events
-uv run python run_simulation.py --json ../frontend/sample_data/day_seed0.json
+uv run python run_simulation.py           # fuller report on a random day; --seed N replays one
+uv run python run_simulation.py --seed 0 --json ../frontend/sample_data/day_seed0.json
 ```
 
 The DB is gitignored and generated from `grandma_sim/menu/seed.py`; the API
@@ -41,11 +41,13 @@ identical days for the same profiles.
 | `GET /days/{day}/menu` | menu items as they stand on `day` |
 | `GET /days/{day}/simulation` | the simulated day: `config`, `menus`, `customers`, `events`, `summary`, `ledger` |
 | `GET /days/{day}/ledger` | just the day's costs, profit and ingredient usage |
-| `POST /api/simulate` | one standalone day for the menus in the body (`{menus, seed}`), for the frontend's editor; see below |
+| `POST /api/simulate` | one standalone day for the menus in the body (`{menus, seed?}`), for the frontend's editor; see below |
 | `GET /season?through=N` | days 0..N as a timeline: each day's `prices`, `usual_prices`, average `habit`, `summary`, `ledger` and The Bakery's `repricings`, plus the `rivalries` it tracks |
 
 `POST /api/simulate` sits outside the season: it simulates the menus it is
-sent, as-is, with no competitor repricing or habits. Customers still expect
+sent, as-is, with no competitor repricing or habits. Without a `seed` every
+call is a different day (same town, fresh arrivals and choices); the seed
+used is in `config.seed`, and sending it back replays that day exactly. Customers still expect
 the base menu prices (items not on the base menus are taken at face value),
 and seed 0 with the base menus gives exactly day 0. Two menus for one bakery,
 an item on another bakery's menu, or a repeated item id is a 422. Items

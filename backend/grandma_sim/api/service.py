@@ -25,7 +25,7 @@ from ..menu.seed import build_menus
 from ..profiles.ingredients import IngredientPrices
 from ..profiles.overrides import DayProfile
 from ..profiles.store import ScheduledIngredientPrices, ScheduledProfile, ScheduleStore
-from ..simulation.day import DayConfig, DayResult, DaySimulator, menu_prices
+from ..simulation.day import DayConfig, DayResult, DaySimulator, menu_prices, random_seed
 from ..simulation.season import DayRecord, SeasonConfig, SeasonResult, SeasonSimulator
 
 # Simulated days kept in memory before the cache is dropped and rebuilt.
@@ -168,7 +168,7 @@ class SimulationService:
     def simulate(self, day: int) -> DayResult:
         return self._day(day).result
 
-    def simulate_menus(self, menus: list[Menu], seed: int = 0) -> DayResult:
+    def simulate_menus(self, menus: list[Menu], seed: int | None = None) -> DayResult:
         """
         Simulate one standalone day for menus given as-is, outside the season.
 
@@ -180,7 +180,8 @@ class SimulationService:
 
         Args:
          menus: Up to one menu per bakery.
-         seed: Varies arrivals and choices.
+         seed: Varies arrivals and choices. None draws a random one, so
+          repeated runs differ; the seed used is in the result's config.
 
         Returns:
          The simulated day, ledger included.
@@ -193,7 +194,7 @@ class SimulationService:
         config = self.season_config
         return DaySimulator(
             DayConfig(
-                seed=seed,
+                seed=random_seed() if seed is None else seed,
                 population_seed=config.population_seed,
                 population=config.population,
                 clock=config.clock,

@@ -12,6 +12,7 @@ consecutive days.
 
 from __future__ import annotations
 
+import secrets
 from collections.abc import Mapping, Sequence
 
 import numpy as np
@@ -27,6 +28,11 @@ from ..menu.costing import RecipeBook
 from ..menu.items import Menu
 from .events import DaySummary, VisitEvent
 from .ledger import DayLedger
+
+
+def random_seed() -> int:
+    """A fresh day seed, for when no two runs should match. Record it to replay."""
+    return secrets.randbelow(2**32)
 
 
 def menu_prices(menus: Sequence[Menu]) -> dict[str, float]:

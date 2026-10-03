@@ -23,7 +23,7 @@ Served by the backend API: run `uv run python -m grandma_sim.api` in `backend/` 
     { "bakery": "the_bakery",       "items": [ /* MenuItem, ... */ ] },
     { "bakery": "grandmas_bakeria", "items": [ /* MenuItem, ... */ ] }
   ],
-  "seed": 0                // optional; the frontend doesn't send it yet
+  "seed": 0                // optional; omitted = a random day. The seed used is in config.seed
 }
 ```
 

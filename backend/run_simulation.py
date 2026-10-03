@@ -1,7 +1,7 @@
 """Run one simulated day against the seed menus and print a readable report.
 
-    uv run python run_simulation.py --seed 3 --customers 600 --events 15
-    uv run python run_simulation.py --json ../frontend/sample_data/day_seed0.json
+    uv run python run_simulation.py --customers 600 --events 15
+    uv run python run_simulation.py --seed 0 --json ../frontend/sample_data/day_seed0.json
 """
 
 import argparse
@@ -12,6 +12,7 @@ from grandma_sim import Bakery, DayConfig, DayResult, DaySimulator
 from grandma_sim.customers.presets import default_population
 from grandma_sim.menu.recipes_seed import recipe_books_by_bakery
 from grandma_sim.menu.seed import build_menus
+from grandma_sim.simulation.day import random_seed
 
 BAKERY_LABELS = {Bakery.GRANDMAS: "Grandma's", Bakery.THE_BAKERY: "The Bakery"}
 WALKAWAY = "walked away"
@@ -115,14 +116,17 @@ def print_sample_events(result: DayResult, limit: int) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument(
+        "--seed", type=int, help="replay a specific day; omitted = a random day"
+    )
     parser.add_argument("--customers", type=int, default=400)
     parser.add_argument("--events", type=int, default=10, help="sample visits to show")
     parser.add_argument("--json", type=Path, help="also write the full DayResult here")
     args = parser.parse_args()
 
     menus = build_menus()
-    config = DayConfig(seed=args.seed, population=default_population(args.customers))
+    seed = random_seed() if args.seed is None else args.seed
+    config = DayConfig(seed=seed, population=default_population(args.customers))
     result = DaySimulator(config, menus, recipe_books_by_bakery()).run()
     if args.json:
         args.json.parent.mkdir(parents=True, exist_ok=True)
@@ -138,7 +142,7 @@ def main() -> None:
         ("Costs and profit", lambda: print_ledger(result)),
         (f"First {args.events} visits", lambda: print_sample_events(result, args.events)),
     ]
-    print(f"=== Simulated day, seed {args.seed} ===")
+    print(f"=== Simulated day, seed {seed} (--seed {seed} to replay) ===")
     for title, show in sections:
         print(f"\n--- {title} ---")
         show()

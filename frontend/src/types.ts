@@ -83,7 +83,7 @@ export interface Menu {
 
 export interface SimulateRequest {
   menus: Menu[]
-  seed?: number // server default 0
+  seed?: number // omitted = a random day; the seed used comes back in config.seed
 }
 
 export interface UtilityBreakdown {
