@@ -12,20 +12,27 @@ changing a price and The Bakery answering:
     it. Jumping straight there makes the two shops oscillate; easing in
     converges and reads like a competitor feeling the market out.
 
-They watch two things: grandma's posted prices (stale, because of the lag)
-and their own till (current -- it's their own data). Share is what decides
-whether they bother. Chains that are winning don't cut, they harvest.
+They watch three things: grandma's posted prices (stale, because of the lag),
+their own till (current -- it's their own data) and their own costs. Share
+decides whether they bother; chains that are winning don't cut, they harvest.
+
+Cost decides how far they can go. The floor under every price is what the item
+costs them to make today, so they will not undercut themselves into a loss --
+and when an ingredient price jumps, they raise to stay above it whether or not
+they are winning. That floor moves with the recipe, so sweetening an item (more
+sugar, more cost) lifts it too.
 """
 
 from __future__ import annotations
 
 import math
 from collections import Counter
+from collections.abc import Mapping
 from enum import Enum
 
 from pydantic import BaseModel, Field
 
-from ..menu.items import Menu
+from ..menu.items import Menu, MenuItem
 from .rivalry import Rivalry
 
 # Below this, a move isn't worth reprinting the board for.
@@ -36,6 +43,7 @@ class Reason(str, Enum):
     UNDERCUT = "undercut"
     FOLLOW_UP = "follow_up"
     HARVEST = "harvest"
+    COST_FLOOR = "cost_floor"
 
 
 class PricingPolicy(BaseModel):
@@ -60,8 +68,17 @@ class PricingPolicy(BaseModel):
         0.05, ge=0.0, description="Price rise attempted while comfortably ahead."
     )
 
+    min_margin_pct: float = Field(
+        0.10,
+        ge=0.0,
+        lt=1.0,
+        description="Gross margin they refuse to go under. 0.0 = break even exactly.",
+    )
     price_floor_pct: float = Field(
-        0.75, gt=0.0, description="Never below this fraction of the opening price."
+        0.75,
+        gt=0.0,
+        description="Fallback floor, as a fraction of the opening price, for items "
+        "with no recipe to cost.",
     )
     price_ceiling_pct: float = Field(
         1.25, gt=0.0, description="Never above this fraction of the opening price."
@@ -88,21 +105,34 @@ class Repricing(BaseModel):
     observed_rival_price: float
     observed_on_day: int = Field(description="Which day's menu board they acted on.")
     observed_share: float = Field(description="Their share of the pair since last review.")
+    unit_cost: float | None = Field(
+        None, description="What the item cost them to make that day, if known."
+    )
+    floor: float = Field(description="The least they would charge, given that cost.")
 
     @property
     def change(self) -> float:
         return self.new_price - self.old_price
 
 
-def snap(price: float, endings: list[float]) -> float:
-    """Round a price to the nearest acceptable menu-board ending."""
+def snap(price: float, endings: list[float], floor: float = 0.0) -> float:
+    """Round a price to the nearest acceptable menu-board ending.
+
+    Never rounds below `floor`: a price that is break-even to the cent must not
+    become a loss just to end in .95.
+    """
     if not endings:
-        return round(price, 2)
+        return round(max(price, floor), 2)
     whole = math.floor(price)
     candidates = [
-        w + ending for w in (whole - 1, whole, whole + 1) for ending in endings
+        w + ending
+        for w in (whole - 1, whole, whole + 1, whole + 2)
+        for ending in endings
     ]
-    return min((c for c in candidates if c > 0), key=lambda c: abs(c - price))
+    allowed = [c for c in candidates if c > 0 and c >= floor]
+    if not allowed:
+        return round(max(price, floor), 2)
+    return min(allowed, key=lambda c: abs(c - price))
 
 
 class CompetitorPricer:
@@ -114,6 +144,19 @@ class CompetitorPricer:
         self.policy = policy
         self.rivalries = rivalries
         self.base_prices = base_prices
+
+    def floor_for(
+        self, item: MenuItem, unit_costs: Mapping[str, float] | None
+    ) -> float:
+        """The least they will charge: what it costs, plus their minimum margin.
+
+        Falls back to a flat fraction of the opening price for an item with no
+        costed recipe -- a crude floor, but better than none.
+        """
+        cost = (unit_costs or {}).get(item.id)
+        if cost is None:
+            return self.base_prices[item.id] * self.policy.price_floor_pct
+        return cost / (1.0 - self.policy.min_margin_pct)
 
     def _both_on_sale(
         self, rivalry: Rivalry, menu: Menu, history: dict[int, dict[str, float]], day: int
@@ -143,6 +186,7 @@ class CompetitorPricer:
         menu: Menu,
         history: dict[int, dict[str, float]],
         window_sales: Counter[str],
+        unit_costs: Mapping[str, float] | None = None,
     ) -> list[Repricing]:
         """
         Reprice every tracked item, in place, and report what changed.
@@ -152,6 +196,8 @@ class CompetitorPricer:
          menu: The Bakery's menu, mutated with the new prices.
          history: day -> {item_id: price}, every price ever posted.
          window_sales: Units sold per item since the last review, both menus.
+         unit_costs: What each of their items costs to make today. Items left
+          out fall back to `price_floor_pct` of their opening price.
 
         Returns:
          One `Repricing` per item that actually moved.
@@ -171,7 +217,13 @@ class CompetitorPricer:
             observed_day = self.observed_day(day, history)
             rival_price = history[observed_day][rivalry.rival_id]
 
-            if share < self.policy.losing_below:
+            cost = (unit_costs or {}).get(item.id)
+            floor = self.floor_for(item, unit_costs)
+
+            if item.price < floor:
+                # Selling under cost outranks anything share is saying.
+                target, reason = floor, Reason.COST_FLOOR
+            elif share < self.policy.losing_below:
                 target = rival_price * (1.0 - self.policy.undercut)
                 reason = Reason.UNDERCUT if target < item.price else Reason.FOLLOW_UP
             elif share > self.policy.harvesting_above:
@@ -180,13 +232,16 @@ class CompetitorPricer:
             else:
                 continue  # Holding their own; not worth the disruption.
 
-            base = self.base_prices[item.id]
-            eased = item.price + self.policy.adjustment_rate * (target - item.price)
-            bounded = min(
-                max(eased, base * self.policy.price_floor_pct),
-                base * self.policy.price_ceiling_pct,
+            # A rise off the floor isn't eased in -- nobody phases out a loss.
+            eased = (
+                target
+                if reason is Reason.COST_FLOOR
+                else item.price + self.policy.adjustment_rate * (target - item.price)
             )
-            new_price = snap(bounded, self.policy.snap_endings)
+            ceiling = self.base_prices[item.id] * self.policy.price_ceiling_pct
+            # Floor applied last: cost beats the ceiling when ingredients spike.
+            bounded = max(min(eased, ceiling), floor)
+            new_price = snap(bounded, self.policy.snap_endings, floor=floor)
             if abs(new_price - item.price) < MIN_PRICE_MOVE:
                 continue
 
@@ -202,6 +257,8 @@ class CompetitorPricer:
                     observed_rival_price=rival_price,
                     observed_on_day=observed_day,
                     observed_share=share,
+                    unit_cost=cost,
+                    floor=floor,
                 )
             )
             item.price = new_price

@@ -13,8 +13,10 @@ from pathlib import Path
 
 from grandma_sim import Bakery
 from grandma_sim.customers.presets import default_population
+from grandma_sim.competition.pricing import Reason
 from grandma_sim.menu.recipes_seed import recipe_books_by_bakery
 from grandma_sim.menu.seed import build_menus
+from grandma_sim.profiles.ingredients import IngredientPrices
 from grandma_sim.profiles.overrides import DayProfile, ItemOverride
 from grandma_sim.simulation.season import SeasonConfig, SeasonResult, SeasonSimulator
 
@@ -29,6 +31,30 @@ def parse_cut(text: str) -> tuple[int, str, float]:
         raise argparse.ArgumentTypeError(
             f"expected item_id=price@day, got {text!r}"
         ) from None
+
+
+def parse_spike(text: str) -> tuple[int, str, float]:
+    """'cream=12@5' -> (day 5, cream, 12x the usual price)."""
+    try:
+        ingredient_mult, _, day = text.partition("@")
+        ingredient, _, multiplier = ingredient_mult.partition("=")
+        return int(day or 0), ingredient, float(multiplier)
+    except ValueError:
+        raise argparse.ArgumentTypeError(
+            f"expected ingredient=multiplier@day, got {text!r}"
+        ) from None
+
+
+def build_ingredient_prices(
+    spikes: list[tuple[int, str, float]],
+) -> dict[int, IngredientPrices]:
+    """Turn scheduled spikes into per-day prices, each carrying the ones before."""
+    standing: dict[str, float] = {}
+    schedule: dict[int, IngredientPrices] = {}
+    for day, ingredient, multiplier in sorted(spikes):
+        standing[ingredient] = multiplier
+        schedule[day] = IngredientPrices(multipliers=dict(standing))
+    return schedule
 
 
 def build_profiles(cuts: list[tuple[int, str, float]]) -> dict[int, DayProfile]:
@@ -67,16 +93,30 @@ def print_rivalries(result: SeasonResult) -> None:
 
 
 def print_responses(result: SeasonResult) -> None:
+    """Each price move with the evidence behind it.
+
+    A cost-floor rise is explained by their own costs, not by grandma's menu
+    board -- they didn't act on her price, they acted on their margin.
+    """
     if not result.all_repricings():
         print("  (The Bakery never moved -- it held share everywhere.)")
         return
     for change in result.all_repricings():
+        if change.reason is Reason.COST_FLOOR:
+            why = (
+                f"{change.item_name} now costs them ${change.unit_cost:.2f}; "
+                f"below ${change.floor:.2f} they lose money"
+            )
+        else:
+            why = (
+                f"saw {change.rival_name} at ${change.observed_rival_price:.2f} "
+                f"on day {change.observed_on_day}, "
+                f"held {change.observed_share:.0%} of the pair"
+            )
         print(
             f"  day {change.day:>2}  {change.item_name:<18}"
             f"${change.old_price:>5.2f} -> ${change.new_price:>5.2f}  "
-            f"{change.reason.value:<10} saw {change.rival_name} at "
-            f"${change.observed_rival_price:.2f} on day {change.observed_on_day}, "
-            f"held {change.observed_share:.0%} of the pair"
+            f"{change.reason.value:<11}{why}"
         )
 
 
@@ -105,10 +145,12 @@ def print_windows(reactive: SeasonResult, flat: SeasonResult) -> None:
             f"{mean(base_profit):>11.2f}{mean(live_profit) - mean(base_profit):>+9.2f}"
         )
 
+    # Negative when responding hurt them -- a cost-driven rise hands her share.
     lost = sum(base_profit) - sum(live_profit)
+    verb = "cost" if lost >= 0 else "gained"
     print(
-        f"\n  Over {len(reactive.days)} days the response cost grandma "
-        f"${lost:,.2f} in gross profit."
+        f"\n  Over {len(reactive.days)} days The Bakery's response {verb} grandma "
+        f"${abs(lost):,.2f} in gross profit."
     )
 
 
@@ -137,6 +179,14 @@ def main() -> None:
         metavar="ITEM=PRICE@DAY",
         help="a price grandma sets, e.g. fall_parfait=6.50@2",
     )
+    parser.add_argument(
+        "--spike",
+        type=parse_spike,
+        action="append",
+        default=[],
+        metavar="INGREDIENT=MULT@DAY",
+        help="a market-wide ingredient price move, e.g. cream=3@5",
+    )
     parser.add_argument("--json", type=Path, help="also write the full SeasonResult")
     args = parser.parse_args()
 
@@ -149,6 +199,7 @@ def main() -> None:
         seed=args.seed,
         population=default_population(args.customers),
         profiles=build_profiles(args.cut),
+        ingredient_prices=build_ingredient_prices(args.spike),
     )
     reactive = SeasonSimulator(config, menus, books).run()
     flat = SeasonSimulator(

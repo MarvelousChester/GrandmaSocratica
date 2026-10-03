@@ -213,6 +213,7 @@ competitor rather than a mirror:
 | `observation_lag_days` | they act on the price they last *saw*; competitor checks happen on a round | 4 |
 | `review_every_days` | prices only move on review day — approvals, reprinted boards | 7 |
 | `adjustment_rate` | they close part of the gap, not all of it; jumping straight there makes both shops oscillate | 0.4 |
+| `min_margin_pct` | the margin they refuse to sell under, over today's cost | 0.10 |
 
 They watch grandma's posted prices (stale) and their own till (current). Share
 of each rivalry pair decides *whether* they act at all:
@@ -222,9 +223,28 @@ of each rivalry pair decides *whether* they act at all:
   harvests margin rather than chasing
 - in between they hold
 
-Prices are clamped to a floor and ceiling around their opening price and
-snapped to menu-board endings (`.95`/`.49`). Grandma never auto-reacts — she's
-the player, and two reactive sides would run away into a price war.
+**What stops them** — the floor under every price is what the item costs them
+*today*, from their own recipe book at that day's ingredient prices, plus
+`min_margin_pct` (10%; set it to 0 for exactly break-even). They will not
+undercut themselves into a loss however hard grandma cuts, and the floor moves
+on its own when ingredient prices move or a recipe is sweetened.
+
+That floor also pushes the other way. If a spike puts an item under water they
+raise to clear cost at the next review **whether or not they are winning** — a
+`cost_floor` move, taken straight to the floor rather than eased in, and it
+beats the price ceiling when costs really run away. A cream spike alone is
+enough to force their parfait up and hand grandma share:
+
+```bash
+uv run python run_season.py --days 21 --spike cream=12@5
+#   day 7  Autumn Parfait  $6.95 -> $8.49  cost_floor
+#   Autumn Parfait now costs them $7.36; below $8.18 they lose money
+```
+
+Prices are otherwise capped at `price_ceiling_pct` of their opening price and
+snapped to menu-board endings (`.95`/`.49`, never below the floor). Grandma
+never auto-reacts — she's the player, and two reactive sides would run away
+into a price war.
 
 **Running the days** (`simulation/season.py`) — `SeasonSimulator` holds the
 population fixed (one `population_seed`) and re-rolls arrivals and decisions

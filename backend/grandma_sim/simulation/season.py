@@ -140,6 +140,27 @@ class SeasonSimulator:
         """Grandma's profile in force on `day`: the latest one set on or before it."""
         return in_force(self.config.profiles, day) or DayProfile()
 
+    def unit_costs_for(self, day: int, menu: Menu) -> dict[str, float] | None:
+        """What each item on `menu` costs its bakery on `day`.
+
+        Costed against that day's ingredient prices and the menu as it stands,
+        so a sweetened item (more sugar) or a supplier spike both show up.
+        Returns None when the season was given no recipe books; items without
+        a recipe are simply left out.
+        """
+        books = self.recipe_books_for(day)
+        book = None if books is None else books.get(menu.bakery)
+        if book is None:
+            return None
+
+        costs: dict[str, float] = {}
+        for item in menu.items:
+            try:
+                costs[item.id] = book.breakdown(item).total
+            except KeyError:
+                continue  # No recipe for it; the pricer falls back.
+        return costs
+
     def recipe_books_for(self, day: int) -> Mapping[Bakery, RecipeBook] | None:
         """Recipe books costed at the ingredient prices in force on `day`."""
         prices = in_force(self.config.ingredient_prices, day)
@@ -168,7 +189,13 @@ class SeasonSimulator:
             repricings: list[Repricing] = []
             if self.config.reactive and self.pricer.is_review_day(day):
                 the_bakery = next(m for m in menus if m.bakery is Bakery.THE_BAKERY)
-                repricings = self.pricer.review(day, the_bakery, history, window)
+                repricings = self.pricer.review(
+                    day,
+                    the_bakery,
+                    history,
+                    window,
+                    self.unit_costs_for(day, the_bakery),
+                )
                 responses.update({r.item_id: r.new_price for r in repricings})
                 window.clear()
 
