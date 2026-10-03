@@ -34,6 +34,7 @@ export const leaveAfter = (event: VisitEvent) => (event.choice.purchased ? INSID
 export interface PersonPose {
   x: number
   opacity: number
+  facing: 1 | -1 // 1 = right, -1 = left
 }
 
 /**
@@ -57,17 +58,19 @@ export function personAt(
   const edge = bakery === 'the_bakery' ? edges.left : edges.right
   const walk = (from: number, to: number, start: number) =>
     from + (to - from) * Math.min(1, Math.max(0, (minute - start) / WALK))
+  const toDoor: PersonPose['facing'] = door > edge ? 1 : -1
+  const away: PersonPose['facing'] = toDoor === 1 ? -1 : 1
 
   const dt = minute - event.minute
   if (dt < -WALK || dt > leaveAfter(event)) return null
   if (dt <= 0) {
     // Walking in; a buyer starts fading as they reach the door.
     const opacity = t ? Math.min(1, -dt / FADE) : 1
-    return { x: walk(edge, door, event.minute - WALK), opacity }
+    return { x: walk(edge, door, event.minute - WALK), opacity, facing: toDoor }
   }
-  if (!t) return { x: walk(door, edge, event.minute), opacity: 1 }
-  if (dt < INSIDE) return { x: door, opacity: Math.max(0, (dt - INSIDE + FADE) / FADE) }
-  return { x: walk(door, edge, event.minute + INSIDE), opacity: 1 }
+  if (!t) return { x: walk(door, edge, event.minute), opacity: 1, facing: away }
+  if (dt < INSIDE) return { x: door, opacity: Math.max(0, (dt - INSIDE + FADE) / FADE), facing: away }
+  return { x: walk(door, edge, event.minute + INSIDE), opacity: 1, facing: away }
 }
 
 export interface BakeryMetrics {
