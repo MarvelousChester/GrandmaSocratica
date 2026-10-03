@@ -825,3 +825,24 @@ button.control {
 button.control:disabled {
   cursor: default;
 }
+
+/* ---- start screen logo ---- */
+
+.center--setup {
+  margin-top: 1.5vh;
+  gap: 3vh;
+}
+
+.logo {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-bottom: -1vh;
+  pointer-events: none;
+  user-select: none;
+  transition: opacity 250ms ease;
+}
+
+.logo[data-hidden] {
+  opacity: 0;
+}
