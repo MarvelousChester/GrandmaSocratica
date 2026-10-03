@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { hash, leaveAfter, personAt, VIEW_H, VIEW_W, WALK } from './playback'
+import { DOOR_X, hash, leaveAfter, personAt, popAt, VIEW_H, VIEW_W, WALK } from './playback'
 import type { DayResult } from './types'
 
 const GROUND_Y = 1040 // top of the sidewalk, in Scene viewBox units
@@ -53,6 +53,33 @@ export function People({ day, minute }: { day: DayResult; minute: number }) {
             opacity={pose.opacity}
             transform={pose.facing === -1 ? `translate(${2 * pose.x} 0) scale(-1 1)` : undefined}
           />
+        )
+      })}
+    </>
+  )
+}
+
+
+const POP_Y = 800 // where a sale's "+$" starts, above the door
+const POP_RISE = 110
+
+/** A "+$price" floating up from the door at each sale. Render inside <Scene>. */
+export function SalePops({ day, minute }: { day: DayResult; minute: number }) {
+  return (
+    <>
+      {day.events.map((event, i) => {
+        const t = popAt(event, minute)
+        if (t === null || !event.choice.bakery) return null
+        return (
+          <text
+            key={`${event.customer_id}-${i}`}
+            className="sale-pop"
+            x={DOOR_X[event.choice.bakery]}
+            y={POP_Y - t * POP_RISE}
+            opacity={1 - t * t}
+          >
+            +${event.choice.price.toFixed(2)}
+          </text>
         )
       })}
     </>

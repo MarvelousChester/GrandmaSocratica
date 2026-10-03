@@ -5,14 +5,14 @@ import { BAKERY_INFO, CLOCK, formatTime, MENUS, newItemId, PANEL_ORDER } from '.
 import { DayReport, type ReportView } from './DayReport'
 import { ItemModal, type ModalTarget } from './ItemModal'
 import { MenuPanel } from './MenuPanel'
-import { MetricsPanel } from './MetricsPanel'
-import { People } from './People'
+import { LeadBar, MetricsPanel } from './MetricsPanel'
+import { People, SalePops } from './People'
 import { metricsAt } from './playback'
 import { buildReport } from './report'
 import { Scene } from './Scene'
 import { SketchDefs } from './Sketch'
 import type { DayResult, MenuItem } from './types'
-import { useDayClock } from './useDayClock'
+import { SPEED_STEPS, useDayClock } from './useDayClock'
 import { useSimulation } from './useSimulation'
 import logo from './logo.png'
 
@@ -24,14 +24,17 @@ interface DayViewProps {
 
 /** The day being played back: people walking, metrics climbing, clock running, then the day's report. */
 function DayView({ day, view, onDone }: DayViewProps) {
-  const { minute, finished, multiplier, cycleSpeed, skip } = useDayClock(day)
+  const { minute, finished, multiplier, setSpeed, skip } = useDayClock(day)
   const report = useMemo(() => buildReport(day), [day])
   const metrics = metricsAt(day, minute)
   const [left, right] = PANEL_ORDER
+  const { open_minute, close_minute } = day.config.clock
+  const progress = Math.min(1, Math.max(0, (minute - open_minute) / (close_minute - open_minute)))
   return (
     <>
       <Scene>
         <People day={day} minute={minute} />
+        <SalePops day={day} minute={minute} />
       </Scene>
       <div className="overlay">
         {PANEL_ORDER.map((bakery, i) => (
@@ -39,28 +42,36 @@ function DayView({ day, view, onDone }: DayViewProps) {
             key={bakery}
             title={BAKERY_INFO[bakery].label}
             side={i === 0 ? 'left' : 'right'}
+            fill={BAKERY_INFO[bakery].wall}
             metrics={metrics[bakery]}
             rival={metrics[bakery === left ? right : left]}
           />
         ))}
-        <div className="center">
+        <div className="center center--day">
           <div className="clock" aria-live="off">
             {formatTime(minute)}
           </div>
-          <div className="controls">
-            <button
-              type="button"
-              className="sketch control"
-              onClick={cycleSpeed}
-              disabled={finished}
-              aria-label={`Speed ${multiplier}×, click to change`}
-            >
-              {multiplier}× speed
-            </button>
-            <button type="button" className="sketch control" onClick={skip} disabled={finished}>
-              Skip day
-            </button>
+          <div className="day-progress" role="progressbar" aria-valuenow={Math.round(progress * 100)}>
+            <div style={{ width: `${progress * 100}%` }} />
           </div>
+          <div className="speeds" role="group" aria-label="Speed">
+            {SPEED_STEPS.map((step) => (
+              <button
+                key={step}
+                type="button"
+                className="sketch speed"
+                data-active={step === multiplier || undefined}
+                onClick={() => setSpeed(step)}
+                disabled={finished}
+              >
+                {step}×
+              </button>
+            ))}
+          </div>
+          <button type="button" className="sketch control" onClick={skip} disabled={finished}>
+            Skip day
+          </button>
+          <LeadBar order={PANEL_ORDER} metrics={metrics} />
         </div>
       </div>
       <DayReport opened={finished} report={report} view={view} onClose={onDone} closeLabel="Back to menus" />

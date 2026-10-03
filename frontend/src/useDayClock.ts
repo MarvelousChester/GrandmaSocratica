@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { dayEnd, SPEED_MIN_PER_SEC } from './playback'
 import type { DayResult } from './types'
 
-/** The speed button steps through these, then wraps back to normal. */
+/** Speed multipliers the player can pick. */
 export const SPEED_STEPS = [1, 2, 5, 10]
 
 /** Dev aid: `?speed=60` plays an hour a second at "1×". */
@@ -16,7 +16,7 @@ function baseSpeed(): number {
  * until the day ends. Mount it fresh (e.g. with a `key`) for each new day.
  *
  * Returns:
- *  minute, finished, the current speed multiplier, `cycleSpeed` (1× -> 2× -> 5× -> 10× -> 1×)
+ *  minute, finished, the current speed multiplier, `setSpeed` (one of SPEED_STEPS)
  *  and `skip`, which jumps straight to the end of the day.
  */
 export function useDayClock(day: DayResult) {
@@ -47,8 +47,7 @@ export function useDayClock(day: DayResult) {
     return () => cancelAnimationFrame(frame)
   }, [end])
 
-  const cycleSpeed = useCallback(() => {
-    const next = SPEED_STEPS[(SPEED_STEPS.indexOf(multiplierRef.current) + 1) % SPEED_STEPS.length]
+  const setSpeed = useCallback((next: number) => {
     multiplierRef.current = next
     setMultiplier(next)
   }, [])
@@ -58,5 +57,5 @@ export function useDayClock(day: DayResult) {
     minuteRef.current = end
   }, [end])
 
-  return { minute, finished, multiplier, cycleSpeed, skip }
+  return { minute, finished, multiplier, setSpeed, skip }
 }

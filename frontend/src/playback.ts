@@ -10,6 +10,7 @@ export const SPEED_MIN_PER_SEC = 5
 export const WALK = 3 // edge -> door, and door -> edge
 export const INSIDE = 2 // a buyer is inside the shop
 const FADE = 0.4
+const POP = 4 // a sale's "+$" floats above the door
 
 // Scene geometry, in the Scene SVG's viewBox units.
 export const DOOR_X: Record<Bakery, number> = { the_bakery: 610, grandmas_bakeria: 1158 }
@@ -71,6 +72,12 @@ export function personAt(
   if (!t) return { x: walk(door, edge, event.minute), opacity: 1, facing: away }
   if (dt < INSIDE) return { x: door, opacity: Math.max(0, (dt - INSIDE + FADE) / FADE), facing: away }
   return { x: walk(door, edge, event.minute + INSIDE), opacity: 1, facing: away }
+}
+
+/** How far (0..1) a purchase's "+$" has floated up at `minute`, or null when it isn't showing. */
+export function popAt(event: VisitEvent, minute: number): number | null {
+  const t = (minute - event.minute) / POP
+  return event.choice.purchased && t >= 0 && t <= 1 ? t : null
 }
 
 export interface BakeryMetrics {

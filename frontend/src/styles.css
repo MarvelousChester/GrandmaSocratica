@@ -752,11 +752,10 @@ button.report-btn {
 /* ---- day playback: metric panels ---- */
 
 .metrics {
-  --fill: #fff;
-  --radius: 2.4vw;
+  --radius: 2.4vw 2.4vw 1.6vw 1.6vw;
   align-self: start;
   margin-top: 4.6vh;
-  padding: 2vh 0 3vh;
+  padding: 0 0 1.6vh;
 }
 
 .metrics--left {
@@ -772,9 +771,11 @@ button.report-btn {
 
 .metrics__title {
   margin: 0;
-  padding: 0 2vw 0.6vh;
-  font-size: clamp(16px, 1.6vw, 30px);
+  padding: 2.8vh 2vw 1.4vh;
+  font-family: var(--title-font);
+  font-size: clamp(22px, 2.6vw, 50px);
   font-weight: 400;
+  line-height: 1.1;
 }
 
 .metrics--right .metrics__title {
@@ -786,12 +787,11 @@ button.report-btn {
   align-items: baseline;
   justify-content: space-between;
   gap: 1vw;
-  padding: 2.2vh 2vw;
+  padding: 1.8vh 2vw;
 }
 
 .metric__label {
-  font-family: var(--title-font);
-  font-size: clamp(20px, 2.2vw, 42px);
+  font-size: clamp(18px, 1.9vw, 36px);
 }
 
 .metric__value {
@@ -805,12 +805,64 @@ button.report-btn {
   color: #e8b100;
 }
 
-/* ---- day playback: speed and skip ---- */
+/* ---- day playback: progress, speed, skip and the lead ---- */
 
-.controls {
+.center--day {
+  gap: 2.4vh;
+}
+
+.day-progress {
+  width: 100%;
+  height: clamp(10px, 1.6vh, 20px);
+  overflow: hidden;
+  border: 2.5px solid var(--ink);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.day-progress > div {
+  height: 100%;
+  background: var(--yellow);
+}
+
+.speeds {
   display: flex;
-  gap: 1vw;
-  margin-top: -2vh;
+  gap: 0.6vw;
+}
+
+button.speed {
+  --radius: 0.8vw;
+  min-width: clamp(40px, 4.6vw, 84px);
+  height: clamp(34px, 4.6vh, 64px);
+  font-size: clamp(15px, 1.4vw, 26px);
+}
+
+button.speed[data-active] {
+  --fill: var(--yellow);
+}
+
+.lead {
+  width: 100%;
+  text-align: center;
+}
+
+.lead__label {
+  font-size: clamp(14px, 1.3vw, 24px);
+}
+
+.lead .report-share {
+  margin-top: 0.6vh;
+  font-size: clamp(13px, 1.2vw, 22px);
+}
+
+.sale-pop {
+  fill: var(--ink);
+  stroke: #fff;
+  stroke-width: 8px;
+  paint-order: stroke;
+  font-family: inherit;
+  font-size: 56px;
+  text-anchor: middle;
 }
 
 button.control {
