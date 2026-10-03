@@ -3,7 +3,7 @@ import { dayEnd, SPEED_MIN_PER_SEC } from './playback'
 import type { DayResult } from './types'
 
 /** The speed button steps through these, then wraps back to normal. */
-export const SPEED_STEPS = [1, 2, 5]
+export const SPEED_STEPS = [1, 2, 5, 10]
 
 /** Dev aid: `?speed=60` plays an hour a second at "1×". */
 function baseSpeed(): number {
@@ -16,7 +16,7 @@ function baseSpeed(): number {
  * until the day ends. Mount it fresh (e.g. with a `key`) for each new day.
  *
  * Returns:
- *  minute, finished, the current speed multiplier, `cycleSpeed` (1× -> 2× -> 5× -> 1×)
+ *  minute, finished, the current speed multiplier, `cycleSpeed` (1× -> 2× -> 5× -> 10× -> 1×)
  *  and `skip`, which jumps straight to the end of the day.
  */
 export function useDayClock(day: DayResult) {

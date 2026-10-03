@@ -2,11 +2,11 @@
 // customer is, and how each bakery is doing so far. Pure functions, no React.
 import type { Bakery, DayResult, VisitEvent } from './types'
 
-/** Simulated minutes per real second. Will become a user setting. */
-export const SPEED_MIN_PER_SEC = 1
+/** Simulated minutes per real second at 1×. */
+export const SPEED_MIN_PER_SEC = 5
 
 // Durations below are in simulated minutes, so walking stays in step with the
-// clock whatever the speed. At 1 min/sec they are the same number of seconds.
+// clock whatever the speed.
 export const WALK = 3 // edge -> door, and door -> edge
 export const INSIDE = 2 // a buyer is inside the shop
 const FADE = 0.4
