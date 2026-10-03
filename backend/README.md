@@ -229,7 +229,12 @@ uv run python run_season.py --days 28 --cut fall_parfait=6.50@2
 
 Every run also simulates the same season with The Bakery frozen, so the report
 shows what grandma keeps against what the response takes back, in both share
-and gross profit. Pass recipe books to `SeasonSimulator` and each `DayRecord`
+and gross profit.
+
+Those two figures are averaged over `--seeds` seasons (5 by default), because
+one season's difference is well inside day-to-day noise -- on a single seed the
+sign flips roughly one time in six. The narrative sections (what moved, and
+why) come from the first seed; only the numbers are pooled. Pass recipe books to `SeasonSimulator` and each `DayRecord`
 carries that day's `ledger`; `SeasonResult.profit_series(bakery)` reads it.
 
 **Who watches whom** (`competition/rivalry.py`) — pairs are found by taste, not
@@ -237,6 +242,18 @@ declared by hand: each of The Bakery's items tracks the nearest item on
 grandma's menu, using the flavour meters plus a penalty for not sharing
 categories (the meters alone can't separate a lemon square from a pumpkin
 parfait). Add an item and it starts competing automatically.
+
+The map is refreshed at every review, not fixed at opening, so reformulating an
+item moves what it competes with. Make the Fall Parfait savoury and The
+Bakery's parfait stops shadowing it:
+
+```bash
+uv run python run_season.py --days 21 --sweeten fall_parfait=-0.85@3
+#   day 7  Autumn Parfait switched from Fall Parfait to Morning Bun
+```
+
+Grandma's signature then has nothing tracking it at all -- reformulating away
+from the knock-off is a way out of the price fight rather than into it.
 
 **How they respond** (`competition/pricing.py`) — three separate delays sit
 between grandma's move and the answer, which is what makes it read as a real
@@ -267,7 +284,8 @@ That floor also pushes the other way. If a spike puts an item under water they
 raise to clear cost at the next review **whether or not they are winning** — a
 `cost_floor` move, taken straight to the floor rather than eased in, and it
 beats the price ceiling when costs really run away. A cream spike alone is
-enough to force their parfait up and hand grandma share:
+enough to force their parfait up, which hands grandma a couple of points of
+share the week it lands -- though habit pulls those customers back after:
 
 ```bash
 uv run python run_season.py --days 21 --spike cream=12@5

@@ -27,7 +27,7 @@ from __future__ import annotations
 
 import math
 from collections import Counter
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from enum import Enum
 
 from pydantic import BaseModel, Field
@@ -138,11 +138,8 @@ def snap(price: float, endings: list[float], floor: float = 0.0) -> float:
 class CompetitorPricer:
     """Reprices one menu in response to another, on a fixed review cycle."""
 
-    def __init__(
-        self, policy: PricingPolicy, rivalries: list[Rivalry], base_prices: dict[str, float]
-    ):
+    def __init__(self, policy: PricingPolicy, base_prices: dict[str, float]):
         self.policy = policy
-        self.rivalries = rivalries
         self.base_prices = base_prices
 
     def floor_for(
@@ -184,6 +181,7 @@ class CompetitorPricer:
         self,
         day: int,
         menu: Menu,
+        rivalries: Sequence[Rivalry],
         history: dict[int, dict[str, float]],
         window_sales: Counter[str],
         unit_costs: Mapping[str, float] | None = None,
@@ -194,6 +192,8 @@ class CompetitorPricer:
         Args:
          day: Today's index in the season.
          menu: The Bakery's menu, mutated with the new prices.
+         rivalries: Which of their items tracks which of grandma's, as the
+          menus stand today.
          history: day -> {item_id: price}, every price ever posted.
          window_sales: Units sold per item since the last review, both menus.
          unit_costs: What each of their items costs to make today. Items left
@@ -203,7 +203,7 @@ class CompetitorPricer:
          One `Repricing` per item that actually moved.
         """
         changes: list[Repricing] = []
-        for rivalry in self.rivalries:
+        for rivalry in rivalries:
             # A day profile can pull either item off the menu; nothing to do.
             if not self._both_on_sale(rivalry, menu, history, day):
                 continue

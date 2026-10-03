@@ -22,7 +22,7 @@ habit for that bakery, so customers won or lost stay that way for a while.
 from __future__ import annotations
 
 from collections import Counter
-from collections.abc import Iterator, Mapping
+from collections.abc import Iterator, Mapping, Sequence
 from typing import TypeVar
 
 from pydantic import BaseModel, Field
@@ -47,6 +47,11 @@ from .ledger import DayLedger
 _DAY_SEED_STRIDE = 100_000
 
 T = TypeVar("T")
+
+
+def _pairs(rivalries: Sequence[Rivalry]) -> set[tuple[str, str]]:
+    """Just who tracks whom, for spotting that the map changed."""
+    return {(r.watcher_id, r.rival_id) for r in rivalries}
 
 
 def in_force(schedule: Mapping[int, T], day: int) -> T | None:
@@ -104,6 +109,10 @@ class DayRecord(BaseModel):
     ledger: DayLedger | None = Field(
         None, description="Costs and profit; None when no recipe books were given."
     )
+    rivalries: list[Rivalry] | None = Field(
+        None,
+        description="The refreshed map, on review days where it changed. Else None.",
+    )
     repricings: list[Repricing] = Field(default_factory=list)
 
 
@@ -145,17 +154,27 @@ class SeasonSimulator:
         self.usual_prices = menu_prices(self.base_menus)
 
         by_bakery = {menu.bakery: menu for menu in self.base_menus}
-        self.rivalries = find_rivalries(
-            by_bakery[Bakery.THE_BAKERY],
-            by_bakery[Bakery.GRANDMAS],
-            config.policy.max_rivalry_distance,
-        )
+        self.rivalries = self.rivalries_for(self.base_menus)
         self.pricer = CompetitorPricer(
             policy=config.policy,
-            rivalries=self.rivalries,
             base_prices={
                 item.id: item.price for item in by_bakery[Bakery.THE_BAKERY].items
             },
+        )
+
+    def rivalries_for(self, menus: Sequence[Menu]) -> list[Rivalry]:
+        """Which of The Bakery's items tracks which of grandma's, as these menus stand.
+
+        Recomputed each review rather than fixed at opening: reformulating an
+        item moves it on the flavour meters, and what it competes with should
+        move with it. Grandma making her parfait savoury should stop The
+        Bakery's parfait shadowing it.
+        """
+        by_bakery = {menu.bakery: menu for menu in menus}
+        return find_rivalries(
+            by_bakery[Bakery.THE_BAKERY],
+            by_bakery[Bakery.GRANDMAS],
+            self.config.policy.max_rivalry_distance,
         )
 
     def player_profile(self, day: int) -> DayProfile:
@@ -210,6 +229,7 @@ class SeasonSimulator:
         window: Counter[str] = Counter()
         # The Bakery's standing prices, carried from one day to the next.
         responses: dict[str, float] = {}
+        rivalries = self.rivalries
         usual_prices = dict(self.usual_prices)
         habits: Habits = {}
 
@@ -221,11 +241,17 @@ class SeasonSimulator:
                     by_id[item_id].price = price
 
             repricings: list[Repricing] = []
+            retargeted: list[Rivalry] | None = None
             if self.config.reactive and self.pricer.is_review_day(day):
                 the_bakery = next(m for m in menus if m.bakery is Bakery.THE_BAKERY)
+                # The competitor check is also when they notice a reformulation.
+                refreshed = self.rivalries_for(menus)
+                if _pairs(refreshed) != _pairs(rivalries):
+                    rivalries = retargeted = refreshed
                 repricings = self.pricer.review(
                     day,
                     the_bakery,
+                    rivalries,
                     history,
                     window,
                     self.unit_costs_for(day, the_bakery),
@@ -259,6 +285,7 @@ class SeasonSimulator:
                 habit=mean_habit(habits, len(result.customers)),
                 summary=result.summary,
                 ledger=result.ledger,
+                rivalries=retargeted,
                 repricings=repricings,
             )
             usual_prices = self.remembered_prices(usual_prices, prices)
