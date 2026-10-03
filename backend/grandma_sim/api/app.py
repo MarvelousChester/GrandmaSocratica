@@ -17,8 +17,12 @@
     DELETE /days/{day}/ingredient-prices   drop them; the previous ones carry over
     GET    /days/{day}/ingredients    ingredient prices as they stand on a day
 
+    POST   /api/simulate              one standalone day for menus sent in the body
+
 Days count from 0 (opening day). Every day is part of one season, so The
 Bakery's repricing in response to earlier days is already applied.
+`/api/simulate` is the exception: the frontend's editor sends whole menus and
+gets one day back, with no season around it.
 Interactive docs at /docs once running.
 """
 
@@ -26,6 +30,7 @@ from __future__ import annotations
 
 from fastapi import FastAPI, HTTPException, Path, Query, status
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
 
 from ..core.enums import Bakery
 from ..menu.costing import Pantry
@@ -41,6 +46,11 @@ from .service import SimulationService
 DEFAULT_CORS_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
 
 DayNumber = Path(ge=0, description="Day number; 0 is opening day.")
+
+
+class SimulateRequest(BaseModel):
+    menus: list[Menu] = Field(description="Up to one menu per bakery; items may be empty.")
+    seed: int = Field(0, ge=0, description="Varies arrivals and choices.")
 
 
 def _flatten(menus: list[Menu]) -> list[MenuItem]:
@@ -144,5 +154,12 @@ def create_app(
     @app.get("/days/{day}/ingredients")
     def get_day_ingredients(day: int = DayNumber) -> dict[Bakery, Pantry]:
         return service.pantries_for(day)
+
+    @app.post("/api/simulate")
+    def simulate_menus(request: SimulateRequest) -> DayResult:
+        try:
+            return service.simulate_menus(request.menus, request.seed)
+        except ValueError as error:
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(error))
 
     return app

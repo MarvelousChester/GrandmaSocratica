@@ -25,7 +25,7 @@ from ..menu.seed import build_menus
 from ..profiles.ingredients import IngredientPrices
 from ..profiles.overrides import DayProfile
 from ..profiles.store import ScheduledIngredientPrices, ScheduledProfile, ScheduleStore
-from ..simulation.day import DayResult
+from ..simulation.day import DayConfig, DayResult, DaySimulator, menu_prices
 from ..simulation.season import DayRecord, SeasonConfig, SeasonResult, SeasonSimulator
 
 # Simulated days kept in memory before the cache is dropped and rebuilt.
@@ -167,6 +167,61 @@ class SimulationService:
 
     def simulate(self, day: int) -> DayResult:
         return self._day(day).result
+
+    def simulate_menus(self, menus: list[Menu], seed: int = 0) -> DayResult:
+        """
+        Simulate one standalone day for menus given as-is, outside the season.
+
+        Same town, clock and choice model as the season, and customers expect
+        the base menu prices, so a dearer item is still judged as a markup;
+        items not on the base menus are taken at face value. There is no
+        history: no competitor repricing, no habits. Seed 0 with the base
+        menus gives exactly day 0.
+
+        Args:
+         menus: Up to one menu per bakery.
+         seed: Varies arrivals and choices.
+
+        Returns:
+         The simulated day, ledger included.
+
+        Raises:
+         ValueError: If a bakery has two menus, an item sits on another
+          bakery's menu, or two items share an id.
+        """
+        self.check_menus(menus)
+        config = self.season_config
+        return DaySimulator(
+            DayConfig(
+                seed=seed,
+                population_seed=config.population_seed,
+                population=config.population,
+                clock=config.clock,
+                choice=config.choice,
+                usual_prices=menu_prices(self.base_menus()),
+            ),
+            menus,
+            self.recipe_books,
+        ).run()
+
+    @staticmethod
+    def check_menus(menus: list[Menu]) -> None:
+        """Raise ValueError unless menus are one per bakery with unique item ids."""
+        bakeries: set[Bakery] = set()
+        item_ids: set[str] = set()
+        for menu in menus:
+            if menu.bakery in bakeries:
+                raise ValueError(f"two menus for bakery {menu.bakery.value!r}")
+            bakeries.add(menu.bakery)
+            for item in menu.items:
+                if item.bakery is not menu.bakery:
+                    raise ValueError(
+                        f"item {item.id!r} belongs to {item.bakery.value!r} "
+                        f"but is on {menu.bakery.value!r}'s menu"
+                    )
+                if item.id in item_ids:
+                    raise ValueError(f"item id {item.id!r} is used twice")
+                item_ids.add(item.id)
 
     def season(self, through: int) -> SeasonResult:
         """Days 0..`through` as a timeline: prices, sales, ledger, repricings."""

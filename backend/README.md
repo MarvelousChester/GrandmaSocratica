@@ -41,7 +41,15 @@ identical days for the same profiles.
 | `GET /days/{day}/menu` | menu items as they stand on `day` |
 | `GET /days/{day}/simulation` | the simulated day: `config`, `menus`, `customers`, `events`, `summary`, `ledger` |
 | `GET /days/{day}/ledger` | just the day's costs, profit and ingredient usage |
+| `POST /api/simulate` | one standalone day for the menus in the body (`{menus, seed}`), for the frontend's editor; see below |
 | `GET /season?through=N` | days 0..N as a timeline: each day's `prices`, `usual_prices`, average `habit`, `summary`, `ledger` and The Bakery's `repricings`, plus the `rivalries` it tracks |
+
+`POST /api/simulate` sits outside the season: it simulates the menus it is
+sent, as-is, with no competitor repricing or habits. Customers still expect
+the base menu prices (items not on the base menus are taken at face value),
+and seed 0 with the base menus gives exactly day 0. Two menus for one bakery,
+an item on another bakery's menu, or a repeated item id is a 422. Items
+without a recipe sell normally and are listed in `ledger.uncosted_items`.
 
 `GET /days/{day}/menu` shows both menus as they stood that day, competitor
 prices included. A database created before days counted from 0 rejects a

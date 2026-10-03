@@ -13,7 +13,7 @@ npm run build
 
 ## Backend contract: `POST /api/simulate`
 
-The backend has no HTTP layer yet; this is what the frontend sends and expects.
+Served by the backend API: run `uv run python -m grandma_sim.api` in `backend/` (port 8000). This is what the frontend sends and expects.
 
 **Request** (JSON)
 
@@ -29,29 +29,11 @@ The backend has no HTTP layer yet; this is what the frontend sends and expects.
 
 Each `MenuItem` is the backend pydantic model as JSON (see `src/types.ts`): `id`, `name`, `bakery`, `category`, `description`, `flavor {sweet_savoury, bitterness, fruitiness, categories[]}`, `price`, `portion_size_g`, `allergens[]`, `daypart_weights {}`. A bakery's `items` can be empty. New items get an `id` made from their name, and `daypart_weights` may be `{}` (unlisted dayparts count as 0.5).
 
-**Response 200**: the backend's `DayResult` as-is, with the same shape as `sample_data/day_seed0.json`: `{config, customers, events, summary}`. The schedule is `events`, in time order. Each event is `{minute, time: "HH:MM", daypart, customer_id, segment, choice}`, where `choice.purchased` is false for a customer who walked away.
+**Response 200**: the backend's `DayResult` as-is, with the same shape as `sample_data/day_seed0.json`: `{config, menus, customers, events, summary, ledger}`. The schedule is `events`, in time order. Each event is `{minute, time: "HH:MM", daypart, customer_id, segment, choice}`, where `choice.purchased` is false for a customer who walked away.
 
-**Errors**: any non-2xx. A JSON `{"detail": "..."}` (FastAPI's default, including 422 validation errors) is shown to the user; anything else shows "Backend error (status)".
+**Errors**: any non-2xx. A JSON `{"detail": "..."}` (FastAPI's default, including 422 validation errors) is shown to the user; anything else shows "Backend error (status)". Besides schema errors, the backend returns 422 for two menus for one bakery, an item on another bakery's menu, or a repeated item id.
 
-### Reference implementation (FastAPI)
-
-```python
-from fastapi import FastAPI
-from pydantic import BaseModel
-from grandma_sim import DayConfig, DayResult, DaySimulator, Menu
-
-class SimulateRequest(BaseModel):
-    menus: list[Menu]
-    seed: int = 0
-
-app = FastAPI()
-
-@app.post("/api/simulate")
-def simulate(req: SimulateRequest) -> DayResult:
-    return DaySimulator(DayConfig(seed=req.seed), req.menus).run()
-```
-
-Run with `uvicorn app:app --port 8000`. Check that computed fields (`choice.purchased`, `breakdown.total`, `summary.purchases`) appear in the JSON, since the frontend reads them.
+The route is `simulate_menus` in `backend/grandma_sim/api/app.py`. Computed fields (`choice.purchased`, `breakdown.total`, `summary.purchases`) are in the JSON.
 
 ## Data
 
