@@ -7,6 +7,7 @@ buys in bulk, which is how the price gap on the shelf gets a cost gap behind it.
 
 from ..core.enums import Bakery
 from .costing import Ingredient, Pantry, Recipe, RecipeBook, RecipeLine
+from .seed import build_menus
 
 GRANDMAS_PRICE_FACTOR = 1.3
 THE_BAKERY_PRICE_FACTOR = 0.75
@@ -96,11 +97,19 @@ def base_pantry() -> Pantry:
 
 
 def _book(pantry: Pantry, recipe_ids: list[str]) -> RecipeBook:
+    # Recipes are written for the seed menu's sweetness, which is the baseline
+    # any day-profile sweetness change is scaled from.
+    base_sweetness = {
+        item.id: item.flavor.sweet_savoury
+        for menu in build_menus()
+        for item in menu.items
+    }
     return RecipeBook(pantry=pantry).add(
         *(
             Recipe(
                 item_id=rid,
                 lines=[RecipeLine(ingredient_id=i, share=s) for i, s in RECIPES[rid].items()],
+                base_sweetness=base_sweetness[rid],
             )
             for rid in recipe_ids
         )

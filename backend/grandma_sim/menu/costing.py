@@ -89,10 +89,19 @@ class CostBreakdown(BaseModel):
 
 
 class Recipe(BaseModel):
-    """What one menu item is made of, as shares of its mass."""
+    """What one menu item is made of, as shares of its mass.
+
+    The listed shares are the recipe at `base_sweetness`. Sweetening or
+    savouring the item scales only the `sweeteners` by (1 + s) / (1 + base);
+    every other ingredient keeps its grams. Sweeter is extra sugar on top, so it
+    always costs more (and a portion weighs slightly more than `portion_size_g`).
+    A recipe with no sweeteners costs the same at any sweetness.
+    """
 
     item_id: str
     lines: list[RecipeLine]
+    base_sweetness: float = Field(0.0, gt=-1.0, le=1.0)
+    sweeteners: frozenset[str] = frozenset({"sugar", "maple_syrup"})
 
     @model_validator(mode="after")
     def _shares_sum_to_one(self) -> Recipe:
@@ -101,13 +110,25 @@ class Recipe(BaseModel):
             raise ValueError(f"recipe {self.item_id!r} shares sum to {total:.3f}, not 1.0")
         return self
 
-    def cost_per_kg(self, pantry: Pantry) -> float:
-        return sum(line.share * pantry.price_per_kg(line.ingredient_id) for line in self.lines)
+    def sweetener_factor(self, sweetness: float) -> float:
+        """Multiplier on the sweetener grams at `sweetness` (1.0 at the base)."""
+        return (1.0 + sweetness) / (1.0 + self.base_sweetness)
+
+    def cost_per_kg(self, pantry: Pantry, sweetness: float | None = None) -> float:
+        """Cost per kg of the base recipe's mass, with sweeteners scaled."""
+        f = self.sweetener_factor(self.base_sweetness if sweetness is None else sweetness)
+        return sum(
+            line.share * (f if line.ingredient_id in self.sweeteners else 1.0)
+            * pantry.price_per_kg(line.ingredient_id)
+            for line in self.lines
+        )
 
     def breakdown(self, item: MenuItem, pantry: Pantry) -> CostBreakdown:
+        factor = self.sweetener_factor(item.flavor.sweet_savoury)
         lines = []
         for line in self.lines:
-            grams = item.portion_size_g * line.share
+            scale = factor if line.ingredient_id in self.sweeteners else 1.0
+            grams = item.portion_size_g * line.share * scale
             lines.append(
                 CostLine(
                     ingredient_id=line.ingredient_id,
