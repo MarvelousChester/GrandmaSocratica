@@ -15,6 +15,7 @@ import { SketchDefs } from './Sketch'
 import type { DayResult, MenuItem } from './types'
 import { useDayClock } from './useDayClock'
 import { useSimulation } from './useSimulation'
+import logo from './logo.png'
 
 /** The day being played back: people walking, metrics climbing, clock running. */
 function DayView({ day, onDone, onReport }: { day: DayResult; onDone: () => void; onReport: () => void }) {
@@ -134,7 +135,9 @@ export default function App() {
             onRemove={removeItem}
           />
         ))}
-        <div className="center">
+        <div className="center center--setup">
+          {/* Fades out as soon as Start is pressed; it's gone entirely once the day plays. */}
+          <img className="logo" src={logo} alt="Grandma must win" data-hidden={loading || undefined} />
           <div className="clock">{formatTime(CLOCK.open_minute)}</div>
           <button
             type="button"
