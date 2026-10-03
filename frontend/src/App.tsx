@@ -3,7 +3,6 @@ import { SegmentedControl } from '@mantine/core'
 import { useLocalStorage } from '@mantine/hooks'
 import { BAKERY_INFO, CLOCK, formatTime, MENUS, newItemId, PANEL_ORDER } from './data'
 import { DayReport, type ReportView } from './DayReport'
-import { DoneModal } from './DoneModal'
 import { ItemModal, type ModalTarget } from './ItemModal'
 import { MenuPanel } from './MenuPanel'
 import { MetricsPanel } from './MetricsPanel'
@@ -16,9 +15,16 @@ import type { DayResult, MenuItem } from './types'
 import { useDayClock } from './useDayClock'
 import { useSimulation } from './useSimulation'
 
-/** The day being played back: people walking, metrics climbing, clock running. */
-function DayView({ day, onDone, onReport }: { day: DayResult; onDone: () => void; onReport: () => void }) {
+interface DayViewProps {
+  day: DayResult
+  view: ReportView
+  onDone: () => void
+}
+
+/** The day being played back: people walking, metrics climbing, clock running, then the day's report. */
+function DayView({ day, view, onDone }: DayViewProps) {
   const { minute, finished, multiplier, cycleSpeed, skip } = useDayClock(day)
+  const report = useMemo(() => buildReport(day), [day])
   const metrics = metricsAt(day, minute)
   const [left, right] = PANEL_ORDER
   return (
@@ -56,7 +62,7 @@ function DayView({ day, onDone, onReport }: { day: DayResult; onDone: () => void
           </div>
         </div>
       </div>
-      <DoneModal opened={finished} day={day} onClose={onDone} onReport={onReport} />
+      <DayReport opened={finished} report={report} view={view} onClose={onDone} closeLabel="Back to menus" />
     </>
   )
 }
@@ -104,15 +110,7 @@ export default function App() {
     return (
       <div className="app">
         <SketchDefs />
-        <DayView
-          key={playing.config.seed}
-          day={playing}
-          onDone={() => setPlaying(null)}
-          onReport={() => {
-            setPlaying(null)
-            setReportOpen(true)
-          }}
-        />
+        <DayView key={playing.config.seed} day={playing} view={view} onDone={() => setPlaying(null)} />
       </div>
     )
   }

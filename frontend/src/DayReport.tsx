@@ -1,6 +1,6 @@
-import { Modal, Table, Tabs, Text } from '@mantine/core'
+import { Button, Group, Modal, Table, Tabs, Text } from '@mantine/core'
 import { formatMoney, formatPercent, humanize, REPORT_ORDER as ORDER, shop } from './data'
-import type { DayReport as Report } from './report'
+import { verdict, type DayReport as Report } from './report'
 import {
   CrowdBars,
   HourlyChart,
@@ -211,9 +211,10 @@ interface Props {
   report: Report | null
   view: ReportView
   onClose: () => void
+  closeLabel?: string // shows a button at the bottom that closes the report
 }
 
-export function DayReport({ opened, report, view, onClose }: Props) {
+export function DayReport({ opened, report, view, onClose, closeLabel }: Props) {
   return (
     <Modal
       opened={opened}
@@ -228,7 +229,19 @@ export function DayReport({ opened, report, view, onClose }: Props) {
         close: 'sk-modal__close',
       }}
     >
-      {report && (view === 'grandma' ? <GrandmaView report={report} /> : <DetailedView report={report} />)}
+      {report && (
+        <>
+          <p className="report-verdict">{verdict(report)}</p>
+          {view === 'grandma' ? <GrandmaView report={report} /> : <DetailedView report={report} />}
+        </>
+      )}
+      {closeLabel && (
+        <Group justify="flex-end" mt="lg">
+          <Button className="sk-btn sk-btn--primary" onClick={onClose}>
+            {closeLabel}
+          </Button>
+        </Group>
+      )}
     </Modal>
   )
 }

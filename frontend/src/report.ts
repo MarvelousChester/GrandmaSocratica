@@ -1,3 +1,4 @@
+import { formatMoney } from './data'
 import type { Bakery, DayResult, IngredientUsage } from './types'
 
 const BAKERIES: Bakery[] = ['grandmas_bakeria', 'the_bakery']
@@ -136,6 +137,20 @@ export function buildReport(day: DayResult): DayReport {
 export const hourVisits = (h: HourRow) => h.sold.grandmas_bakeria + h.sold.the_bakery + h.walkaways
 
 /** The hour with the most visitors, or null on an empty day. */
+/** How the day went, told from Grandma's side: did she keep more than The Bakery? Profit, or sales without a ledger. */
+export function verdict(report: DayReport): string {
+  const ours = report.bakeries.grandmas_bakeria
+  const theirs = report.bakeries.the_bakery
+  const [lead, what] =
+    ours.profit !== null && theirs.profit !== null
+      ? [ours.profit - theirs.profit, 'profit']
+      : [ours.revenue - theirs.revenue, 'sales']
+  if (Math.abs(lead) < 0.005) return 'Neck and neck with The Bakery!'
+  return lead > 0
+    ? `Grandma's won the day by ${formatMoney(lead)} in ${what}!`
+    : `The Bakery beat us by ${formatMoney(-lead)} in ${what}. Let's tweak the menu!`
+}
+
 export function busiestHour(report: DayReport): HourRow | null {
   const busiest = report.hours.reduce((best, h) => (hourVisits(h) > hourVisits(best) ? h : best), report.hours[0])
   return busiest && hourVisits(busiest) > 0 ? busiest : null

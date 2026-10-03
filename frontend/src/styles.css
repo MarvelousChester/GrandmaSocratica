@@ -303,6 +303,12 @@ button.report-btn {
   gap: 16px;
 }
 
+.report-verdict {
+  margin: 0 0 14px;
+  font-family: var(--title-font);
+  font-size: 1.6rem;
+}
+
 .report--grandma h4 {
   margin-top: 22px;
   font-family: var(--title-font);
@@ -797,19 +803,6 @@ button.report-btn {
 .metric__star {
   margin-right: 0.4em;
   color: #e8b100;
-}
-
-.sk-modal__title.sk-modal__title--yay {
-  font-size: 3rem;
-}
-
-.done__winner {
-  font-family: var(--title-font);
-  font-size: 1.8rem;
-}
-
-.done__table {
-  font-size: 1.15rem;
 }
 
 /* ---- day playback: speed and skip ---- */
