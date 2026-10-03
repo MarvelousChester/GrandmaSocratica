@@ -862,7 +862,8 @@ button.speed[data-active] {
   stroke-width: 8px;
   paint-order: stroke;
   font-family: inherit;
-  font-size: 56px;
+  /* Narrow enough that three lanes fit across one shopfront (see People.tsx). */
+  font-size: 46px;
   text-anchor: middle;
 }
 
@@ -886,16 +887,39 @@ button.control:disabled {
   gap: 3vh;
 }
 
-.logo {
-  display: block;
-  width: 100%;
-  height: auto;
-  margin-bottom: -1vh;
-  pointer-events: none;
-  user-select: none;
-  transition: opacity 250ms ease;
+
+
+/* ---- title screen: the logo gets the whole street to itself ---- */
+
+.title {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Sits in the sky: below this the shopfronts start, and text over the
+     painted buildings is unreadable. */
+  justify-content: flex-start;
+  padding: 5vh 6vw 0;
+  gap: 2vh;
+  text-align: center;
+  color: var(--ink);
 }
 
-.logo[data-hidden] {
-  opacity: 0;
+.title__logo {
+  /* Capped against the viewport height, since it is the sky that has to fit
+     the whole stack, not the width. */
+  max-height: 27vh;
+  max-width: min(560px, 50vw);
+  width: auto;
+  height: auto;
+  user-select: none;
+  pointer-events: none;
+}
+
+.title__tagline {
+  margin: 0;
+  max-width: 36ch;
+  font-size: clamp(15px, 1.35vw, 22px);
+  line-height: 1.5;
 }

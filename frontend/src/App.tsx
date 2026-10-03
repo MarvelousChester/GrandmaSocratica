@@ -11,10 +11,10 @@ import { metricsAt } from './playback'
 import { buildReport } from './report'
 import { Scene } from './Scene'
 import { SketchDefs } from './Sketch'
+import { TitleScreen } from './TitleScreen'
 import type { DayResult, MenuItem } from './types'
 import { SPEED_STEPS, useDayClock } from './useDayClock'
 import { useSimulation } from './useSimulation'
-import logo from './logo.png'
 
 interface DayViewProps {
   day: DayResult
@@ -80,6 +80,7 @@ function DayView({ day, view, onDone }: DayViewProps) {
 }
 
 export default function App() {
+  const [begun, setBegun] = useState(false)
   const [menus, setMenus] = useState(MENUS)
   const sim = useSimulation()
   const loading = sim.status === 'loading'
@@ -118,6 +119,16 @@ export default function App() {
     if (day) setPlaying(day)
   }
 
+  if (!begun) {
+    return (
+      <div className="app">
+        <SketchDefs />
+        <Scene />
+        <TitleScreen onBegin={() => setBegun(true)} />
+      </div>
+    )
+  }
+
   if (playing) {
     return (
       <div className="app">
@@ -145,8 +156,6 @@ export default function App() {
           />
         ))}
         <div className="center center--setup">
-          {/* Fades out as soon as Start is pressed; it's gone entirely once the day plays. */}
-          <img className="logo" src={logo} alt="Grandma must win" data-hidden={loading || undefined} />
           <div className="clock">{formatTime(CLOCK.open_minute)}</div>
           <button
             type="button"
