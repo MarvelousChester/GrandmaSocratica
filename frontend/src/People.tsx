@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
-import { DOOR_X, hash, leaveAfter, personAt, popAt, VIEW_H, VIEW_W, WALK } from './playback'
+import { DOOR_X, GROUND_Y, hash, leaveAfter, personAt, popAt, VIEW_H, VIEW_W, WALK } from './playback'
 import type { DayResult } from './types'
 
-const GROUND_Y = 1040 // top of the sidewalk, in Scene viewBox units
 const MARGIN = 60 // start this far past the visible edge
-const HEIGHT = 230 // of a person, in Scene viewBox units
+const HEIGHT = 200 // of a person, in Scene viewBox units
 
 // Drawn facing right; every PNG in the folder joins the crowd.
 const SPRITES = Object.values(

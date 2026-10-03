@@ -14,6 +14,7 @@ const POP = 4 // a sale's "+$" floats above the door
 
 // Scene geometry, in the Scene SVG's viewBox units.
 export const DOOR_X: Record<Bakery, number> = { the_bakery: 610, grandmas_bakeria: 1158 }
+export const GROUND_Y = 1040 // top of the sidewalk
 export const VIEW_W = 1700
 export const VIEW_H = 1288
 
