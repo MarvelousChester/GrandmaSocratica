@@ -17,6 +17,13 @@ export const BAKERY_INFO: Record<Bakery, { name: string; label: string; roof: st
 // Left to right on screen.
 export const PANEL_ORDER: Bakery[] = ['the_bakery', 'grandmas_bakeria']
 
+// Reports list Grandma first: she's who the player is rooting for.
+export const REPORT_ORDER: Bakery[] = ['grandmas_bakeria', 'the_bakery']
+
+export const WALKAWAY_FILL = '#d9d4cf'
+
+export const shop = (bakery: Bakery) => BAKERY_INFO[bakery].label
+
 /** Minutes since midnight as a 12-hour clock, e.g. 360 -> "6:00 AM". */
 export function formatTime(minute: number): string {
   const h24 = Math.floor(minute / 60) % 24
@@ -39,6 +46,29 @@ export function humanize(value: string): string {
   const text = value.replace(/_/g, ' ')
   return text.charAt(0).toUpperCase() + text.slice(1)
 }
+
+/** 1234.5 -> "$1,234.50" */
+export const formatMoney = (dollars: number) =>
+  dollars.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+
+/** 0.451 -> "45%" */
+export const formatPercent = (share: number) => `${Math.round(share * 100)}%`
+
+/** Hour of day as a short 12-hour label, e.g. 13 -> "1 PM". */
+export const formatHour = (hour: number) => `${hour % 12 || 12} ${hour % 24 < 12 ? 'AM' : 'PM'}`
+
+// Customer segments (backend/grandma_sim/customers/presets.py) as plural nouns.
+const SEGMENT_PEOPLE: Record<string, string> = {
+  commuter: 'commuters',
+  lunch_worker: 'lunch workers',
+  student: 'students',
+  regular: 'regulars',
+  after_work: 'after-work crowd',
+}
+
+/** 'lunch_worker' -> 'lunch workers'; unknown segments fall back to their name. */
+export const segmentPeople = (segment: string) =>
+  SEGMENT_PEOPLE[segment] ?? humanize(segment).toLowerCase()
 
 /** Starting point for the "Add menu item" form. `id` is assigned on save. */
 export function blankItem(bakery: Bakery): MenuItem {

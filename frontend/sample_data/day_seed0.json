@@ -16322,7 +16322,45 @@
             },
             "hour": 19
           }
-        ]
+        ],
+        "items": {
+          "fall_parfait": {
+            "units_sold": 10,
+            "revenue": 85.0,
+            "ingredient_cost": 42.87,
+            "profit": 42.13
+          },
+          "morning_bun": {
+            "units_sold": 12,
+            "revenue": 51.0,
+            "ingredient_cost": 6.89,
+            "profit": 44.11
+          },
+          "sourdough_loaf": {
+            "units_sold": 12,
+            "revenue": 84.0,
+            "ingredient_cost": 9.43,
+            "profit": 74.57
+          },
+          "lemon_tart": {
+            "units_sold": 11,
+            "revenue": 63.25,
+            "ingredient_cost": 8.29,
+            "profit": 54.96
+          },
+          "hot_chocolate": {
+            "units_sold": 22,
+            "revenue": 99.0,
+            "ingredient_cost": 33.13,
+            "profit": 65.87
+          },
+          "gruyere_croissant": {
+            "units_sold": 11,
+            "revenue": 79.75,
+            "ingredient_cost": 24.57,
+            "profit": 55.18
+          }
+        }
       },
       "the_bakery": {
         "financials": {
@@ -17614,7 +17652,45 @@
             "ingredients": {},
             "hour": 19
           }
-        ]
+        ],
+        "items": {
+          "autumn_parfait": {
+            "units_sold": 11,
+            "revenue": 76.45,
+            "ingredient_cost": 16.51,
+            "profit": 59.94
+          },
+          "cinnamon_swirl": {
+            "units_sold": 17,
+            "revenue": 67.15,
+            "ingredient_cost": 5.11,
+            "profit": 62.04
+          },
+          "multigrain_loaf": {
+            "units_sold": 24,
+            "revenue": 132.0,
+            "ingredient_cost": 12.92,
+            "profit": 119.08
+          },
+          "lemon_square": {
+            "units_sold": 11,
+            "revenue": 41.25,
+            "ingredient_cost": 2.93,
+            "profit": 38.32
+          },
+          "mocha_latte": {
+            "units_sold": 25,
+            "revenue": 131.25,
+            "ingredient_cost": 28.33,
+            "profit": 102.92
+          },
+          "turkey_club": {
+            "units_sold": 7,
+            "revenue": 66.5,
+            "ingredient_cost": 13.78,
+            "profit": 52.72
+          }
+        }
       }
     },
     "uncosted_items": []

@@ -6,12 +6,13 @@ interface Props {
   opened: boolean
   day: DayResult
   onClose: () => void
+  onReport: () => void // back to the menus with the day report open
 }
 
 const money = (n: number) => `${n < 0 ? '−' : ''}$${Math.abs(n).toFixed(2)}`
 
 /** End-of-day results: who won on revenue, and the final totals. */
-export function DoneModal({ opened, day, onClose }: Props) {
+export function DoneModal({ opened, day, onClose, onReport }: Props) {
   const { summary, ledger } = day
   const [a, b] = PANEL_ORDER.map((bakery) => summary.by_bakery[bakery].revenue)
   const winner =
@@ -76,6 +77,9 @@ export function DoneModal({ opened, day, onClose }: Props) {
           {summary.visits} customers came by; {summary.walkaways} left without buying anything.
         </Text>
         <Group justify="flex-end">
+          <Button className="sk-btn" onClick={onReport}>
+            See the full report
+          </Button>
           <Button className="sk-btn sk-btn--primary" onClick={onClose}>
             Back to menus
           </Button>

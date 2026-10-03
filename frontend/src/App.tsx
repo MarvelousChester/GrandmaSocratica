@@ -1,11 +1,15 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import { SegmentedControl } from '@mantine/core'
+import { useLocalStorage } from '@mantine/hooks'
 import { BAKERY_INFO, CLOCK, formatTime, MENUS, newItemId, PANEL_ORDER } from './data'
+import { DayReport, type ReportView } from './DayReport'
 import { DoneModal } from './DoneModal'
 import { ItemModal, type ModalTarget } from './ItemModal'
 import { MenuPanel } from './MenuPanel'
 import { MetricsPanel } from './MetricsPanel'
 import { People } from './People'
 import { metricsAt } from './playback'
+import { buildReport } from './report'
 import { Scene } from './Scene'
 import { SketchDefs } from './Sketch'
 import type { DayResult, MenuItem } from './types'
@@ -13,7 +17,7 @@ import { useDayClock } from './useDayClock'
 import { useSimulation } from './useSimulation'
 
 /** The day being played back: people walking, metrics climbing, clock running. */
-function DayView({ day, onDone }: { day: DayResult; onDone: () => void }) {
+function DayView({ day, onDone, onReport }: { day: DayResult; onDone: () => void; onReport: () => void }) {
   const { minute, finished, multiplier, cycleSpeed, skip } = useDayClock(day)
   const metrics = metricsAt(day, minute)
   const [left, right] = PANEL_ORDER
@@ -52,7 +56,7 @@ function DayView({ day, onDone }: { day: DayResult; onDone: () => void }) {
           </div>
         </div>
       </div>
-      <DoneModal opened={finished} day={day} onClose={onDone} />
+      <DoneModal opened={finished} day={day} onClose={onDone} onReport={onReport} />
     </>
   )
 }
@@ -67,6 +71,9 @@ export default function App() {
     opened: false,
     target: null,
   })
+  const [view, setView] = useLocalStorage<ReportView>({ key: 'report-view', defaultValue: 'grandma' })
+  const [reportOpen, setReportOpen] = useState(false)
+  const report = useMemo(() => (sim.day ? buildReport(sim.day) : null), [sim.day])
 
   const removeItem = (item: MenuItem) =>
     setMenus((m) => ({ ...m, [item.bakery]: m[item.bakery].filter((i) => i.id !== item.id) }))
@@ -97,7 +104,15 @@ export default function App() {
     return (
       <div className="app">
         <SketchDefs />
-        <DayView key={playing.config.seed} day={playing} onDone={() => setPlaying(null)} />
+        <DayView
+          key={playing.config.seed}
+          day={playing}
+          onDone={() => setPlaying(null)}
+          onReport={() => {
+            setPlaying(null)
+            setReportOpen(true)
+          }}
+        />
       </div>
     )
   }
@@ -132,9 +147,24 @@ export default function App() {
           <div className="status" role="status" data-error={sim.status === 'error' || undefined}>
             {loading ? 'Simulating the day…' : sim.status === 'error' ? sim.error : null}
           </div>
+          {report && (
+            <button type="button" className="sketch report-btn" onClick={() => setReportOpen(true)}>
+              {view === 'grandma' ? 'How did it go?' : 'Day report'}
+            </button>
+          )}
+          <SegmentedControl
+            className="view-toggle"
+            value={view}
+            onChange={(v) => setView(v as ReportView)}
+            data={[
+              { value: 'grandma', label: 'Grandma' },
+              { value: 'detailed', label: 'Detailed' },
+            ]}
+          />
         </div>
       </div>
       <ItemModal opened={modal.opened} target={modal.target} onClose={closeModal} onSave={saveItem} />
+      <DayReport opened={reportOpen} report={report} view={view} onClose={() => setReportOpen(false)} />
     </div>
   )
 }

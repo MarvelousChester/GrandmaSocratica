@@ -60,7 +60,8 @@ day-0 profile; delete `grandma.db` to recreate it.
 The ledger has an entry per bakery with the day's `financials` (`units_sold`,
 `revenue`, `ingredient_cost`, `profit`) and `ingredients` used (`grams`,
 `cost`, costliest first), and the same two blocks for every opening hour in
-`hourly`. Costs come from `menu/recipes_seed.py` and use that day's menu, so a
+`hourly`, plus `financials` for every menu item in `items` (by item id, zero
+for items that didn't sell). Costs come from `menu/recipes_seed.py` and use that day's menu, so a
 portion override changes ingredient usage. Cost is ingredients only — no
 labour or rent yet.
 

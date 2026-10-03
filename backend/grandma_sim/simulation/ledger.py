@@ -36,6 +36,17 @@ class Financials(BaseModel):
     def profit(self) -> float:
         return round(self.revenue - self.ingredient_cost, 2)
 
+    def add(self, price: float, cost: CostBreakdown | None) -> None:
+        """Add one sale. `cost` is None for items without a recipe."""
+        self.units_sold += 1
+        self.revenue += price
+        if cost is not None:
+            self.ingredient_cost += cost.total
+
+    def round_to_cents(self) -> None:
+        self.revenue = round(self.revenue, 2)
+        self.ingredient_cost = round(self.ingredient_cost, 2)
+
 
 class LedgerPeriod(BaseModel):
     """Sales, costs and ingredients used over some span of the day."""
@@ -47,11 +58,9 @@ class LedgerPeriod(BaseModel):
 
     def record(self, price: float, cost: CostBreakdown | None, pantry: Pantry | None) -> None:
         """Add one sale. `cost` is None for items without a recipe."""
-        self.financials.units_sold += 1
-        self.financials.revenue += price
+        self.financials.add(price, cost)
         if cost is None:
             return
-        self.financials.ingredient_cost += cost.total
         for line in cost.lines:
             usage = self.ingredients.get(line.ingredient_id)
             if usage is None:
@@ -64,8 +73,7 @@ class LedgerPeriod(BaseModel):
 
     def finalise(self) -> None:
         """Round for display and order ingredients by cost."""
-        self.financials.revenue = round(self.financials.revenue, 2)
-        self.financials.ingredient_cost = round(self.financials.ingredient_cost, 2)
+        self.financials.round_to_cents()
         for usage in self.ingredients.values():
             usage.grams = round(usage.grams, 1)
             usage.cost = round(usage.cost, 2)
@@ -79,9 +87,19 @@ class HourLedger(LedgerPeriod):
 
 
 class BakeryLedger(LedgerPeriod):
-    """A bakery's whole day, plus the same breakdown for every opening hour."""
+    """A bakery's whole day, plus the same breakdown for every opening hour and item."""
 
     hourly: list[HourLedger] = Field(default_factory=list)
+    items: dict[str, Financials] = Field(
+        default_factory=dict, description="By item id, for every item on the menu."
+    )
+
+    def finalise(self) -> None:
+        super().finalise()
+        for hour in self.hourly:
+            hour.finalise()
+        for financials in self.items.values():
+            financials.round_to_cents()
 
 
 class DayLedger(BaseModel):
@@ -126,6 +144,8 @@ class DayLedger(BaseModel):
             bakery: BakeryLedger(hourly=[HourLedger(hour=h) for h in hours])
             for bakery in Bakery
         }
+        for menu in menus:
+            ledgers[menu.bakery].items = {item.id: Financials() for item in menu.items}
 
         # Record each purchase against its bakery's day and hour.
         for event in events:
@@ -139,9 +159,8 @@ class DayLedger(BaseModel):
             cost = costs.get(choice.item_id)
             ledger.record(choice.price, cost, pantry)
             hour.record(choice.price, cost, pantry)
+            ledger.items.setdefault(choice.item_id, Financials()).add(choice.price, cost)
 
         for ledger in ledgers.values():
             ledger.finalise()
-            for hour in ledger.hourly:
-                hour.finalise()
         return cls(bakeries=ledgers, uncosted_items=sorted(uncosted))

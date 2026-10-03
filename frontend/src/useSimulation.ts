@@ -15,7 +15,7 @@ export function useSimulation() {
   const [state, setState] = useState<State>({ status: 'idle', day: null, error: null })
   const running = useRef(false)
 
-  /** Resolves to the simulated day, or null if it failed (or one is already running). */
+  /** Simulates a day for `menus`; resolves to it, or null if it failed or one was already running. */
   const start = useCallback(async (menus: Menu[]): Promise<DayResult | null> => {
     if (running.current) return null
     running.current = true

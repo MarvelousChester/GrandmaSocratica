@@ -140,9 +140,21 @@ export interface Financials {
   profit: number
 }
 
-export interface BakeryLedger {
+export interface IngredientUsage {
+  name: string
+  price_per_kg: number
+  grams: number
+  cost: number
+}
+
+export interface LedgerPeriod {
   financials: Financials
-  hourly: { hour: number; financials: Financials }[] // hour 7 = 07:00-08:00
+  ingredients: Record<string, IngredientUsage> // by ingredient id, costliest first
+}
+
+export interface BakeryLedger extends LedgerPeriod {
+  hourly: (LedgerPeriod & { hour: number })[]
+  items: Record<string, Financials> // by item id, every item on the menu
 }
 
 export interface DayLedger {
