@@ -74,7 +74,10 @@ class DaySimulator:
         self.config = config
         self.menus = list(menus)
         self.recipe_books = recipe_books
-        self.items = [item for menu in self.menus for item in menu.items]
+        # Sorted so the same menus give the same day whatever order they load in.
+        self.items = sorted(
+            (item for menu in self.menus for item in menu.items), key=lambda i: i.id
+        )
         self.choice_model = ChoiceModel(config.choice, config.clock, config.usual_prices)
 
     def run(self) -> DayResult:

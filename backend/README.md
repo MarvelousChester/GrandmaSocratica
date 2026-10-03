@@ -22,10 +22,14 @@ also wipes any day profiles set through the API.
 
 ## API
 
-Days are numbered from 1. Each day is simulated with the same customers
-(fixed `population_seed`); the day number is the seed for arrivals and
-choices, so a day is reproducible and changing its profile only changes
-decisions, never who shows up.
+Days are numbered from 0 (opening day) and form one continuous season: day N
+is simulated after days 0..N-1, so The Bakery's repricing in response to
+grandma's earlier prices (see Competitor pricing) is already applied. Each day
+has the same customers (fixed `population_seed`) and its number as the seed
+for arrivals and choices, so it is reproducible, and changing a profile only
+changes decisions, never who shows up. Days are cached; changing a profile
+only re-simulates the days from it onward. The API and `run_season.py` give
+identical days for the same profiles.
 
 | endpoint | |
 |---|---|
@@ -37,6 +41,11 @@ decisions, never who shows up.
 | `GET /days/{day}/menu` | menu items as they stand on `day` |
 | `GET /days/{day}/simulation` | the simulated day: `config`, `menus`, `customers`, `events`, `summary`, `ledger` |
 | `GET /days/{day}/ledger` | just the day's costs, profit and ingredient usage |
+| `GET /season?through=N` | days 0..N as a timeline: each day's `prices`, `summary`, `ledger` and The Bakery's `repricings`, plus the `rivalries` it tracks |
+
+`GET /days/{day}/menu` shows both menus as they stood that day, competitor
+prices included. A database created before days counted from 0 rejects a
+day-0 profile; delete `grandma.db` to recreate it.
 
 The ledger has an entry per bakery with the day's `financials` (`units_sold`,
 `revenue`, `ingredient_cost`, `profit`) and `ingredients` used (`grams`,
@@ -62,6 +71,33 @@ id; any field left out keeps its base value:
 Overridable fields: `price`, `portion_size_g`, `flavor` (`sweet_savoury`,
 `bitterness`, `fruitiness`, `categories`), `allergens`, `daypart_weights`,
 `available`. Unknown item ids or out-of-range values return 422.
+
+### Ingredient prices
+
+Ingredient prices have their own schedule, independent of menu profiles, with
+the same carry-forward rule — so a menu change never wipes a price shock.
+They only change costs (the ledger), not what customers buy.
+
+| endpoint | |
+|---|---|
+| `GET /ingredients` | base ingredient prices per bakery (`price_per_kg`) |
+| `PUT /days/{day}/ingredient-prices` | set ingredient prices from `day` onward (body below) |
+| `GET /days/{day}/ingredient-prices` | the changes in force on `day`, with `source_day` |
+| `DELETE /days/{day}/ingredient-prices` | drop them; the previous ones carry over again |
+| `GET /ingredient-prices` | every day that has ingredient prices set |
+| `GET /days/{day}/ingredients` | each bakery's ingredient prices as they stand on `day` |
+
+```json
+{
+  "multipliers": { "butter": 1.5 },
+  "prices": { "grandmas_bakeria": { "flour": 2.10 } }
+}
+```
+
+`multipliers` scale an ingredient's price at every bakery (a market-wide
+shortage); `prices` set one bakery's $/kg outright and win over a multiplier.
+Unknown ingredients or bakeries, or negative values, return 422. The ledger's
+ingredient entries include the `price_per_kg` paid that day.
 
 ## The item model
 
@@ -233,7 +269,8 @@ backend/
       pricing.py       PricingPolicy, CompetitorPricer.review() -> Repricing
     profiles/
       overrides.py     ItemOverride, FlavorOverride, DayProfile.apply(menus)
-      store.py         ProfileStore — day profiles in SQLite, carry-forward lookup
+      ingredients.py   IngredientPrices.apply(recipe_books) — per-day ingredient prices
+      store.py         ScheduleStore — day-scheduled settings in SQLite, carry-forward lookup
     api/
       service.py       SimulationService — base menus + profiles -> simulated day
       app.py           FastAPI routes, create_app()

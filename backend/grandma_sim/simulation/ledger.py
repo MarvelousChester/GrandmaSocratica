@@ -21,6 +21,7 @@ from .events import VisitEvent
 
 class IngredientUsage(BaseModel):
     name: str
+    price_per_kg: float = Field(description="What the bakery paid that day.")
     grams: float = 0.0
     cost: float = 0.0
 
@@ -54,8 +55,10 @@ class LedgerPeriod(BaseModel):
         for line in cost.lines:
             usage = self.ingredients.get(line.ingredient_id)
             if usage is None:
-                name = pantry.ingredients[line.ingredient_id].name
-                usage = self.ingredients[line.ingredient_id] = IngredientUsage(name=name)
+                ingredient = pantry.ingredients[line.ingredient_id]
+                usage = self.ingredients[line.ingredient_id] = IngredientUsage(
+                    name=ingredient.name, price_per_kg=round(ingredient.price_per_kg, 2)
+                )
             usage.grams += line.grams
             usage.cost += line.cost
 

@@ -8,25 +8,39 @@
     GET    /days/{day}/menu           menu items as they stand on a day
     GET    /days/{day}/simulation     the simulated day, ledger included
     GET    /days/{day}/ledger         just the day's costs, profit and ingredients
+    GET    /season?through=N          days 0..N: prices, sales, ledger, repricings
 
+    GET    /ingredients               base ingredient prices, per bakery
+    GET    /ingredient-prices         every day that has ingredient prices set
+    GET    /days/{day}/ingredient-prices   ingredient price changes in force on a day
+    PUT    /days/{day}/ingredient-prices   set them from that day onward
+    DELETE /days/{day}/ingredient-prices   drop them; the previous ones carry over
+    GET    /days/{day}/ingredients    ingredient prices as they stand on a day
+
+Days count from 0 (opening day). Every day is part of one season, so The
+Bakery's repricing in response to earlier days is already applied.
 Interactive docs at /docs once running.
 """
 
 from __future__ import annotations
 
-from fastapi import FastAPI, HTTPException, Path, status
+from fastapi import FastAPI, HTTPException, Path, Query, status
 from fastapi.middleware.cors import CORSMiddleware
 
+from ..core.enums import Bakery
+from ..menu.costing import Pantry
 from ..menu.items import Menu, MenuItem
+from ..profiles.ingredients import IngredientPrices
 from ..profiles.overrides import DayProfile
-from ..profiles.store import ScheduledProfile
+from ..profiles.store import ScheduledIngredientPrices, ScheduledProfile
 from ..simulation.day import DayResult
 from ..simulation.ledger import DayLedger
+from ..simulation.season import SeasonResult
 from .service import SimulationService
 
 DEFAULT_CORS_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
 
-DayNumber = Path(ge=1, description="Day number, starting at 1.")
+DayNumber = Path(ge=0, description="Day number; 0 is opening day.")
 
 
 def _flatten(menus: list[Menu]) -> list[MenuItem]:
@@ -63,7 +77,7 @@ def create_app(
 
     @app.get("/profiles")
     def list_profiles() -> list[ScheduledProfile]:
-        return service.profiles.all()
+        return service.list_profiles()
 
     @app.get("/days/{day}/profile")
     def get_profile(day: int = DayNumber) -> ScheduledProfile:
@@ -92,5 +106,43 @@ def create_app(
     @app.get("/days/{day}/ledger")
     def get_ledger(day: int = DayNumber) -> DayLedger:
         return service.simulate(day).ledger
+
+    @app.get("/season")
+    def get_season(
+        through: int = Query(ge=0, description="Last day to include."),
+    ) -> SeasonResult:
+        return service.season(through)
+
+    @app.get("/ingredients")
+    def get_ingredients() -> dict[Bakery, Pantry]:
+        return service.base_pantries()
+
+    @app.get("/ingredient-prices")
+    def list_ingredient_prices() -> list[ScheduledIngredientPrices]:
+        return service.list_ingredient_prices()
+
+    @app.get("/days/{day}/ingredient-prices")
+    def get_ingredient_prices(day: int = DayNumber) -> ScheduledIngredientPrices:
+        return service.ingredient_prices_for(day)
+
+    @app.put("/days/{day}/ingredient-prices")
+    def put_ingredient_prices(
+        prices: IngredientPrices, day: int = DayNumber
+    ) -> ScheduledIngredientPrices:
+        try:
+            return service.set_ingredient_prices(day, prices)
+        except ValueError as error:
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(error))
+
+    @app.delete("/days/{day}/ingredient-prices", status_code=status.HTTP_204_NO_CONTENT)
+    def delete_ingredient_prices(day: int = DayNumber) -> None:
+        if not service.clear_ingredient_prices(day):
+            raise HTTPException(
+                status.HTTP_404_NOT_FOUND, f"no ingredient prices set on day {day}"
+            )
+
+    @app.get("/days/{day}/ingredients")
+    def get_day_ingredients(day: int = DayNumber) -> dict[Bakery, Pantry]:
+        return service.pantries_for(day)
 
     return app

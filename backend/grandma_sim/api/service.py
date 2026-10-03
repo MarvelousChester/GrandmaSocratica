@@ -1,44 +1,70 @@
-"""The simulation as a service: base menus + day profiles -> a simulated day.
+"""The simulation as a service: base menus + day profiles -> simulated days.
 
+Days run as one continuous season from day 0 (opening day), so The Bakery's
+repricing in response to grandma's profiles is part of every day served.
 Kept free of HTTP so it can be driven from scripts and tests as easily as from
 the API.
 """
 
 from __future__ import annotations
 
+import hashlib
+import json
 from contextlib import closing
 from pathlib import Path
+from typing import NamedTuple
+
+from pydantic import BaseModel
 
 from ..core.enums import Bakery
 from ..menu import store as menu_store
-from ..menu.costing import RecipeBook
+from ..menu.costing import Pantry, RecipeBook
 from ..menu.items import Menu
 from ..menu.recipes_seed import recipe_books_by_bakery
 from ..menu.seed import build_menus
+from ..profiles.ingredients import IngredientPrices
 from ..profiles.overrides import DayProfile
-from ..profiles.store import ProfileStore, ScheduledProfile
-from ..simulation.day import DayConfig, DayResult, DaySimulator, menu_prices
+from ..profiles.store import ScheduledIngredientPrices, ScheduledProfile, ScheduleStore
+from ..simulation.day import DayResult
+from ..simulation.season import DayRecord, SeasonConfig, SeasonResult, SeasonSimulator
+
+# Simulated days kept in memory before the cache is dropped and rebuilt.
+_MAX_CACHED_DAYS = 2000
+
+
+class _CachedDay(NamedTuple):
+    record: DayRecord
+    result: DayResult
 
 
 class SimulationService:
-    """Simulates numbered days (1, 2, ...) for one fixed town of customers.
+    """Simulates numbered days (0, 1, 2, ...) for one fixed town of customers.
 
-    Every day shares `base_config` -- same population, clock and choice model
-    -- and differs only in its seed (the day number) and its menus (the base
-    menus with that day's profile applied). Customers expect the base menu
-    prices, so a profile price above base is felt as a markup.
+    Day N is the last day of a season run from day 0 under the stored
+    profiles, so it reflects every price move made before it -- grandma's and
+    The Bakery's answers to them. Each day's seed is its number, customers
+    expect the base menu prices, and `season_config` fixes everything else
+    (population, clock, choice model, competitor policy).
+
+    Simulated days are cached by the base menus and the profiles that can
+    affect them, so walking forward one day at a time doesn't re-run history,
+    and changing a profile only invalidates the days from it onward.
     """
 
     def __init__(
         self,
         db_path: str | Path = menu_store.DEFAULT_DB_PATH,
-        base_config: DayConfig | None = None,
+        season_config: SeasonConfig | None = None,
         recipe_books: dict[Bakery, RecipeBook] | None = None,
     ):
         self.db_path = Path(db_path)
-        self.base_config = base_config or DayConfig()
+        self.season_config = season_config or SeasonConfig()
         self.recipe_books = recipe_books or recipe_books_by_bakery()
-        self.profiles = ProfileStore(self.db_path)
+        self.profiles = ScheduleStore(self.db_path, "day_profiles", "profile", DayProfile)
+        self.ingredient_prices = ScheduleStore(
+            self.db_path, "day_ingredient_prices", "prices", IngredientPrices
+        )
+        self._cache: dict[str, _CachedDay] = {}
         self._seed_menus_if_empty()
 
     def _seed_menus_if_empty(self) -> None:
@@ -54,7 +80,16 @@ class SimulationService:
             return [menu_store.load_menu(conn, bakery) for bakery in Bakery]
 
     def profile_for(self, day: int) -> ScheduledProfile:
-        return self.profiles.effective(day)
+        latest = self.profiles.latest(day)
+        if latest is None:
+            return ScheduledProfile(day=day, source_day=None, profile=DayProfile())
+        return ScheduledProfile(day=day, source_day=latest[0], profile=latest[1])
+
+    def list_profiles(self) -> list[ScheduledProfile]:
+        return [
+            ScheduledProfile(day=day, source_day=day, profile=profile)
+            for day, profile in self.profiles.all().items()
+        ]
 
     def set_profile(self, day: int, profile: DayProfile) -> ScheduledProfile:
         """
@@ -78,13 +113,116 @@ class SimulationService:
         """Drop the profile set on `day`; the previous one carries over again."""
         return self.profiles.delete(day)
 
+    def base_pantries(self) -> dict[Bakery, Pantry]:
+        return {bakery: book.pantry for bakery, book in self.recipe_books.items()}
+
+    def pantries_for(self, day: int) -> dict[Bakery, Pantry]:
+        """Each bakery's ingredient prices as they stand on `day`."""
+        prices = self.ingredient_prices_for(day).prices
+        return {
+            bakery: book.pantry for bakery, book in prices.apply(self.recipe_books).items()
+        }
+
+    def ingredient_prices_for(self, day: int) -> ScheduledIngredientPrices:
+        latest = self.ingredient_prices.latest(day)
+        if latest is None:
+            return ScheduledIngredientPrices(
+                day=day, source_day=None, prices=IngredientPrices()
+            )
+        return ScheduledIngredientPrices(day=day, source_day=latest[0], prices=latest[1])
+
+    def list_ingredient_prices(self) -> list[ScheduledIngredientPrices]:
+        return [
+            ScheduledIngredientPrices(day=day, source_day=day, prices=prices)
+            for day, prices in self.ingredient_prices.all().items()
+        ]
+
+    def set_ingredient_prices(
+        self, day: int, prices: IngredientPrices
+    ) -> ScheduledIngredientPrices:
+        """
+        Set ingredient prices from `day` onward, until a later day sets its own.
+
+        Args:
+         day: First day the prices apply to.
+         prices: Multipliers and per-bakery prices over the base pantries.
+
+        Returns:
+         The prices now in force on `day`.
+
+        Raises:
+         ValueError: If an ingredient or bakery is unknown.
+        """
+        prices.apply(self.recipe_books)
+        self.ingredient_prices.set(day, prices)
+        return self.ingredient_prices_for(day)
+
+    def clear_ingredient_prices(self, day: int) -> bool:
+        """Drop the prices set on `day`; the previous ones carry over again."""
+        return self.ingredient_prices.delete(day)
+
     def menus_for(self, day: int) -> list[Menu]:
-        return self.profile_for(day).profile.apply(self.base_menus())
+        """Both menus as they stood on `day`, competitor repricing included."""
+        return self.simulate(day).menus
 
     def simulate(self, day: int) -> DayResult:
-        base_menus = self.base_menus()
-        config = self.base_config.model_copy(
-            update={"seed": day, "usual_prices": menu_prices(base_menus)}
+        return self._day(day).result
+
+    def season(self, through: int) -> SeasonResult:
+        """Days 0..`through` as a timeline: prices, sales, ledger, repricings."""
+        records = [self._day(day).record for day in range(through + 1)]
+        simulator = SeasonSimulator(self._season_config(through), self.base_menus())
+        return SeasonResult(
+            config=simulator.config, rivalries=simulator.rivalries, days=records
         )
-        menus = self.profile_for(day).profile.apply(base_menus)
-        return DaySimulator(config, menus, self.recipe_books).run()
+
+    def _season_config(self, through: int) -> SeasonConfig:
+        return self.season_config.model_copy(
+            update={
+                "days": through + 1,
+                "profiles": self.profiles.all(),
+                "ingredient_prices": self.ingredient_prices.all(),
+            }
+        )
+
+    def _day(self, day: int) -> _CachedDay:
+        """
+        Fetch day `day` from the cache, running the season up to it if needed.
+
+        A miss re-runs the season from day 0 and caches every day it passes,
+        so earlier days are hits afterwards.
+
+        Args:
+         day: Day number, from 0.
+
+        Returns:
+         The day's season record and full result.
+        """
+        base_menus = self.base_menus()
+        config = self._season_config(day)
+        key = self._cache_key(day, base_menus, config)
+        if key not in self._cache:
+            if len(self._cache) > _MAX_CACHED_DAYS:
+                self._cache.clear()
+            simulator = SeasonSimulator(config, base_menus, self.recipe_books)
+            for record, result in simulator.iter_days():
+                self._cache[self._cache_key(record.day, base_menus, config)] = _CachedDay(
+                    record, result
+                )
+        return self._cache[key]
+
+    @staticmethod
+    def _cache_key(day: int, base_menus: list[Menu], config: SeasonConfig) -> str:
+        """Identifies everything day `day` depends on: the base menus and the
+        profiles and ingredient prices set on or before it."""
+
+        def up_to_day(schedule: dict[int, BaseModel]) -> dict[int, dict]:
+            return {d: v.model_dump(mode="json") for d, v in schedule.items() if d <= day}
+
+        payload = {
+            "day": day,
+            "menus": [m.model_dump(mode="json") for m in base_menus],
+            "profiles": up_to_day(config.profiles),
+            "ingredient_prices": up_to_day(config.ingredient_prices),
+        }
+        return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()

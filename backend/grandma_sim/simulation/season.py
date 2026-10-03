@@ -17,7 +17,8 @@ prices rather than to a different crowd turning up.
 from __future__ import annotations
 
 from collections import Counter
-from collections.abc import Mapping
+from collections.abc import Iterator, Mapping
+from typing import TypeVar
 
 from pydantic import BaseModel, Field
 
@@ -30,13 +31,22 @@ from ..customers.population import PopulationConfig
 from ..customers.presets import default_population
 from ..menu.costing import RecipeBook
 from ..menu.items import Menu
+from ..profiles.ingredients import IngredientPrices
 from ..profiles.overrides import DayProfile
-from .day import DayConfig, DaySimulator, menu_prices
+from .day import DayConfig, DayResult, DaySimulator, menu_prices
 from .events import DaySummary
 from .ledger import DayLedger
 
 # Keeps per-day seeds far apart so consecutive days don't correlate.
 _DAY_SEED_STRIDE = 100_000
+
+T = TypeVar("T")
+
+
+def in_force(schedule: Mapping[int, T], day: int) -> T | None:
+    """The value set most recently on or before `day`, or None if none yet."""
+    applicable = [d for d in schedule if d <= day]
+    return schedule[max(applicable)] if applicable else None
 
 
 class SeasonConfig(BaseModel):
@@ -56,6 +66,10 @@ class SeasonConfig(BaseModel):
     profiles: dict[int, DayProfile] = Field(
         default_factory=dict,
         description="Grandma's moves: the profile set on a day holds until replaced.",
+    )
+    ingredient_prices: dict[int, IngredientPrices] = Field(
+        default_factory=dict,
+        description="Ingredient price changes; each holds until replaced. Costs only.",
     )
 
 
@@ -124,15 +138,25 @@ class SeasonSimulator:
 
     def player_profile(self, day: int) -> DayProfile:
         """Grandma's profile in force on `day`: the latest one set on or before it."""
-        applicable = [d for d in self.config.profiles if d <= day]
-        return self.config.profiles[max(applicable)] if applicable else DayProfile()
+        return in_force(self.config.profiles, day) or DayProfile()
+
+    def recipe_books_for(self, day: int) -> Mapping[Bakery, RecipeBook] | None:
+        """Recipe books costed at the ingredient prices in force on `day`."""
+        prices = in_force(self.config.ingredient_prices, day)
+        if self.recipe_books is None or prices is None:
+            return self.recipe_books
+        return prices.apply(self.recipe_books)
 
     def run(self) -> SeasonResult:
+        records = [record for record, _ in self.iter_days()]
+        return SeasonResult(config=self.config, rivalries=self.rivalries, days=records)
+
+    def iter_days(self) -> Iterator[tuple[DayRecord, DayResult]]:
+        """Simulate each day in turn, yielding its record and its full result."""
         history: dict[int, dict[str, float]] = {}
         window: Counter[str] = Counter()
         # The Bakery's standing prices, carried from one day to the next.
         responses: dict[str, float] = {}
-        records: list[DayRecord] = []
 
         for day in range(self.config.days):
             menus = self.player_profile(day).apply(self.base_menus)
@@ -162,18 +186,15 @@ class SeasonSimulator:
                     usual_prices=self.usual_prices,
                 ),
                 menus,
-                self.recipe_books,
+                self.recipe_books_for(day),
             ).run()
             window.update(result.summary.item_sales)
 
-            records.append(
-                DayRecord(
-                    day=day,
-                    prices=prices,
-                    summary=result.summary,
-                    ledger=result.ledger,
-                    repricings=repricings,
-                )
+            record = DayRecord(
+                day=day,
+                prices=prices,
+                summary=result.summary,
+                ledger=result.ledger,
+                repricings=repricings,
             )
-
-        return SeasonResult(config=self.config, rivalries=self.rivalries, days=records)
+            yield record, result

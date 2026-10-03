@@ -1,7 +1,8 @@
-"""SQLite storage for day profiles, in the same database file as the menus.
+"""SQLite storage for day-scheduled settings, in the same file as the menus.
 
-A profile set on day N stays in force for every later day until another day
-sets its own, so a price change carries forward without being re-sent daily.
+A value set on day N stays in force for every later day until another day
+sets its own, so a change carries forward without being re-sent daily. Menu
+profiles and ingredient prices each get their own schedule.
 """
 
 from __future__ import annotations
@@ -10,18 +11,15 @@ import sqlite3
 from collections.abc import Iterator
 from contextlib import closing, contextmanager
 from pathlib import Path
+from typing import Generic, TypeVar
 
 from pydantic import BaseModel, Field
 
 from ..menu.store import connect
+from .ingredients import IngredientPrices
 from .overrides import DayProfile
 
-SCHEMA = """
-CREATE TABLE IF NOT EXISTS day_profiles (
-    day     INTEGER PRIMARY KEY CHECK (day >= 1),
-    profile TEXT NOT NULL  -- DayProfile as JSON
-);
-"""
+T = TypeVar("T", bound=BaseModel)
 
 
 class ScheduledProfile(BaseModel):
@@ -34,14 +32,46 @@ class ScheduledProfile(BaseModel):
     profile: DayProfile
 
 
-class ProfileStore:
-    """Reads and writes day profiles. Opens a connection per call, so it is
-    safe to share across the API's worker threads."""
+class ScheduledIngredientPrices(BaseModel):
+    """The ingredient prices in force on `day`, and the day they were set on."""
 
-    def __init__(self, path: str | Path):
+    day: int
+    source_day: int | None = Field(
+        description="Day the prices were set on; None means base pantry prices."
+    )
+    prices: IngredientPrices
+
+
+class ScheduleStore(Generic[T]):
+    """Day-keyed values of one model type, one row per day they were set on.
+
+    Opens a connection per call, so it is safe to share across the API's
+    worker threads.
+    """
+
+    def __init__(self, path: str | Path, table: str, column: str, model: type[T]):
+        """
+        Open (creating if needed) a schedule table.
+
+        Args:
+         path: SQLite file.
+         table: Table holding this schedule.
+         column: Column holding each day's value as JSON.
+         model: Pydantic model the values are stored as.
+        """
+        if not (table.isidentifier() and column.isidentifier()):
+            raise ValueError("table and column must be plain identifiers")
         self.path = Path(path)
+        self.table = table
+        self.column = column
+        self.model = model
         with self._connect() as conn:
-            conn.executescript(SCHEMA)
+            conn.execute(
+                f"""CREATE TABLE IF NOT EXISTS {table} (
+                        day      INTEGER PRIMARY KEY CHECK (day >= 0),
+                        {column} TEXT NOT NULL
+                    )"""
+            )
 
     @contextmanager
     def _connect(self) -> Iterator[sqlite3.Connection]:
@@ -49,44 +79,38 @@ class ProfileStore:
         with closing(connect(self.path)) as conn, conn:
             yield conn
 
-    def set(self, day: int, profile: DayProfile) -> None:
+    def set(self, day: int, value: T) -> None:
         with self._connect() as conn:
             conn.execute(
-                """INSERT INTO day_profiles (day, profile) VALUES (?, ?)
-                   ON CONFLICT(day) DO UPDATE SET profile=excluded.profile""",
-                (day, profile.model_dump_json()),
+                f"""INSERT INTO {self.table} (day, {self.column}) VALUES (?, ?)
+                    ON CONFLICT(day) DO UPDATE SET {self.column}=excluded.{self.column}""",
+                (day, value.model_dump_json()),
             )
 
     def delete(self, day: int) -> bool:
-        """Remove the profile set on `day`. False if there wasn't one."""
+        """Remove the value set on `day`. False if there wasn't one."""
         with self._connect() as conn:
-            cursor = conn.execute("DELETE FROM day_profiles WHERE day = ?", (day,))
+            cursor = conn.execute(f"DELETE FROM {self.table} WHERE day = ?", (day,))
             return cursor.rowcount > 0
 
-    def effective(self, day: int) -> ScheduledProfile:
-        """The latest profile set on or before `day`, or an empty one."""
+    def latest(self, day: int) -> tuple[int, T] | None:
+        """The value set most recently on or before `day`, with the day it was set."""
         with self._connect() as conn:
             row = conn.execute(
-                "SELECT day, profile FROM day_profiles WHERE day <= ? "
+                f"SELECT day, {self.column} FROM {self.table} WHERE day <= ? "
                 "ORDER BY day DESC LIMIT 1",
                 (day,),
             ).fetchone()
         if row is None:
-            return ScheduledProfile(day=day, source_day=None, profile=DayProfile())
-        return _to_scheduled(day, row)
+            return None
+        return row["day"], self.model.model_validate_json(row[self.column])
 
-    def all(self) -> list[ScheduledProfile]:
-        """Every explicitly set profile, in day order."""
+    def all(self) -> dict[int, T]:
+        """Every value explicitly set, by the day it was set on, in day order."""
         with self._connect() as conn:
             rows = conn.execute(
-                "SELECT day, profile FROM day_profiles ORDER BY day"
+                f"SELECT day, {self.column} FROM {self.table} ORDER BY day"
             ).fetchall()
-        return [_to_scheduled(row["day"], row) for row in rows]
-
-
-def _to_scheduled(day: int, row: sqlite3.Row) -> ScheduledProfile:
-    return ScheduledProfile(
-        day=day,
-        source_day=row["day"],
-        profile=DayProfile.model_validate_json(row["profile"]),
-    )
+        return {
+            row["day"]: self.model.model_validate_json(row[self.column]) for row in rows
+        }
