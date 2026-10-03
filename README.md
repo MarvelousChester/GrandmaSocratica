@@ -1,6 +1,5 @@
 # Grandma Must Win
-<img width="1638" height="953" alt="image" src="https://github.com/user-attachments/assets/2624733a-f978-4601-ae18-2cf69d88ae6e" />
-
+<img width="2360" height="1640" alt="image" src="https://github.com/user-attachments/assets/d6cafe41-03f3-4732-87ef-84fd6876a84c" />
 
 A simulation game: generated customers choose between Grandma's Bakeria and
 The Bakery over the course of a day.
