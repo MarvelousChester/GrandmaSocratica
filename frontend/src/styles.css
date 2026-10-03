@@ -1,0 +1,417 @@
+:root {
+  --ink: #1e1e1e;
+  --paper: #f5f1ed;
+  --pink: #f8c9c9;
+  --yellow: #fdeda1;
+  --blue: #b0d6fb;
+  --title-font: 'Lilita One', 'Patrick Hand', cursive;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+.app {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* Menus, clock and Start sit over the scene. Only the controls take clicks. */
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 1fr 25vw 1fr;
+  padding: 0 2.2vw;
+  color: var(--ink);
+  pointer-events: none;
+}
+
+.overlay > * {
+  pointer-events: auto;
+}
+
+/* ---- hand-drawn boxes: the border/fill wobbles, the content on top does not ---- */
+
+.sketch,
+.panel {
+  position: relative;
+  isolation: isolate;
+}
+
+.sketch::before,
+.panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--fill, #fff);
+  border: 3px solid var(--ink);
+  border-radius: var(--radius, 1vw);
+  filter: url(#rough-ui);
+}
+
+button.sketch {
+  --radius: 1vw;
+  border: 0;
+  background: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+button.sketch:hover::before {
+  background: #f3f3f3;
+}
+
+button.sketch:active {
+  transform: translateY(1px);
+}
+
+button.sketch:disabled {
+  opacity: 0.65;
+  cursor: progress;
+}
+
+button.sketch:disabled::before,
+button.sketch:disabled:hover::before {
+  background: var(--fill, #fff);
+}
+
+/* ---- menu panels ---- */
+
+.panel {
+  --radius: 2.4vw 2.4vw 1.6vw 1.6vw;
+  height: 71vh;
+  margin-top: 4.6vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel--left {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.panel--right {
+  grid-column: 3;
+  grid-row: 1;
+  margin-top: 5.4vh;
+}
+
+.panel__title {
+  margin: 0;
+  padding: 3.2vh 2vw 1.6vh;
+  font-family: var(--title-font);
+  font-weight: 400;
+  font-size: clamp(22px, 2.9vw, 56px);
+  line-height: 1.1;
+}
+
+.panel--right .panel__title {
+  text-align: right;
+}
+
+.rule {
+  display: block;
+  width: calc(100% - 1.6vw);
+  height: 8px;
+  margin: 0 auto;
+  color: var(--ink);
+}
+
+.panel__list {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: 1.2vw;
+  padding: 1.4vh 1.8vw;
+  font-size: clamp(15px, min(1.9vw, 3.4vh), 34px);
+}
+
+.row__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: clamp(24px, 2.4vw, 44px);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.icon-btn:hover {
+  transform: scale(1.12) rotate(-6deg);
+}
+
+.icon-btn svg {
+  width: 100%;
+  height: auto;
+}
+
+.panel__footer {
+  display: flex;
+  padding: 1.2vh 2vw 2.4vh;
+}
+
+.panel--right .panel__footer {
+  justify-content: flex-end;
+}
+
+.plus {
+  --radius: 1vw;
+  width: clamp(40px, 4.6vw, 84px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+}
+
+.plus svg {
+  width: 62%;
+}
+
+/* ---- clock and Start ---- */
+
+.center {
+  grid-column: 2;
+  grid-row: 1;
+  margin-top: 4.6vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6vh;
+}
+
+.clock {
+  font-size: clamp(30px, 3.6vw, 68px);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.status {
+  margin-top: -3vh;
+  min-height: 3em;
+  max-width: 100%;
+  font-size: clamp(14px, 1.4vw, 26px);
+  line-height: 1.3;
+  text-align: center;
+  white-space: pre-line;
+}
+
+.status[data-error] {
+  color: #c92a2a;
+}
+
+button.start {
+  --radius: 1.2vw;
+  width: clamp(130px, 15vw, 280px);
+  height: clamp(46px, 6.2vh, 90px);
+  font-size: clamp(20px, 2.5vw, 46px);
+}
+
+/* ---- item modal: off-white card, white boxes, ink outlines, pink fills ---- */
+
+.sk-modal {
+  --fill: var(--paper);
+  --radius: 28px;
+  padding: 6px;
+  background: transparent;
+  box-shadow: none;
+  color: var(--ink);
+}
+
+/* Keep the wobbling outline inside the element so the scroll container can't clip it. */
+.sk-modal.sketch::before {
+  inset: 4px;
+}
+
+.sk-modal__header {
+  background: transparent;
+}
+
+.sk-modal__title {
+  font-size: 2rem;
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.sk-modal__close {
+  color: var(--ink);
+}
+
+.sk-box {
+  --fill: #fff;
+  --radius: 20px;
+  padding: 16px;
+}
+
+.sk-modal .mantine-InputWrapper-label {
+  margin-bottom: 4px;
+  font-size: 1.05rem;
+  font-weight: 400;
+}
+
+.sk-modal .mantine-Input-input {
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 1.05rem;
+}
+
+.sk-modal .mantine-Input-input:focus,
+.sk-modal .mantine-Input-input:focus-within {
+  border-color: var(--ink);
+  box-shadow: 0 0 0 3px var(--blue);
+}
+
+.sk-modal .mantine-Input-input[data-error] {
+  border-color: #c92a2a;
+}
+
+.sk-modal .mantine-NumberInput-control {
+  color: var(--ink);
+}
+
+/* tabs */
+
+.sk-modal .mantine-Tabs-root {
+  --tabs-color: var(--ink);
+}
+
+.sk-modal .mantine-Tabs-list::before {
+  border-color: var(--ink);
+}
+
+.sk-modal .mantine-Tabs-tab {
+  border-radius: 12px 12px 0 0;
+  color: var(--ink);
+  font-size: 1.15rem;
+}
+
+.sk-modal .mantine-Tabs-tab:hover {
+  background: var(--paper);
+}
+
+.sk-modal .mantine-Tabs-tab[data-active] {
+  background: var(--pink);
+}
+
+/* chips */
+
+.sk-modal .mantine-Chip-label {
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
+.sk-modal .mantine-Chip-label:hover {
+  background: var(--pink);
+}
+
+.sk-modal .mantine-Chip-label[data-checked] {
+  border: 2px solid var(--ink);
+  background: var(--pink);
+  color: var(--ink);
+}
+
+.sk-modal .mantine-Chip-iconWrapper,
+.sk-modal .mantine-Chip-checkIcon {
+  --chip-icon-color: var(--ink);
+  color: var(--ink);
+}
+
+/* sliders: outlined paper track, pink fill */
+
+.sk-modal .mantine-Slider-root {
+  --slider-track-bg: var(--paper);
+  padding-inline: 0;
+}
+
+.sk-modal .mantine-Slider-track {
+  border-radius: 8px;
+  outline: 2px solid var(--ink);
+}
+
+.sk-modal .mantine-Slider-track::before {
+  inset-inline: 0;
+  border-radius: 8px;
+}
+
+.sk-modal .mantine-Slider-bar {
+  border-radius: 8px;
+}
+
+.sk-modal .mantine-Slider-thumb {
+  border: 2.5px solid var(--ink);
+  background: #fff;
+}
+
+.sk-modal .mantine-Slider-mark {
+  display: none;
+}
+
+.sk-modal .mantine-Slider-markLabel {
+  margin-top: 16px; /* clear the thicker track */
+  color: var(--ink);
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* buttons */
+
+.sk-btn {
+  height: 42px;
+  padding-inline: 22px;
+  border: 2.5px solid var(--ink);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 1.15rem;
+}
+
+.sk-btn .mantine-Button-label {
+  font-weight: 400;
+}
+
+.sk-btn:hover:not([data-disabled]) {
+  background: var(--paper);
+}
+
+.sk-btn--primary {
+  background: var(--yellow);
+}
+
+.sk-btn--primary:hover:not([data-disabled]) {
+  background: #fbe27a;
+}
+
+.sk-btn[data-disabled] {
+  border-color: var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  opacity: 0.45;
+}
