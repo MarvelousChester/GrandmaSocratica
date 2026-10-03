@@ -1,5 +1,6 @@
 // Turns a simulated day into what's on screen at a given minute: where each
 // customer is, and how each bakery is doing so far. Pure functions, no React.
+import { DOOR_X } from './sceneLayout'
 import type { Bakery, DayResult, VisitEvent } from './types'
 
 /** Simulated minutes per real second. Will become a user setting. */
@@ -12,7 +13,6 @@ export const INSIDE = 2 // a buyer is inside the shop
 const FADE = 0.4
 
 // Scene geometry, in the Scene SVG's viewBox units.
-export const DOOR_X: Record<Bakery, number> = { the_bakery: 610, grandmas_bakeria: 1158 }
 export const VIEW_W = 1700
 export const VIEW_H = 1288
 

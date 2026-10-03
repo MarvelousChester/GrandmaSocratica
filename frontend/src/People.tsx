@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { hash, leaveAfter, personAt, VIEW_H, VIEW_W, WALK } from './playback'
+import { GROUND_Y } from './sceneLayout'
 import type { DayResult } from './types'
 
-const GROUND_Y = 1040 // top of the sidewalk, in Scene viewBox units
 const MARGIN = 60 // start this far past the visible edge
 
 /**
