@@ -12,6 +12,7 @@ from collections.abc import Mapping
 from pydantic import BaseModel, Field, computed_field
 
 from ..core.clock import DayClock
+from ..core.enums import Bakery
 from ..customers.profile import CustomerProfile
 from ..menu.items import MenuItem
 
@@ -63,6 +64,7 @@ class UtilityWeights(BaseModel):
     )
     portion: float = 0.5
     bakery: float = 1.0
+    habit: float = 1.0
     reference_price: float = Field(
         5.0, gt=0.0, description="Price that is neither cheap nor dear."
     )
@@ -81,6 +83,7 @@ class UtilityBreakdown(BaseModel):
     markup: float = 0.0
     portion: float
     bakery: float
+    habit: float = 0.0
 
     @computed_field
     @property
@@ -93,6 +96,7 @@ class UtilityBreakdown(BaseModel):
             + self.markup
             + self.portion
             + self.bakery
+            + self.habit
         )
 
 
@@ -101,6 +105,8 @@ class UtilityModel:
 
     `usual_prices` are what customers expect each item to cost (by item id);
     an item without one is judged against its own price, i.e. no markup.
+    `habits` are each customer's habit per bakery (by customer id), built up
+    over earlier days; customers without one have none.
     """
 
     def __init__(
@@ -108,10 +114,15 @@ class UtilityModel:
         weights: UtilityWeights,
         clock: DayClock,
         usual_prices: Mapping[str, float] | None = None,
+        habits: Mapping[str, Mapping[Bakery, float]] | None = None,
     ):
         self.weights = weights
         self.clock = clock
         self.usual_prices = usual_prices or {}
+        self.habits = habits or {}
+
+    def habit(self, customer: CustomerProfile, bakery: Bakery) -> float:
+        return self.habits.get(customer.id, {}).get(bakery, 0.0)
 
     def markup(self, item: MenuItem) -> float:
         """Price relative to the usual price, minus 1 (0.3 = 30% dearer)."""
@@ -159,4 +170,5 @@ class UtilityModel:
             * customer.portion_preference
             * math.log(item.portion_size_g / w.reference_portion_g),
             bakery=w.bakery * customer.bias_for(item.bakery),
+            habit=w.habit * self.habit(customer, item.bakery),
         )

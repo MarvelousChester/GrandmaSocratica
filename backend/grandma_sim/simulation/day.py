@@ -49,6 +49,10 @@ class DayConfig(BaseModel):
             "are penalised as markups. Unlisted items are judged at face value."
         ),
     )
+    habits: dict[str, dict[Bakery, float]] = Field(
+        default_factory=dict,
+        description="Each customer's habit per bakery from earlier days, by customer id.",
+    )
 
 
 class DayResult(BaseModel):
@@ -78,7 +82,9 @@ class DaySimulator:
         self.items = sorted(
             (item for menu in self.menus for item in menu.items), key=lambda i: i.id
         )
-        self.choice_model = ChoiceModel(config.choice, config.clock, config.usual_prices)
+        self.choice_model = ChoiceModel(
+            config.choice, config.clock, config.usual_prices, config.habits
+        )
 
     def run(self) -> DayResult:
         population_rng = np.random.default_rng(self.config.population_seed)

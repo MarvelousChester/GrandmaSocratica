@@ -12,6 +12,11 @@ competitor set.
 Customers are fixed for the whole run (one `population_seed`) while each day
 re-rolls arrivals and decisions, so a change in share is attributable to the
 prices rather than to a different crowd turning up.
+
+Customers remember, though. What they expect to pay drifts toward what they
+were charged, so a rise hurts most at first and is slowly accepted (and a long
+discount makes the old price feel like a markup). And each purchase builds a
+habit for that bakery, so customers won or lost stay that way for a while.
 """
 
 from __future__ import annotations
@@ -35,6 +40,7 @@ from ..profiles.ingredients import IngredientPrices
 from ..profiles.overrides import DayProfile
 from .day import DayConfig, DayResult, DaySimulator, menu_prices
 from .events import DaySummary
+from .habits import HabitConfig, Habits, mean_habit
 from .ledger import DayLedger
 
 # Keeps per-day seeds far apart so consecutive days don't correlate.
@@ -71,6 +77,16 @@ class SeasonConfig(BaseModel):
         default_factory=dict,
         description="Ingredient price changes; each holds until replaced. Costs only.",
     )
+    price_memory: float = Field(
+        0.05,
+        ge=0.0,
+        le=1.0,
+        description=(
+            "Share of the gap between usual and charged price closed each day; "
+            "0 keeps customers expecting the base menu prices forever."
+        ),
+    )
+    habits: HabitConfig = Field(default_factory=HabitConfig)
 
 
 class DayRecord(BaseModel):
@@ -78,6 +94,12 @@ class DayRecord(BaseModel):
 
     day: int
     prices: dict[str, float] = Field(description="Every item's price that day.")
+    usual_prices: dict[str, float] = Field(
+        description="What customers expected each item to cost going into the day."
+    )
+    habit: dict[Bakery, float] = Field(
+        description="Average habit per bakery across the town going into the day."
+    )
     summary: DaySummary
     ledger: DayLedger | None = Field(
         None, description="Costs and profit; None when no recipe books were given."
@@ -172,12 +194,24 @@ class SeasonSimulator:
         records = [record for record, _ in self.iter_days()]
         return SeasonResult(config=self.config, rivalries=self.rivalries, days=records)
 
+    def remembered_prices(
+        self, usual: Mapping[str, float], charged: Mapping[str, float]
+    ) -> dict[str, float]:
+        """Usual prices after a day at `charged`, each moved `price_memory` of the way."""
+        memory = self.config.price_memory
+        return {
+            item_id: round(price + memory * (charged.get(item_id, price) - price), 4)
+            for item_id, price in usual.items()
+        }
+
     def iter_days(self) -> Iterator[tuple[DayRecord, DayResult]]:
         """Simulate each day in turn, yielding its record and its full result."""
         history: dict[int, dict[str, float]] = {}
         window: Counter[str] = Counter()
         # The Bakery's standing prices, carried from one day to the next.
         responses: dict[str, float] = {}
+        usual_prices = dict(self.usual_prices)
+        habits: Habits = {}
 
         for day in range(self.config.days):
             menus = self.player_profile(day).apply(self.base_menus)
@@ -210,7 +244,8 @@ class SeasonSimulator:
                     population=self.config.population,
                     clock=self.config.clock,
                     choice=self.config.choice,
-                    usual_prices=self.usual_prices,
+                    usual_prices=usual_prices,
+                    habits=habits,
                 ),
                 menus,
                 self.recipe_books_for(day),
@@ -220,8 +255,12 @@ class SeasonSimulator:
             record = DayRecord(
                 day=day,
                 prices=prices,
+                usual_prices=usual_prices,
+                habit=mean_habit(habits, len(result.customers)),
                 summary=result.summary,
                 ledger=result.ledger,
                 repricings=repricings,
             )
+            usual_prices = self.remembered_prices(usual_prices, prices)
+            habits = self.config.habits.update(habits, result.events)
             yield record, result

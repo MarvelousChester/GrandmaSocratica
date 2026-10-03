@@ -41,7 +41,7 @@ identical days for the same profiles.
 | `GET /days/{day}/menu` | menu items as they stand on `day` |
 | `GET /days/{day}/simulation` | the simulated day: `config`, `menus`, `customers`, `events`, `summary`, `ledger` |
 | `GET /days/{day}/ledger` | just the day's costs, profit and ingredient usage |
-| `GET /season?through=N` | days 0..N as a timeline: each day's `prices`, `summary`, `ledger` and The Bakery's `repricings`, plus the `rivalries` it tracks |
+| `GET /season?through=N` | days 0..N as a timeline: each day's `prices`, `usual_prices`, average `habit`, `summary`, `ledger` and The Bakery's `repricings`, plus the `rivalries` it tracks |
 
 `GET /days/{day}/menu` shows both menus as they stood that day, competitor
 prices included. A database created before days counted from 0 rejects a
@@ -164,7 +164,8 @@ customers, a time-ordered list of `VisitEvent`s for the frontend to replay,
 and a `DaySummary`. Same config and menus always produce the same day.
 
 - **Population** — `PopulationConfig` is a mixture of `SegmentConfig`s
-  (commuter, lunch worker, student, regular in `customers/presets.py`). Each
+  (commuter, lunch worker, student, regular, after-work in
+  `customers/presets.py`). Each
   segment has a share and a distribution spec (`normal`, `beta`, `uniform`,
   `constant`) per trait, and the whole config round-trips through JSON.
 - **Arrivals** — each customer visits with their own probability, at their
@@ -172,10 +173,12 @@ and a `DaySummary`. Same config and menus always produce the same day.
 - **Choice** — a multinomial logit over every allergen-safe item on both menus
   plus "buy nothing". Utility is a sum of taste match, flavour-category
   affinity, daypart appeal (blended between neighbouring dayparts), log price,
-  price markup, log portion and bakery bias. Each purchase records its
-  `UtilityBreakdown`.
+  price markup, log portion, bakery bias and habit. Each purchase records its
+  `UtilityBreakdown`. "Buy nothing" scores `no_purchase_utility` (2.5), so
+  about a fifth of visitors leave empty-handed on opening day, more when
+  prices rise or nothing suits the hour.
 - **Price response** — customers expect each item's usual price
-  (`DayConfig.usual_prices`; the API and season use the base menu prices).
+  (`DayConfig.usual_prices`; a season starts from the base menu prices).
   Charging more costs `markup * price_sensitivity * tolerance * (e^(markup% /
   tolerance) - 1)`, so small rises barely register and big ones are
   dealbreakers; discounts help linearly. With the defaults (`markup` 0.5,
@@ -183,7 +186,30 @@ and a `DaySummary`. Same config and menus always produce the same day.
 
   | price change | +2% | +5% | +10% | +20% | +30% | +50% |
   |---|---|---|---|---|---|---|
-  | sales change | −2% | −6% | −15% | −45% | −79% | −99% |
+  | sales change | −4% | −9% | −20% | −51% | −86% | −99% |
+
+  That is the first-day shock; over a season customers get used to new prices
+  (see Customer memory).
+
+## Customer memory
+
+Over a season, customers carry two things from one day to the next
+(`simulation/season.py`, `simulation/habits.py`):
+
+- **Usual prices drift** toward what was charged, closing `price_memory`
+  (5%) of the gap each day. A rise hurts most at first and is slowly
+  accepted; a long discount makes the old price feel like a markup when it
+  returns. A 30% rise across grandma's menu drops her share from about 46% to
+  14% on the day, and it is back near 40% three weeks later.
+- **Habits** — each purchase adds `gain` (0.1) to that customer's habit for
+  the bakery, and every habit keeps `retention` (90%) of itself daily, so a
+  daily buyer levels off at 1.0 utility. Customers won by a price cut stay a
+  while after it ends; customers driven off build a habit for The Bakery.
+
+Each `DayRecord` (and `GET /season`) reports the day's `usual_prices` and the
+town's average `habit` per bakery; `GET /days/{day}/simulation` carries every
+customer's habits in `config.habits` and a `habit` term in each breakdown.
+Set `price_memory=0` and `habits.gain=0` for memoryless days.
 
 ## Competitor pricing
 
@@ -275,7 +301,7 @@ backend/
       distributions.py Normal / Beta / Uniform / Constant specs
       profile.py       CustomerProfile — one generated customer
       population.py    SegmentConfig, PopulationConfig.generate()
-      presets.py       default four-segment population
+      presets.py       default five-segment population
     choice/
       utility.py       UtilityWeights, UtilityModel.score() -> UtilityBreakdown
       model.py         ChoiceConfig, ChoiceModel (logit), Choice
@@ -283,6 +309,7 @@ backend/
       events.py        VisitEvent, DaySummary
       day.py           DayConfig, DaySimulator.run() -> DayResult
       ledger.py        DayLedger — revenue, ingredient cost, profit, usage; per day and hour
+      habits.py        HabitConfig.update() — per-customer habits carried between days
       season.py        SeasonConfig, SeasonSimulator.run() -> SeasonResult
     competition/
       rivalry.py       find_rivalries() — which item tracks which, by taste
@@ -299,8 +326,9 @@ backend/
 ## Not done yet
 
 - Baskets (one item per visit for now), inventory and queues.
-- Multi-day state, e.g. loyalty that moves with each visit.
+- Reputation: habits only form through buying, so a bakery can't win
+  customers who have never visited it by word of mouth.
 - Store hours per bakery. `DayClock` has one global open/close, so grandma
   can't open earlier to take the commuter rush she currently loses.
-- Usual prices never adapt. A price held for weeks still feels like a markup
-  (or a discount) on the last day; customers should get used to it over time.
+- Habits make every purchase likelier, not just one bakery's, so walk-aways
+  fall from about 21% to 13% over four weeks with no change in prices.

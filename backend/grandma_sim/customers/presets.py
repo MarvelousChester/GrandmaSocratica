@@ -1,8 +1,9 @@
 """A starting population for the sim, hand-tuned to be plausible.
 
-Four segments whose habits pull against the two menus differently: commuters
+Five segments whose habits pull against the two menus differently: commuters
 want cheap coffee early, the lunch crowd wants savoury and filling, students
-want sugar on a budget, and regulars pay up for grandma's.
+want sugar on a budget, regulars pay up for grandma's, and the after-work
+crowd picks up something for dinner on the way home.
 """
 
 from ..core.enums import Allergen, Bakery, FlavorCategory
@@ -27,7 +28,7 @@ def _affinity(mean: float, sd: float = 0.3) -> Normal:
 
 COMMUTER = SegmentConfig(
     name="commuter",
-    share=0.35,
+    share=0.31,
     sweet_savoury=Normal(mean=0.2, sd=0.4, low=-1.0, high=1.0),
     bitterness=Beta(a=4.0, b=3.0),
     pickiness=Normal(mean=1.5, sd=0.4, low=0.0),
@@ -42,7 +43,7 @@ COMMUTER = SegmentConfig(
 
 LUNCH_WORKER = SegmentConfig(
     name="lunch_worker",
-    share=0.30,
+    share=0.27,
     sweet_savoury=Normal(mean=-0.2, sd=0.4, low=-1.0, high=1.0),
     category_affinity={
         FlavorCategory.SAVOURY: _affinity(0.5),
@@ -58,7 +59,7 @@ LUNCH_WORKER = SegmentConfig(
 
 STUDENT = SegmentConfig(
     name="student",
-    share=0.20,
+    share=0.18,
     sweet_savoury=Normal(mean=0.6, sd=0.3, low=-1.0, high=1.0),
     category_affinity={
         FlavorCategory.CHOCOLATE: _affinity(0.6),
@@ -74,7 +75,7 @@ STUDENT = SegmentConfig(
 
 REGULAR = SegmentConfig(
     name="regular",
-    share=0.15,
+    share=0.12,
     sweet_savoury=Normal(mean=0.3, sd=0.4, low=-1.0, high=1.0),
     fruitiness=Beta(a=3.0, b=2.0),
     pickiness=Normal(mean=3.0, sd=0.5, low=0.0),
@@ -91,8 +92,24 @@ REGULAR = SegmentConfig(
     arrival_spread=Normal(mean=60, sd=20, low=0.0),
 )
 
+AFTER_WORK = SegmentConfig(
+    name="after_work",
+    share=0.12,
+    sweet_savoury=Normal(mean=-0.1, sd=0.4, low=-1.0, high=1.0),
+    category_affinity={
+        FlavorCategory.SAVOURY: _affinity(0.4),
+        FlavorCategory.CHEESE: _affinity(0.3),
+    },
+    allergen_prevalence=ALLERGEN_PREVALENCE,
+    price_sensitivity=Normal(mean=1.0, sd=0.3, low=0.0),
+    portion_preference=Normal(mean=0.6, sd=0.3, low=-1.0, high=1.0),
+    visit_probability=Beta(a=3.0, b=3.0),
+    arrival_minute=Normal(mean=17.75 * 60, sd=40),
+    arrival_spread=Normal(mean=25, sd=8, low=0.0),
+)
 
-CORE_SEGMENTS: list[SegmentConfig] = [COMMUTER, LUNCH_WORKER, STUDENT, REGULAR]
+
+CORE_SEGMENTS: list[SegmentConfig] = [COMMUTER, LUNCH_WORKER, STUDENT, REGULAR, AFTER_WORK]
 
 
 def _allergens(**overrides: float) -> dict[Allergen, float]:
@@ -123,7 +140,7 @@ def _arrival(hour: float, sd_minutes: float) -> Normal:
 
 
 # Shares are relative weights (the population normalises them), so these
-# extras sit alongside the core four, which sum to 1.0.
+# extras sit alongside the core five, which sum to 1.0.
 EXTRA_SEGMENTS: list[SegmentConfig] = [
     SegmentConfig(
         name="early_shift_nurse",
@@ -423,5 +440,5 @@ def default_population(size: int = 400) -> PopulationConfig:
 
 
 def extended_population(size: int = 400) -> PopulationConfig:
-    """The core four plus the 20 extra segments."""
+    """The core five plus the 20 extra segments."""
     return PopulationConfig(size=size, segments=ALL_SEGMENTS)

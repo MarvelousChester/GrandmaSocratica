@@ -24,7 +24,7 @@ class ChoiceConfig(BaseModel):
     weights: UtilityWeights = Field(default_factory=UtilityWeights)
     temperature: float = Field(1.0, gt=0.0)
     no_purchase_utility: float = Field(
-        1.0, description="Utility of leaving empty-handed; raise it to lose sales."
+        2.5, description="Utility of leaving empty-handed; raise it to lose sales."
     )
 
 
@@ -74,9 +74,10 @@ class ChoiceModel:
         config: ChoiceConfig,
         clock: DayClock,
         usual_prices: Mapping[str, float] | None = None,
+        habits: Mapping[str, Mapping[Bakery, float]] | None = None,
     ):
         self.config = config
-        self.utility = UtilityModel(config.weights, clock, usual_prices)
+        self.utility = UtilityModel(config.weights, clock, usual_prices, habits)
 
     def options(
         self, customer: CustomerProfile, items: Sequence[MenuItem], minute: float
