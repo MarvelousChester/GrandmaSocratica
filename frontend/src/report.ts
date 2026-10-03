@@ -9,6 +9,9 @@ export interface ItemRow {
   price: number
   sold: number
   revenue: number
+  cost: number | null // ingredients for the units sold; null without a recipe or ledger
+  profit: number | null
+  byHour: number[] // units sold in each of the report's hours
 }
 
 export interface BakeryReport {
@@ -50,12 +53,28 @@ const perBakery = (): Record<Bakery, number> => ({ grandmas_bakeria: 0, the_bake
 /** Turns a simulated day into the figures both report views show. */
 export function buildReport(day: DayResult): DayReport {
   const { summary, ledger, events, config } = day
+  const firstHour = Math.floor(config.clock.open_minute / 60)
+  const hourCount = Math.ceil(config.clock.close_minute / 60) - firstHour
+  const uncosted = new Set(ledger?.uncosted_items ?? [])
+
   const items: ItemRow[] = day.menus.flatMap((menu) =>
     menu.items.map((item) => {
       const sold = summary.item_sales[item.id] ?? 0
-      return { id: item.id, name: item.name, bakery: menu.bakery, price: item.price, sold, revenue: sold * item.price }
+      const money = uncosted.has(item.id) ? undefined : ledger?.bakeries[menu.bakery].items[item.id]
+      return {
+        id: item.id,
+        name: item.name,
+        bakery: menu.bakery,
+        price: item.price,
+        sold,
+        revenue: sold * item.price,
+        cost: money ? money.ingredient_cost : null,
+        profit: money ? money.profit : null,
+        byHour: Array<number>(hourCount).fill(0),
+      }
     }),
   )
+  const itemsById = new Map(items.map((i) => [i.id, i]))
 
   const bakeries = Object.fromEntries(
     BAKERIES.map((bakery) => {
@@ -74,16 +93,16 @@ export function buildReport(day: DayResult): DayReport {
     }),
   ) as Record<Bakery, BakeryReport>
 
-  const firstHour = Math.floor(config.clock.open_minute / 60)
   const hours: HourRow[] = Array.from(
-    { length: Math.ceil(config.clock.close_minute / 60) - firstHour },
+    { length: hourCount },
     (_, i) => ({ hour: firstHour + i, sold: perBakery(), walkaways: 0 }),
   )
   const segments = new Map<string, SegmentRow>()
 
-  // Tally each visit into its hour and its customer's segment.
+  // Tally each visit into its hour, its customer's segment and the item bought.
   for (const event of events) {
-    const hour = hours[Math.floor(event.minute / 60) - firstHour]
+    const hourIndex = Math.floor(event.minute / 60) - firstHour
+    const hour = hours[hourIndex]
     let segment = segments.get(event.segment)
     if (!segment) {
       segment = { segment: event.segment, visits: 0, sold: perBakery(), walkaways: 0 }
@@ -94,6 +113,8 @@ export function buildReport(day: DayResult): DayReport {
     if (bakery) {
       hour.sold[bakery] += 1
       segment.sold[bakery] += 1
+      const item = itemsById.get(event.choice.item_id ?? '')
+      if (item) item.byHour[hourIndex] += 1
     } else {
       hour.walkaways += 1
       segment.walkaways += 1
@@ -118,11 +139,4 @@ export const hourVisits = (h: HourRow) => h.sold.grandmas_bakeria + h.sold.the_b
 export function busiestHour(report: DayReport): HourRow | null {
   const busiest = report.hours.reduce((best, h) => (hourVisits(h) > hourVisits(best) ? h : best), report.hours[0])
   return busiest && hourVisits(busiest) > 0 ? busiest : null
-}
-
-/** The segment that walked away most often, as a share of its visits. */
-export function pickiestSegment(report: DayReport): SegmentRow | null {
-  const rate = (s: SegmentRow) => s.walkaways / s.visits
-  const candidates = report.segments.filter((s) => s.walkaways > 0)
-  return candidates.reduce<SegmentRow | null>((worst, s) => (!worst || rate(s) > rate(worst) ? s : worst), null)
 }

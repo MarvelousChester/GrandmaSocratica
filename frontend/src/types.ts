@@ -154,6 +154,7 @@ export interface LedgerPeriod {
 
 export interface BakeryLedger extends LedgerPeriod {
   hourly: (LedgerPeriod & { hour: number })[]
+  items: Record<string, Financials> // by item id, every item on the menu
 }
 
 export interface DayLedger {

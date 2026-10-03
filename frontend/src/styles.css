@@ -303,18 +303,215 @@ button.report-btn {
   gap: 16px;
 }
 
-.report-notes {
-  margin: 16px 0 0;
-  padding-left: 20px;
-  font-size: 1.1rem;
-  line-height: 1.5;
+.report--grandma h4 {
+  margin-top: 22px;
+  font-family: var(--title-font);
+  font-size: 1.3rem;
 }
 
-.report-chart {
-  display: block;
+/* bar charts: label | track | value */
+
+/* Rows share the list's columns, so labels and values size to the longest one. */
+.bar-list {
+  display: grid;
+  grid-template-columns: fit-content(10em) 1fr max-content;
+  gap: 6px 10px;
+  align-content: start;
+}
+
+.bar-list__title {
+  grid-column: 1 / -1;
+  font-size: 1.1rem;
+}
+
+.bar {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.bar__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bar__track {
+  height: 18px;
+  overflow: hidden;
+  border: 1.5px solid var(--ink);
+  border-radius: 6px;
+  background: #fff;
+}
+
+.bar__track > div {
+  height: 100%;
+}
+
+.bar__track--stacked {
+  height: 26px;
+  border: 0;
+  background: none;
+}
+
+.bar__stack {
+  display: flex;
+  overflow: hidden;
+  border: 1.5px solid var(--ink);
+  border-radius: 6px;
+}
+
+.bar__stack > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.4em;
+  font-size: 0.9rem;
+}
+
+.bar__stack > div + div {
+  border-left: 1.5px solid var(--ink);
+}
+
+.bar__value {
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* hover tooltip: put the text in data-tip, use \n for new lines */
+.tip {
+  position: relative;
+}
+
+.tip:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  z-index: 10;
+  transform: translateX(-50%);
+  padding: 4px 10px;
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 0.95rem;
+  line-height: 1.35;
+  text-align: left;
+  white-space: pre;
+  pointer-events: none;
+}
+
+.hours {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding-top: 8px;
+}
+
+.hours__col {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 172px;
+  cursor: default;
+}
+
+.hours__col.tip:hover::after {
+  top: 0;
+  bottom: auto;
+}
+
+.hours__col:first-child.tip:hover::after {
+  left: 0;
+  transform: none;
+}
+
+.hours__col:last-child.tip:hover::after {
+  right: 0;
+  left: auto;
+  transform: none;
+}
+
+.hours__bar {
+  display: flex;
+  flex-direction: column-reverse;
   width: 100%;
-  height: auto;
-  font-family: inherit;
+  max-width: 34px;
+  overflow: hidden;
+  border: 1.5px solid var(--ink);
+  border-radius: 5px;
+}
+
+.hours__bar:empty {
+  border: 0;
+}
+
+.hours__col:hover .hours__bar {
+  filter: brightness(0.92);
+}
+
+.hours__bar > div + div {
+  border-bottom: 1.5px solid var(--ink);
+}
+
+.hours__peak {
+  font-size: 0.8rem;
+}
+
+.hours__label {
+  height: 20px;
+  padding-top: 4px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.heatmap {
+  display: grid;
+  gap: 3px;
+  align-items: center;
+}
+
+.heatmap__hour {
+  font-size: 0.75rem;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.heatmap__item {
+  overflow: hidden;
+  padding-right: 8px;
+  font-size: 0.95rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.heatmap__item i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 6px;
+  border: 1.5px solid var(--ink);
+  border-radius: 3px;
+}
+
+.heatmap__cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  border: 1.5px solid var(--ink);
+  border-radius: 5px;
+  font-size: 0.85rem;
+  cursor: default;
+}
+
+.heatmap__cell:hover {
+  outline: 2px solid var(--ink);
 }
 
 .report-legend {

@@ -17,6 +17,13 @@ export const BAKERY_INFO: Record<Bakery, { name: string; shop: string; roof: str
 // Left to right on screen.
 export const PANEL_ORDER: Bakery[] = ['the_bakery', 'grandmas_bakeria']
 
+// Reports list Grandma first: she's who the player is rooting for.
+export const REPORT_ORDER: Bakery[] = ['grandmas_bakeria', 'the_bakery']
+
+export const WALKAWAY_FILL = '#d9d4cf'
+
+export const shop = (bakery: Bakery) => BAKERY_INFO[bakery].shop
+
 /** Minutes since midnight as a 12-hour clock, e.g. 360 -> "6:00 AM". */
 export function formatTime(minute: number): string {
   const h24 = Math.floor(minute / 60) % 24
@@ -56,7 +63,7 @@ const SEGMENT_PEOPLE: Record<string, string> = {
   lunch_worker: 'lunch workers',
   student: 'students',
   regular: 'regulars',
-  after_work: 'the after-work crowd',
+  after_work: 'after-work crowd',
 }
 
 /** 'lunch_worker' -> 'lunch workers'; unknown segments fall back to their name. */
