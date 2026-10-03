@@ -246,6 +246,19 @@ button.start {
   inset: 4px;
 }
 
+/* Scroll the body, not the card, so the drawn outline stays put. */
+.sk-modal.sketch {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sk-modal .mantine-Modal-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
 .sk-modal__header {
   background: transparent;
 }
