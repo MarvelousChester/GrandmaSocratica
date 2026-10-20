@@ -5,15 +5,14 @@ The big chain has moved in next door. Its menu looks awfully familiar, its price
 Can you keep the neighborhood on her side?
 
 ![Grandma Must Win game screen](https://github.com/user-attachments/assets/d6cafe41-03f3-4732-87ef-84fd6876a84c)
-**[Play Grandma Must Win](https://grandmamustwin.vercel.app)**
+
+[![Play Grandma Must Win](https://img.shields.io/badge/Play-Grandma%20Must%20Win-ff3f25?style=for-the-badge)](https://grandmamustwin.vercel.app)
 
 ## Play a day
 
 Set the prices and portions on both menus, then open the doors. Customers arrive through the day with their own tastes, budgets, allergies, and routines. Watch the shops compete for each order, then see how Grandma did when the day's over.
 
 Grandma's view keeps the results simple. Switch to **Grandchild** for the numbers behind them: item sales, busy hours, customer groups, costs, and profit. The simulation uses the menus you set, so a price change or a new pastry can shift who buys what.
-
-[![Play Grandma Must Win](https://img.shields.io/badge/Play-Grandma%20Must%20Win-ff3f25?style=for-the-badge)](https://grandmamustwin.vercel.app)
 
 ## Run it on your machine
 
