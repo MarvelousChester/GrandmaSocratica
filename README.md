@@ -5,6 +5,7 @@ The big chain has moved in next door. Its menu looks awfully familiar, its price
 Can you keep the neighborhood on her side?
 
 ![Grandma Must Win game screen](https://github.com/user-attachments/assets/d6cafe41-03f3-4732-87ef-84fd6876a84c)
+**[Play Grandma Must Win](https://grandmamustwin.vercel.app)**
 
 ## Play a day
 
