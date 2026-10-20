@@ -29,6 +29,7 @@ function Shop({ bakery }: { bakery: Bakery }) {
   const height = width * aspect
   return (
     <image
+      className={`shop-art shop-art--${bakery}`}
       data-bakery={bakery}
       href={src}
       x={DOOR_X[bakery] - doorX * width}
@@ -41,9 +42,9 @@ function Shop({ bakery }: { bakery: Bakery }) {
 
 
 /** The street. `children` are drawn in its viewBox coordinates, on the sidewalk in front of the shops. */
-export function Scene({ children }: { children?: ReactNode }) {
+export function Scene({ children, landing = false }: { children?: ReactNode; landing?: boolean }) {
   return (
-    <div style={{ position: 'absolute', inset: 0, background: SKY, overflow: 'hidden' }}>
+    <div className={`scene${landing ? ' scene--landing' : ''}`} style={{ position: 'absolute', inset: 0, background: SKY, overflow: 'hidden' }}>
       <svg
         viewBox="0 0 1700 1288"
         preserveAspectRatio="xMidYMax meet"
@@ -53,6 +54,17 @@ export function Scene({ children }: { children?: ReactNode }) {
       >
         <rect x={-BLEED} y={-BLEED} width={1700 + 2 * BLEED} height={1122 + BLEED} fill={SKY} />
         <rect x={-BLEED} y={1122} width={1700 + 2 * BLEED} height={BLEED} fill={SIDEWALK} />
+
+        <g transform="translate(-260 250)" aria-hidden="true">
+          <g className="cloud cloud--one" fill="#fff" opacity="0.16">
+            <path d="M18 75 C4 73 0 57 9 46 C16 37 29 37 39 43 C42 24 58 12 77 13 C96 13 109 26 112 43 C126 32 147 36 154 51 C172 45 191 53 193 68 C195 82 184 91 168 91 H27 C23 91 19 86 18 75Z" />
+          </g>
+        </g>
+        <g transform="translate(-900 455)" aria-hidden="true">
+          <g className="cloud cloud--two" fill="#fff" opacity="0.13">
+            <path d="M18 75 C4 73 0 57 9 46 C16 37 29 37 39 43 C42 24 58 12 77 13 C96 13 109 26 112 43 C126 32 147 36 154 51 C172 45 191 53 193 68 C195 82 184 91 168 91 H27 C23 91 19 86 18 75Z" />
+          </g>
+        </g>
 
         <Shop bakery="the_bakery" />
         <Shop bakery="grandmas_bakeria" />

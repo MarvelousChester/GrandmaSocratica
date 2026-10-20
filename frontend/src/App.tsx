@@ -115,6 +115,7 @@ function DayView({ day, view, onViewChange, onDone }: DayViewProps) {
 
 export default function App() {
   const [begun, setBegun] = useState(false)
+  const [housesSettled, setHousesSettled] = useState(false)
   const [menus, setMenus] = useState(MENUS)
   const sim = useSimulation()
   const loading = sim.status === 'loading'
@@ -153,12 +154,21 @@ export default function App() {
     if (day) setPlaying(day)
   }
 
-  if (!begun) {
+  if (!begun || !housesSettled) {
     return (
       <div className="app">
         <SketchDefs />
-        <Scene />
-        <TitleScreen onBegin={() => setBegun(true)} />
+        <Scene landing={!begun} />
+        {(!begun || !housesSettled) && (
+          <TitleScreen
+            leaving={begun}
+            onBegin={() => {
+              setBegun(true)
+              const delay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 1150
+              window.setTimeout(() => setHousesSettled(true), delay)
+            }}
+          />
+        )}
       </div>
     )
   }
