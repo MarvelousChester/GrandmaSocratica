@@ -1074,29 +1074,29 @@ button.control:disabled {
 
 .title {
   position: absolute;
-  inset: 0;
+  inset: 0 0 auto;
+  height: 43vh;
+  max-height: 560px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* Sits in the sky: below this the shopfronts start, and text over the
-     painted buildings is unreadable. */
   justify-content: flex-start;
   box-sizing: border-box;
   overflow-y: auto;
-  padding: clamp(16px, 5vh, 64px) clamp(16px, 6vw, 96px);
-  gap: clamp(12px, 2vh, 26px);
+  overscroll-behavior: contain;
+  padding: clamp(8px, 2.5vh, 30px) clamp(12px, 4vw, 64px) 4px;
+  gap: clamp(6px, 1.2vh, 14px);
   text-align: center;
   color: var(--ink);
 }
 
 .title__logo {
-  /* Capped against the viewport height, since it is the sky that has to fit
-     the whole stack, not the width. */
-  flex: 0 1 auto;
-  max-height: min(42vh, 420px);
-  max-width: min(820px, 75vw);
+  /* The scene scales by the same viewBox width/height ratio. This keeps the
+     logo at 1.2× the red shop's width at every viewport size. */
+  flex: 0 0 auto;
+  width: min(29.65vw, 39.13vh);
+  max-width: 100%;
   object-fit: contain;
-  width: auto;
   height: auto;
   user-select: none;
   pointer-events: none;
@@ -1107,8 +1107,9 @@ button.control:disabled {
   flex: 0 0 auto;
   width: 100%;
   max-width: 58ch;
-  font-size: clamp(15px, 1.35vw, 22px);
-  line-height: 1.5;
+  font-size: clamp(12px, 1.15vw, 19px);
+  line-height: 1.3;
+  text-wrap: balance;
 }
 
 .title__bakery-chain {
@@ -1124,6 +1125,8 @@ button.control:disabled {
 .title button.start {
   width: auto;
   height: auto;
-  padding: 0.35em 0.9em;
+  min-height: clamp(38px, 5.2vh, 66px);
+  padding: 0.25em 0.75em;
+  font-size: clamp(16px, 2vw, 32px);
   text-transform: uppercase;
 }
