@@ -17,6 +17,8 @@ export function TitleScreen({ onBegin, leaving = false }: { onBegin: () => void;
           <br />
           Optimize Grandma's costs and menu, and launch your attack!
         </p>
+      </div>
+      <div className="title__action">
         <button type="button" className="sketch start" onClick={onBegin}>
           WAGE WAR
         </button>

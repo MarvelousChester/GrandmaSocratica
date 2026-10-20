@@ -1140,6 +1140,18 @@ button.control:disabled {
   animation-delay: -88s;
 }
 
+.cloud--three {
+  --cloud-scale: 1.85;
+  animation-duration: 155s;
+  animation-delay: -52s;
+}
+
+.cloud--four {
+  --cloud-scale: 2;
+  animation-duration: 185s;
+  animation-delay: -128s;
+}
+
 @keyframes cloud-drift {
   from { transform: translateX(0) scale(var(--cloud-scale)); }
   to { transform: translateX(120vw) scale(var(--cloud-scale)); }
@@ -1156,7 +1168,7 @@ button.control:disabled {
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: clamp(16px, 4vh, 48px) clamp(16px, 4vw, 64px);
-  gap: clamp(24px, 5vh, 76px);
+  gap: clamp(16px, 3vh, 36px);
   text-align: center;
   color: var(--ink);
   transition: opacity 360ms ease, transform 360ms ease;
@@ -1171,7 +1183,7 @@ button.control:disabled {
 .title__logo {
   /* Match the scene's responsive scale while keeping the logo the star. */
   flex: 0 0 auto;
-  width: min(72vw, 68vh, 1100px);
+  width: min(72vw, 48vh, 1100px);
   max-width: 100%;
   object-fit: contain;
   height: auto;
@@ -1185,7 +1197,14 @@ button.control:disabled {
   flex-direction: column;
   align-items: center;
   width: min(72ch, 82vw);
-  gap: clamp(12px, 1.8vh, 24px);
+  gap: 0;
+}
+
+.title__action {
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: center;
+  width: 100%;
 }
 
 .title__tagline {
@@ -1223,7 +1242,7 @@ button.control:disabled {
   }
 
   .title__logo {
-    width: min(90vw, 68vh, 900px);
+    width: min(90vw, 62vh, 900px);
   }
 }
 
@@ -1238,6 +1257,10 @@ button.control:disabled {
 
   .title {
     gap: clamp(24px, 4.4vh, 58px);
+  }
+
+  .title__logo {
+    width: min(90vw, 62vh, 900px);
   }
 }
 
