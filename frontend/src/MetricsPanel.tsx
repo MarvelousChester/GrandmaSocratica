@@ -54,13 +54,14 @@ export function MetricsPanel({ title, side, fill, winnerColor, metrics, rival }:
 interface LeadBarProps {
   order: Bakery[] // left to right
   metrics: Record<Bakery, BakeryMetrics>
+  showProfit: boolean
 }
 
 /** Side-by-side comparisons of profit and revenue accumulated during the day. */
-export function LeadBar({ order, metrics }: LeadBarProps) {
+export function LeadBar({ order, metrics, showProfit }: LeadBarProps) {
   const rows = [
-    { label: 'Profit', value: (b: Bakery) => Math.max(0, metrics[b].profit ?? metrics[b].revenue) },
-    { label: 'Revenue', value: (b: Bakery) => Math.max(0, metrics[b].revenue) },
+    ...(showProfit ? [{ label: 'PROFIT', value: (b: Bakery) => Math.max(0, metrics[b].profit ?? metrics[b].revenue) }] : []),
+    { label: 'REVENUE', value: (b: Bakery) => Math.max(0, metrics[b].revenue) },
   ]
   return (
     <div className="lead">

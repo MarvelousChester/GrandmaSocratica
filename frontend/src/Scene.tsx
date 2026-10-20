@@ -51,8 +51,8 @@ export function Scene({ children }: { children?: ReactNode }) {
         role="img"
         aria-label="Two bakeries side by side on a street"
       >
-        <rect x={-BLEED} y={-BLEED} width={1700 + 2 * BLEED} height={1042 + BLEED} fill={SKY} />
-        <rect x={-BLEED} y={1042} width={1700 + 2 * BLEED} height={BLEED} fill={SIDEWALK} />
+        <rect x={-BLEED} y={-BLEED} width={1700 + 2 * BLEED} height={1122 + BLEED} fill={SKY} />
+        <rect x={-BLEED} y={1122} width={1700 + 2 * BLEED} height={BLEED} fill={SIDEWALK} />
 
         <Shop bakery="the_bakery" />
         <Shop bakery="grandmas_bakeria" />

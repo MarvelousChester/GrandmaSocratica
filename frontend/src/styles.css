@@ -88,8 +88,8 @@ button.sketch:disabled:hover::before {
 .panel {
   --radius: 2.4vw 2.4vw 1.6vw 1.6vw;
   height: auto;
-  max-height: 71vh;
-  margin-top: 4.6vh;
+  max-height: 43vh;
+  margin-top: 3vh;
   display: flex;
   flex-direction: column;
   align-self: start;
@@ -103,7 +103,7 @@ button.sketch:disabled:hover::before {
 .panel--right {
   grid-column: 3;
   grid-row: 1;
-  margin-top: 5.4vh;
+  margin-top: 3.6vh;
 }
 
 .panel__title {
@@ -857,19 +857,20 @@ button.report-btn {
 .day-topbar {
   grid-column: 1 / -1;
   grid-row: 1;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  align-items: center;
-  gap: 2vw;
-  padding-top: 2vh;
+  display: flex;
+  justify-content: center;
+  padding-top: 1.4vh;
   min-width: 0;
+  position: relative;
+  z-index: 2;
 }
 
 .day-topbar__time {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 1.4vw;
+  width: 100%;
+  gap: 0.8vh;
 }
 
 .day-topbar__time .clock {
@@ -879,7 +880,8 @@ button.report-btn {
 .metrics {
   --radius: 2.4vw 2.4vw 1.6vw 1.6vw;
   align-self: start;
-  margin-top: 3vh;
+  max-height: 34vh;
+  margin-top: 2vh;
   padding: 0 0 1.6vh;
 }
 
@@ -894,16 +896,15 @@ button.report-btn {
   margin-top: 3vh;
 }
 
-.metrics--winner {
-  outline: 4px solid var(--winner-color);
-  outline-offset: 3px;
+.metrics--winner::before {
+  border-color: var(--winner-color);
 }
 
 .metrics__title {
   margin: 0;
-  padding: 2.8vh 2vw 1.4vh;
+  padding: 1.6vh 1.8vw 0.8vh;
   font-family: var(--title-font);
-  font-size: clamp(22px, 2.6vw, 50px);
+  font-size: clamp(20px, 2.1vw, 40px);
   font-weight: 400;
   line-height: 1.1;
 }
@@ -917,15 +918,15 @@ button.report-btn {
   align-items: baseline;
   justify-content: space-between;
   gap: 1vw;
-  padding: 2.1vh 2.4vw;
+  padding: 1.2vh 2vw;
 }
 
 .metric__label {
-  font-size: clamp(18px, 1.9vw, 36px);
+  font-size: clamp(16px, 1.45vw, 28px);
 }
 
 .metric__value {
-  font-size: clamp(20px, 2.2vw, 42px);
+  font-size: clamp(17px, 1.65vw, 32px);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
@@ -934,14 +935,14 @@ button.report-btn {
 
 .center--day {
   grid-row: 2;
-  margin-top: 3vh;
-  gap: 3vh;
-  padding: 0 1.6vw;
+  margin-top: 2vh;
+  gap: 2vh;
+  padding: 0 1vw;
 }
 
 .day-progress {
-  width: 100%;
-  height: clamp(10px, 1.6vh, 20px);
+  width: 68%;
+  height: clamp(8px, 1.1vh, 14px);
   overflow: hidden;
   border: 2.5px solid var(--ink);
   border-radius: 10px;
@@ -956,14 +957,31 @@ button.report-btn {
 .speed-control {
   width: 100%;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: clamp(26px, 2.4vw, 40px) minmax(0, 1fr) clamp(26px, 2.4vw, 40px);
   align-items: center;
-  gap: 1.2vw;
+  gap: 0.7vw;
 }
 
-.speed-control__value {
-  font-size: clamp(16px, 1.6vw, 30px);
-  font-variant-numeric: tabular-nums;
+.playback-icon {
+  display: grid;
+  place-items: center;
+  width: clamp(26px, 2.4vw, 40px);
+  aspect-ratio: 1;
+  padding: 4px;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.playback-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.playback-icon:disabled {
+  opacity: 0.45;
+  cursor: default;
 }
 
 .speed-control__slider {
@@ -992,26 +1010,27 @@ button.report-btn {
 }
 
 .lead {
-  width: 100%;
+  width: min(68vw, 980px);
   display: grid;
-  gap: 0.6vh;
-  text-align: left;
+  gap: 0.45vh;
+  text-align: center;
+  margin-inline: auto;
 }
 
 .lead__label {
-  font-size: clamp(13px, 1.2vw, 22px);
+  font-size: clamp(12px, 1.1vw, 20px);
 }
 
 .lead__row {
   display: grid;
-  grid-template-columns: clamp(62px, 7vw, 110px) minmax(0, 1fr);
+  grid-template-columns: clamp(76px, 8vw, 130px) minmax(0, 1fr);
   align-items: center;
   gap: 1vw;
 }
 
 .lead__bar {
   display: flex;
-  height: clamp(12px, 1.6vh, 20px);
+  height: clamp(9px, 1.2vh, 15px);
   overflow: hidden;
   border: 2px solid var(--ink);
   border-radius: 999px;
@@ -1023,13 +1042,35 @@ button.report-btn {
 }
 
 @media (max-width: 700px) {
-  .day-topbar {
-    grid-template-columns: 1fr;
-    gap: 1vh;
+  .lead {
+    width: min(86vw, 980px);
   }
 
   .lead__row {
-    grid-template-columns: 58px minmax(0, 1fr);
+    grid-template-columns: 72px minmax(0, 1fr);
+  }
+}
+
+.game-view-toggle {
+  position: absolute;
+  right: clamp(12px, 2.2vw, 36px);
+  bottom: clamp(12px, 2.2vh, 28px);
+  z-index: 3;
+}
+
+@media (max-height: 600px) {
+  .metrics__title {
+    padding: 0.8vh 1.4vw 0.4vh;
+    font-size: clamp(18px, 4.5vh, 28px);
+  }
+
+  .metric {
+    padding: 0.5vh 1.4vw;
+  }
+
+  .metric__label,
+  .metric__value {
+    font-size: clamp(15px, 4vh, 22px);
   }
 }
 

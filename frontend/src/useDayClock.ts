@@ -22,6 +22,7 @@ function baseSpeed(): number {
 export function useDayClock(day: DayResult) {
   const [minute, setMinute] = useState(day.config.clock.open_minute)
   const [finished, setFinished] = useState(false)
+  const [paused, setPaused] = useState(false)
   const [multiplier, setMultiplier] = useState(SPEED_STEPS[0])
   // Read by the animation loop, so a speed change applies from the next frame on.
   const multiplierRef = useRef(multiplier)
@@ -29,6 +30,7 @@ export function useDayClock(day: DayResult) {
   const end = dayEnd(day)
 
   useEffect(() => {
+    if (paused || finished) return
     const rate = baseSpeed()
     let last = performance.now()
     let frame = 0
@@ -45,7 +47,7 @@ export function useDayClock(day: DayResult) {
     }
     frame = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(frame)
-  }, [end])
+  }, [end, finished, paused])
 
   const setSpeed = useCallback((next: number) => {
     multiplierRef.current = next
@@ -55,7 +57,12 @@ export function useDayClock(day: DayResult) {
   // The loop sees the minute at `end` on its next frame and finishes.
   const skip = useCallback(() => {
     minuteRef.current = end
+    setMinute(end)
+    setFinished(true)
+    setPaused(false)
   }, [end])
 
-  return { minute, finished, multiplier, setSpeed, skip }
+  const togglePause = useCallback(() => setPaused((current) => !current), [])
+
+  return { minute, finished, paused, multiplier, setSpeed, skip, togglePause }
 }

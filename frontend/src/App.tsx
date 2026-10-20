@@ -10,7 +10,7 @@ import { People, SalePops } from './People'
 import { metricsAt } from './playback'
 import { buildReport } from './report'
 import { Scene } from './Scene'
-import { SketchDefs } from './Sketch'
+import { PauseIcon, PlayIcon, SketchDefs, SkipIcon } from './Sketch'
 import { TitleScreen } from './TitleScreen'
 import type { DayResult, MenuItem } from './types'
 import { SPEED_STEPS, useDayClock } from './useDayClock'
@@ -19,12 +19,13 @@ import { useSimulation } from './useSimulation'
 interface DayViewProps {
   day: DayResult
   view: ReportView
+  onViewChange: (view: ReportView) => void
   onDone: () => void
 }
 
 /** The day being played back: people walking, metrics climbing, clock running, then the day's report. */
-function DayView({ day, view, onDone }: DayViewProps) {
-  const { minute, finished, multiplier, setSpeed, skip } = useDayClock(day)
+function DayView({ day, view, onViewChange, onDone }: DayViewProps) {
+  const { minute, finished, paused, multiplier, setSpeed, skip, togglePause } = useDayClock(day)
   const report = useMemo(() => buildReport(day), [day])
   const metrics = metricsAt(day, minute)
   const [left, right] = PANEL_ORDER
@@ -38,15 +39,7 @@ function DayView({ day, view, onDone }: DayViewProps) {
       </Scene>
       <div className="overlay overlay--day">
         <div className="day-topbar">
-          <div className="day-topbar__time">
-            <div className="clock" aria-live="off">
-              {formatTime(minute)}
-            </div>
-            <div className="day-progress" role="progressbar" aria-valuenow={Math.round(progress * 100)}>
-              <div style={{ width: `${progress * 100}%` }} />
-            </div>
-          </div>
-          <LeadBar order={PANEL_ORDER} metrics={metrics} />
+          <LeadBar order={PANEL_ORDER} metrics={metrics} showProfit={view === 'detailed'} />
         </div>
         {PANEL_ORDER.map((bakery, i) => (
           <MetricsPanel
@@ -60,8 +53,24 @@ function DayView({ day, view, onDone }: DayViewProps) {
           />
         ))}
         <div className="center center--day">
+          <div className="day-topbar__time">
+            <div className="clock" aria-live="off">
+              {formatTime(minute)}
+            </div>
+            <div className="day-progress" role="progressbar" aria-valuenow={Math.round(progress * 100)}>
+              <div style={{ width: `${progress * 100}%` }} />
+            </div>
+          </div>
           <div className="speed-control">
-            <span className="speed-control__value">{multiplier}×</span>
+            <button
+              type="button"
+              className="playback-icon"
+              aria-label={paused ? 'Resume playback' : 'Pause playback'}
+              onClick={togglePause}
+              disabled={finished}
+            >
+              {paused ? <PlayIcon /> : <PauseIcon />}
+            </button>
             <Slider
               aria-label="Playback speed"
               value={SPEED_STEPS.indexOf(multiplier)}
@@ -69,7 +78,7 @@ function DayView({ day, view, onDone }: DayViewProps) {
               min={0}
               max={SPEED_STEPS.length - 1}
               step={1}
-              marks={SPEED_STEPS.map((speed, index) => ({ value: index, label: `${speed}×` }))}
+              marks={[{ value: 0, label: '1×' }, { value: SPEED_STEPS.length - 1, label: '10×' }]}
               aria-valuetext={`${multiplier} times speed`}
               disabled={finished}
               color="#f8c9c9"
@@ -78,11 +87,26 @@ function DayView({ day, view, onDone }: DayViewProps) {
               className="speed-control__slider"
               label={null}
             />
+            <button
+              type="button"
+              className="playback-icon"
+              aria-label="Skip to end of day"
+              onClick={skip}
+              disabled={finished}
+            >
+              <SkipIcon />
+            </button>
           </div>
-          <button type="button" className="sketch control" onClick={skip} disabled={finished}>
-            Skip day
-          </button>
         </div>
+        <SegmentedControl
+          className="view-toggle game-view-toggle"
+          value={view}
+          onChange={(value) => onViewChange(value as ReportView)}
+          data={[
+            { value: 'grandma', label: 'Grandma' },
+            { value: 'detailed', label: 'Grandchild' },
+          ]}
+        />
       </div>
       <DayReport opened={finished} report={report} view={view} onClose={onDone} closeLabel="Back to menus" />
     </>
@@ -143,7 +167,13 @@ export default function App() {
     return (
       <div className="app">
         <SketchDefs />
-        <DayView key={playing.config.seed} day={playing} view={view} onDone={() => setPlaying(null)} />
+        <DayView
+          key={playing.config.seed}
+          day={playing}
+          view={view}
+          onViewChange={(nextView) => setView(nextView)}
+          onDone={() => setPlaying(null)}
+        />
       </div>
     )
   }
@@ -178,11 +208,6 @@ export default function App() {
           <div className="status" role="status" data-error={sim.status === 'error' || undefined}>
             {loading ? 'Simulating the day…' : sim.status === 'error' ? sim.error : null}
           </div>
-          {report && (
-            <button type="button" className="sketch report-btn" onClick={() => setReportOpen(true)}>
-              {view === 'grandma' ? 'How did it go?' : 'Day report'}
-            </button>
-          )}
           <SegmentedControl
             className="view-toggle"
             value={view}
@@ -192,6 +217,11 @@ export default function App() {
               { value: 'detailed', label: 'Grandchild' },
             ]}
           />
+          {report && (
+            <button type="button" className="sketch report-btn" onClick={() => setReportOpen(true)}>
+              {view === 'grandma' ? 'How did it go?' : 'Day report'}
+            </button>
+          )}
         </div>
       </div>
       <ItemModal opened={modal.opened} target={modal.target} onClose={closeModal} onSave={saveItem} />

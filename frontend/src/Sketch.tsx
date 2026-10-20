@@ -55,3 +55,27 @@ export function TrashIcon() {
     </svg>
   )
 }
+
+export function PauseIcon() {
+  return (
+    <svg viewBox="0 0 40 40" aria-hidden="true">
+      <path d="M13 9 V31 M27 9 V31" stroke="currentColor" strokeWidth="6" strokeLinecap="round" fill="none" />
+    </svg>
+  )
+}
+
+export function PlayIcon() {
+  return (
+    <svg viewBox="0 0 40 40" aria-hidden="true">
+      <path d="M12 8 L32 20 L12 32 Z" fill="currentColor" stroke="currentColor" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+export function SkipIcon() {
+  return (
+    <svg viewBox="0 0 40 40" aria-hidden="true">
+      <path d="M7 8 L23 20 L7 32 Z M21 8 L37 20 L21 32 Z M35 8 V32" fill="currentColor" stroke="currentColor" strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" />
+    </svg>
+  )
+}

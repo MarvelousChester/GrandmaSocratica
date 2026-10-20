@@ -61,7 +61,7 @@ export function People({ day, minute }: { day: DayResult; minute: number }) {
 }
 
 
-const POP_Y = 800 // where a sale's "+$" starts, above the door
+const POP_Y = 880 // where a sale's "+$" starts, above the door
 const POP_RISE = 110
 // Three lanes across a shopfront. A "+$00.00" is ~150 units wide at the pop
 // font size, and the two doors are only 548 apart, so a lane can sit at most
