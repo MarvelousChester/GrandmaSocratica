@@ -2,9 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { dayEnd, SPEED_MIN_PER_SEC } from './playback'
 import type { DayResult } from './types'
 
-/** Speed multipliers the player can pick. */
-export const SPEED_STEPS = [1, 2, 5, 10]
-
 /** Dev aid: `?speed=60` plays an hour a second at "1×". */
 function baseSpeed(): number {
   const fromUrl = Number(new URLSearchParams(window.location.search).get('speed'))
@@ -16,16 +13,12 @@ function baseSpeed(): number {
  * until the day ends. Mount it fresh (e.g. with a `key`) for each new day.
  *
  * Returns:
- *  minute, finished, the current speed multiplier, `setSpeed` (one of SPEED_STEPS)
- *  and `skip`, which jumps straight to the end of the day.
+ *  minute, finished, pause controls, `seek` for scrubbing the day, and `skip`.
  */
 export function useDayClock(day: DayResult) {
   const [minute, setMinute] = useState(day.config.clock.open_minute)
   const [finished, setFinished] = useState(false)
   const [paused, setPaused] = useState(false)
-  const [multiplier, setMultiplier] = useState(SPEED_STEPS[0])
-  // Read by the animation loop, so a speed change applies from the next frame on.
-  const multiplierRef = useRef(multiplier)
   const minuteRef = useRef(minute)
   const end = dayEnd(day)
 
@@ -35,10 +28,9 @@ export function useDayClock(day: DayResult) {
     let last = performance.now()
     let frame = 0
 
-    // Advance by elapsed time at whatever speed is set now, so changing speed
-    // mid-day doesn't jump the clock.
+    // Advance from the last frame so seeking within the day doesn't reset the clock.
     const tick = (now: number) => {
-      const m = Math.min(end, minuteRef.current + ((now - last) / 1000) * rate * multiplierRef.current)
+      const m = Math.min(end, minuteRef.current + ((now - last) / 1000) * rate)
       last = now
       minuteRef.current = m
       setMinute(m)
@@ -49,10 +41,12 @@ export function useDayClock(day: DayResult) {
     return () => cancelAnimationFrame(frame)
   }, [end, finished, paused])
 
-  const setSpeed = useCallback((next: number) => {
-    multiplierRef.current = next
-    setMultiplier(next)
-  }, [])
+  const seek = useCallback((next: number) => {
+    const m = Math.max(day.config.clock.open_minute, Math.min(end, next))
+    minuteRef.current = m
+    setMinute(m)
+    setFinished(m >= end)
+  }, [day.config.clock.open_minute, end])
 
   // The loop sees the minute at `end` on its next frame and finishes.
   const skip = useCallback(() => {
@@ -64,5 +58,5 @@ export function useDayClock(day: DayResult) {
 
   const togglePause = useCallback(() => setPaused((current) => !current), [])
 
-  return { minute, finished, paused, multiplier, setSpeed, skip, togglePause }
+  return { minute, finished, paused, seek, skip, togglePause }
 }

@@ -13,7 +13,7 @@ import { Scene } from './Scene'
 import { PauseIcon, PlayIcon, SketchDefs, SkipIcon } from './Sketch'
 import { TitleScreen } from './TitleScreen'
 import type { DayResult, MenuItem } from './types'
-import { SPEED_STEPS, useDayClock } from './useDayClock'
+import { useDayClock } from './useDayClock'
 import { useSimulation } from './useSimulation'
 
 interface DayViewProps {
@@ -25,7 +25,7 @@ interface DayViewProps {
 
 /** The day being played back: people walking, metrics climbing, clock running, then the day's report. */
 function DayView({ day, view, onViewChange, onDone }: DayViewProps) {
-  const { minute, finished, paused, multiplier, setSpeed, skip, togglePause } = useDayClock(day)
+  const { minute, finished, paused, seek, skip, togglePause } = useDayClock(day)
   const report = useMemo(() => buildReport(day), [day])
   const metrics = metricsAt(day, minute)
   const [left, right] = PANEL_ORDER
@@ -57,9 +57,6 @@ function DayView({ day, view, onViewChange, onDone }: DayViewProps) {
             <div className="clock" aria-live="off">
               {formatTime(minute)}
             </div>
-            <div className="day-progress" role="progressbar" aria-valuenow={Math.round(progress * 100)}>
-              <div style={{ width: `${progress * 100}%` }} />
-            </div>
           </div>
           <div className="speed-control">
             <button
@@ -72,18 +69,17 @@ function DayView({ day, view, onViewChange, onDone }: DayViewProps) {
               {paused ? <PlayIcon /> : <PauseIcon />}
             </button>
             <Slider
-              aria-label="Playback speed"
-              value={SPEED_STEPS.indexOf(multiplier)}
-              onChange={(index) => setSpeed(SPEED_STEPS[index])}
+              aria-label="Day progress"
+              value={Math.round(progress * 1000)}
+              onChange={(position) => seek(open_minute + (position / 1000) * (close_minute - open_minute))}
               min={0}
-              max={SPEED_STEPS.length - 1}
+              max={1000}
               step={1}
-              marks={[{ value: 0, label: '1×' }, { value: SPEED_STEPS.length - 1, label: '10×' }]}
-              aria-valuetext={`${multiplier} times speed`}
+              aria-valuetext={`${formatTime(minute)} of the day`}
               disabled={finished}
               color="#f8c9c9"
-              thumbSize={20}
-              size={12}
+              thumbSize={26}
+              size={18}
               className="speed-control__slider"
               label={null}
             />
@@ -207,17 +203,6 @@ export default function App() {
         ))}
         <div className="center center--setup">
           <div className="clock">{formatTime(CLOCK.open_minute)}</div>
-          <button
-            type="button"
-            className="sketch start"
-            disabled={loading}
-            onClick={start}
-          >
-            {loading ? 'Starting…' : 'Start'}
-          </button>
-          <div className="status" role="status" data-error={sim.status === 'error' || undefined}>
-            {loading ? 'Simulating the day…' : sim.status === 'error' ? sim.error : null}
-          </div>
           <SegmentedControl
             className="view-toggle"
             value={view}
@@ -232,6 +217,17 @@ export default function App() {
               {view === 'grandma' ? 'How did it go?' : 'Day report'}
             </button>
           )}
+          <button
+            type="button"
+            className="sketch start"
+            disabled={loading}
+            onClick={start}
+          >
+            {loading ? 'Starting…' : 'WAGE WAR'}
+          </button>
+          <div className="status" role="status" data-error={sim.status === 'error' || undefined}>
+            {loading ? 'Simulating the day…' : sim.status === 'error' ? sim.error : null}
+          </div>
         </div>
       </div>
       <ItemModal opened={modal.opened} target={modal.target} onClose={closeModal} onSave={saveItem} />

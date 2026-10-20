@@ -106,10 +106,18 @@ button.sketch:disabled:hover::before {
   margin-top: 3.6vh;
 }
 
-.panel__title {
+.panel__heading {
+  display: flex;
+  align-items: center;
   flex: 0 0 auto;
+  padding: 2.2vh 1.8vw 1.2vh;
+  gap: 1vw;
+}
+
+.panel__title {
+  flex: 1 1 auto;
+  min-width: 0;
   margin: 0;
-  padding: 3.2vh 2vw 1.6vh;
   font-family: var(--title-font);
   font-weight: 400;
   font-size: clamp(22px, 2.9vw, 56px);
@@ -118,6 +126,10 @@ button.sketch:disabled:hover::before {
 
 .panel--right .panel__title {
   text-align: right;
+}
+
+.panel--right .panel__heading .plus {
+  order: -1;
 }
 
 .rule {
@@ -201,23 +213,10 @@ button.sketch:disabled:hover::before {
   height: auto;
 }
 
-.panel__footer {
-  display: flex;
-  padding: 1.2vh 2vw 2.4vh;
-  flex: 0 0 auto;
-}
-
-.panel--left .panel__footer {
-  justify-content: flex-end;
-}
-
-.panel--right .panel__footer {
-  justify-content: flex-start;
-}
-
 .plus {
   --radius: 1vw;
-  width: clamp(40px, 4.6vw, 84px);
+  flex: 0 0 auto;
+  width: clamp(34px, 3.8vw, 66px);
   aspect-ratio: 1;
   display: grid;
   place-items: center;
@@ -268,7 +267,7 @@ button.start {
 
 button.report-btn {
   --fill: var(--yellow);
-  margin-top: -4vh;
+  margin-top: 0;
   padding: 0.6vh 1.4vw;
   font-size: clamp(15px, 1.5vw, 28px);
 }
@@ -874,7 +873,7 @@ button.report-btn {
 }
 
 .day-topbar__time .clock {
-  font-size: clamp(22px, 2.6vw, 48px);
+  font-size: clamp(34px, 4vw, 72px);
 }
 
 .metrics {
@@ -918,7 +917,7 @@ button.report-btn {
   align-items: baseline;
   justify-content: space-between;
   gap: 1vw;
-  padding: 1.2vh 2vw;
+  padding: 1.6vh 2vw;
 }
 
 .metric__label {
@@ -940,22 +939,8 @@ button.report-btn {
   padding: 0 1vw;
 }
 
-.day-progress {
-  width: 68%;
-  height: clamp(8px, 1.1vh, 14px);
-  overflow: hidden;
-  border: 2.5px solid var(--ink);
-  border-radius: 10px;
-  background: #fff;
-}
-
-.day-progress > div {
-  height: 100%;
-  background: var(--yellow);
-}
-
 .speed-control {
-  width: 100%;
+  width: min(100%, 560px);
   display: grid;
   grid-template-columns: clamp(26px, 2.4vw, 40px) minmax(0, 1fr) clamp(26px, 2.4vw, 40px);
   align-items: center;
@@ -996,7 +981,8 @@ button.report-btn {
 
 .speed-control__slider .mantine-Slider-track {
   border-radius: 8px;
-  outline: 2px solid var(--ink);
+  outline: 2.5px solid var(--ink);
+  background: #fff;
 }
 
 .speed-control__slider .mantine-Slider-track::before {
@@ -1004,9 +990,17 @@ button.report-btn {
   border-radius: 8px;
 }
 
+.speed-control__slider .mantine-Slider-bar {
+  border-radius: 8px;
+  background: #f8c9c9;
+  clip-path: inset(0 var(--slider-size) 0 0 round 8px);
+}
+
 .speed-control__slider .mantine-Slider-thumb {
   border: 2px solid var(--ink);
   background: #fff;
+  width: 26px;
+  height: 26px;
 }
 
 .lead {
@@ -1030,9 +1024,9 @@ button.report-btn {
 
 .lead__bar {
   display: flex;
-  height: clamp(9px, 1.2vh, 15px);
+  height: clamp(14px, 1.8vh, 22px);
   overflow: hidden;
-  border: 2px solid var(--ink);
+  border: 2.5px solid var(--ink);
   border-radius: 999px;
   background: #fff;
 }
@@ -1106,7 +1100,12 @@ button.control:disabled {
 
 .center--setup {
   margin-top: 1.5vh;
-  gap: 3vh;
+  gap: clamp(8px, 2.2vh, 24px);
+}
+
+.center--setup .status {
+  min-height: 1.3em;
+  margin: 0;
 }
 
 
@@ -1120,22 +1119,22 @@ button.control:disabled {
 }
 
 .scene--landing .shop-art--the_bakery {
-  transform: translateX(-70%) scale(0.65);
+  transform: translateX(-145%) scale(0.96);
 }
 
 .scene--landing .shop-art--grandmas_bakeria {
-  transform: translateX(70%) scale(0.65);
+  transform: translateX(145%) scale(0.96);
 }
 
 .cloud {
   transform-box: view-box;
-  animation: cloud-drift 150s linear infinite;
+  animation: cloud-drift 135s linear infinite;
   pointer-events: none;
 }
 
 .cloud--two {
-  animation-duration: 190s;
-  animation-delay: -95s;
+  animation-duration: 175s;
+  animation-delay: -88s;
 }
 
 @keyframes cloud-drift {
@@ -1154,7 +1153,7 @@ button.control:disabled {
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: clamp(12px, 3vh, 32px) clamp(12px, 4vw, 64px) clamp(16px, 3vh, 32px);
-  gap: clamp(22px, 7vh, 72px);
+  gap: clamp(18px, 3vh, 40px);
   text-align: center;
   color: var(--ink);
   transition: opacity 360ms ease, transform 360ms ease;
@@ -1169,7 +1168,7 @@ button.control:disabled {
 .title__logo {
   /* Match the scene's responsive scale while keeping the logo the star. */
   flex: 0 0 auto;
-  width: min(57.9vw, 76.3vh, 900px);
+  width: min(65vw, 74vh, 1100px);
   max-width: 100%;
   object-fit: contain;
   height: auto;
@@ -1182,8 +1181,8 @@ button.control:disabled {
   flex: 0 0 auto;
   flex-direction: column;
   align-items: center;
-  width: min(46ch, 28vw);
-  gap: clamp(6px, 1vh, 12px);
+  width: min(58ch, 46vw);
+  gap: clamp(8px, 1.1vh, 16px);
 }
 
 .title__tagline {
@@ -1216,16 +1215,20 @@ button.control:disabled {
 }
 
 @media (max-width: 700px) {
+  .title__copy {
+    width: min(58ch, 84vw);
+  }
+
+  .title__logo {
+    width: min(82vw, 54vh, 900px);
+  }
+
   .scene--landing .shop-art--the_bakery {
-    transform: translateX(-120%) scale(0.48);
+    transform: translateX(-125%) scale(0.68);
   }
 
   .scene--landing .shop-art--grandmas_bakeria {
-    transform: translateX(120%) scale(0.48);
-  }
-
-  .title__copy {
-    width: min(46ch, 68vw);
+    transform: translateX(125%) scale(0.68);
   }
 }
 

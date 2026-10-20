@@ -19,7 +19,17 @@ export function MenuPanel({ title, side, fill, items, onAdd, onEdit, onRemove }:
       style={{ '--fill': fill } as CSSProperties}
       aria-label={title}
     >
-      <h2 className="panel__title">{title}</h2>
+      <div className="panel__heading">
+        <h2 className="panel__title">{title}</h2>
+        <button
+          type="button"
+          className="sketch plus"
+          aria-label={`Add menu item (${title})`}
+          onClick={onAdd}
+        >
+          <PlusIcon />
+        </button>
+      </div>
       <Rule />
       <ul className="panel__list">
         {items.map((item) => (
@@ -50,16 +60,6 @@ export function MenuPanel({ title, side, fill, items, onAdd, onEdit, onRemove }:
           </li>
         ))}
       </ul>
-      <div className="panel__footer">
-        <button
-          type="button"
-          className="sketch plus"
-          aria-label={`Add menu item (${title})`}
-          onClick={onAdd}
-        >
-          <PlusIcon />
-        </button>
-      </div>
     </section>
   )
 }
