@@ -87,10 +87,12 @@ button.sketch:disabled:hover::before {
 
 .panel {
   --radius: 2.4vw 2.4vw 1.6vw 1.6vw;
-  height: 71vh;
+  height: auto;
+  max-height: 71vh;
   margin-top: 4.6vh;
   display: flex;
   flex-direction: column;
+  align-self: start;
 }
 
 .panel--left {
@@ -105,6 +107,7 @@ button.sketch:disabled:hover::before {
 }
 
 .panel__title {
+  flex: 0 0 auto;
   margin: 0;
   padding: 3.2vh 2vw 1.6vh;
   font-family: var(--title-font);
@@ -123,10 +126,11 @@ button.sketch:disabled:hover::before {
   height: 8px;
   margin: 0 auto;
   color: var(--ink);
+  flex: 0 0 auto;
 }
 
 .panel__list {
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
   margin: 0;
   padding: 0;
@@ -135,12 +139,34 @@ button.sketch:disabled:hover::before {
 }
 
 .row {
-  display: grid;
-  grid-template-columns: 1fr auto auto auto;
+  position: relative;
+  display: flex;
   align-items: center;
-  gap: 1.2vw;
-  padding: 1.4vh 1.8vw;
   font-size: clamp(15px, min(1.9vw, 3.4vh), 34px);
+}
+
+.row__edit {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  gap: 1.2vw;
+  box-sizing: border-box;
+  padding: 1.4vh 1.8vw;
+  padding-right: calc(1.8vw + clamp(24px, 2.4vw, 44px) + 1.2vw);
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.row__edit:hover .row__name {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.12em;
 }
 
 .row__name {
@@ -159,10 +185,15 @@ button.sketch:disabled:hover::before {
   background: none;
   color: var(--ink);
   cursor: pointer;
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  right: 1.8vw;
+  transform: translateY(-50%);
 }
 
 .icon-btn:hover {
-  transform: scale(1.12) rotate(-6deg);
+  transform: translateY(-50%) scale(1.12) rotate(-6deg);
 }
 
 .icon-btn svg {
@@ -173,10 +204,15 @@ button.sketch:disabled:hover::before {
 .panel__footer {
   display: flex;
   padding: 1.2vh 2vw 2.4vh;
+  flex: 0 0 auto;
+}
+
+.panel--left .panel__footer {
+  justify-content: flex-end;
 }
 
 .panel--right .panel__footer {
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
 .plus {
@@ -309,10 +345,57 @@ button.report-btn {
   font-size: 1.6rem;
 }
 
-.report--grandma h4 {
-  margin-top: 22px;
+.grandma-scorecard {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.grandma-scorecard__bakery {
+  min-width: 0;
+  padding: 16px 20px;
+  border: 2px solid var(--ink);
+  border-radius: 16px;
+  background: #fff;
+}
+
+.grandma-scorecard__bakery h4 {
+  margin: 0 0 10px;
+  color: var(--bakery-color);
   font-family: var(--title-font);
-  font-size: 1.3rem;
+  font-size: 1.35rem;
+}
+
+.grandchild-filters {
+  margin: 16px 0 4px;
+}
+
+.grandma-scorecard__bakery dl {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.grandma-scorecard__bakery dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.grandma-scorecard__bakery dt {
+  color: #6b6560;
+}
+
+.grandma-scorecard__bakery dd {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 600px) {
+  .grandma-scorecard {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* bar charts: label | track | value */
@@ -501,7 +584,7 @@ button.report-btn {
   width: 10px;
   height: 10px;
   margin-right: 6px;
-  border: 1.5px solid var(--ink);
+  border: 1.5px solid #c9c3bd;
   border-radius: 3px;
 }
 
@@ -510,14 +593,13 @@ button.report-btn {
   align-items: center;
   justify-content: center;
   height: 26px;
-  border: 1.5px solid var(--ink);
+  border: 1px solid #d1cbc5;
   border-radius: 5px;
-  font-size: 0.85rem;
   cursor: default;
 }
 
 .heatmap__cell:hover {
-  outline: 2px solid var(--ink);
+  outline: 2px solid #a8a19a;
 }
 
 .report-legend {
@@ -627,6 +709,20 @@ button.report-btn {
   color: var(--ink);
 }
 
+.item-form__measures {
+  align-items: flex-start;
+}
+
+.item-form__measure {
+  min-width: 0;
+  flex: 1 1 0;
+}
+
+.item-form__slider {
+  margin: 12px 12px 0;
+  width: calc(100% - 24px);
+}
+
 /* tabs */
 
 .sk-modal .mantine-Tabs-root {
@@ -695,6 +791,9 @@ button.report-btn {
 
 .sk-modal .mantine-Slider-bar {
   border-radius: 8px;
+  /* Mantine extends the bar by one thumb radius on each side so it runs
+     underneath the thumb. Clip those extensions at the outlined track. */
+  clip-path: inset(0 var(--slider-size) 0 var(--slider-size) round 8px);
 }
 
 .sk-modal .mantine-Slider-thumb {
@@ -751,22 +850,53 @@ button.report-btn {
 
 /* ---- day playback: metric panels ---- */
 
+.overlay--day {
+  grid-template-rows: auto 1fr;
+}
+
+.day-topbar {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 2vw;
+  padding-top: 2vh;
+  min-width: 0;
+}
+
+.day-topbar__time {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 1.4vw;
+}
+
+.day-topbar__time .clock {
+  font-size: clamp(22px, 2.6vw, 48px);
+}
+
 .metrics {
   --radius: 2.4vw 2.4vw 1.6vw 1.6vw;
   align-self: start;
-  margin-top: 4.6vh;
+  margin-top: 3vh;
   padding: 0 0 1.6vh;
 }
 
 .metrics--left {
   grid-column: 1;
-  grid-row: 1;
+  grid-row: 2;
 }
 
 .metrics--right {
   grid-column: 3;
-  grid-row: 1;
-  margin-top: 5.4vh;
+  grid-row: 2;
+  margin-top: 3vh;
+}
+
+.metrics--winner {
+  outline: 4px solid var(--winner-color);
+  outline-offset: 3px;
 }
 
 .metrics__title {
@@ -800,15 +930,12 @@ button.report-btn {
   white-space: nowrap;
 }
 
-.metric__star {
-  margin-right: 0.4em;
-  color: #e8b100;
-}
-
 /* ---- day playback: progress, speed, skip and the lead ---- */
 
 .center--day {
-  gap: 3.6vh;
+  grid-row: 2;
+  margin-top: 3vh;
+  gap: 3vh;
   padding: 0 1.6vw;
 }
 
@@ -826,34 +953,84 @@ button.report-btn {
   background: var(--yellow);
 }
 
-.speeds {
-  display: flex;
-  gap: 0.9vw;
+.speed-control {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 1.2vw;
 }
 
-button.speed {
-  --radius: 0.8vw;
-  min-width: clamp(36px, 3.9vw, 72px);
-  height: clamp(34px, 4.6vh, 64px);
-  font-size: clamp(15px, 1.4vw, 26px);
+.speed-control__value {
+  font-size: clamp(16px, 1.6vw, 30px);
+  font-variant-numeric: tabular-nums;
 }
 
-button.speed[data-active] {
-  --fill: var(--yellow);
+.speed-control__slider {
+  width: 100%;
+}
+
+.speed-control__slider .mantine-Slider-markLabel {
+  color: var(--ink);
+  font-size: clamp(11px, 0.9vw, 16px);
+  white-space: nowrap;
+}
+
+.speed-control__slider .mantine-Slider-track {
+  border-radius: 8px;
+  outline: 2px solid var(--ink);
+}
+
+.speed-control__slider .mantine-Slider-track::before {
+  inset-inline: 0;
+  border-radius: 8px;
+}
+
+.speed-control__slider .mantine-Slider-thumb {
+  border: 2px solid var(--ink);
+  background: #fff;
 }
 
 .lead {
   width: 100%;
-  text-align: center;
+  display: grid;
+  gap: 0.6vh;
+  text-align: left;
 }
 
 .lead__label {
-  font-size: clamp(14px, 1.3vw, 24px);
+  font-size: clamp(13px, 1.2vw, 22px);
 }
 
-.lead .report-share {
-  margin-top: 1vh;
-  font-size: clamp(13px, 1.2vw, 22px);
+.lead__row {
+  display: grid;
+  grid-template-columns: clamp(62px, 7vw, 110px) minmax(0, 1fr);
+  align-items: center;
+  gap: 1vw;
+}
+
+.lead__bar {
+  display: flex;
+  height: clamp(12px, 1.6vh, 20px);
+  overflow: hidden;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: #fff;
+}
+
+.lead__bar > div {
+  min-width: 0;
+}
+
+@media (max-width: 700px) {
+  .day-topbar {
+    grid-template-columns: 1fr;
+    gap: 1vh;
+  }
+
+  .lead__row {
+    grid-template-columns: 58px minmax(0, 1fr);
+  }
 }
 
 .sale-pop {
@@ -863,8 +1040,12 @@ button.speed[data-active] {
   paint-order: stroke;
   font-family: inherit;
   /* Narrow enough that three lanes fit across one shopfront (see People.tsx). */
-  font-size: 46px;
+  font-size: 40px;
   text-anchor: middle;
+}
+
+.sale-pop__name {
+  font-size: 28px;
 }
 
 button.control {
@@ -900,8 +1081,10 @@ button.control:disabled {
   /* Sits in the sky: below this the shopfronts start, and text over the
      painted buildings is unreadable. */
   justify-content: flex-start;
-  padding: 5vh 6vw 0;
-  gap: 2vh;
+  box-sizing: border-box;
+  overflow-y: auto;
+  padding: clamp(16px, 5vh, 64px) clamp(16px, 6vw, 96px);
+  gap: clamp(12px, 2vh, 26px);
   text-align: center;
   color: var(--ink);
 }
@@ -909,8 +1092,10 @@ button.control:disabled {
 .title__logo {
   /* Capped against the viewport height, since it is the sky that has to fit
      the whole stack, not the width. */
-  max-height: 27vh;
-  max-width: min(560px, 50vw);
+  flex: 0 1 auto;
+  max-height: min(42vh, 420px);
+  max-width: min(820px, 75vw);
+  object-fit: contain;
   width: auto;
   height: auto;
   user-select: none;
@@ -919,7 +1104,26 @@ button.control:disabled {
 
 .title__tagline {
   margin: 0;
-  max-width: 36ch;
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: 58ch;
   font-size: clamp(15px, 1.35vw, 22px);
   line-height: 1.5;
+}
+
+.title__bakery-chain {
+  color: #ff3f25;
+  font-weight: 700;
+}
+
+.title__grandma-bakery {
+  color: #8DCB5D;
+  font-weight: 700;
+}
+
+.title button.start {
+  width: auto;
+  height: auto;
+  padding: 0.35em 0.9em;
+  text-transform: uppercase;
 }

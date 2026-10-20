@@ -106,7 +106,12 @@ export function SalePops({ day, minute }: { day: DayResult; minute: number }) {
             y={POP_Y - t * POP_RISE}
             opacity={1 - t * t}
           >
-            +${event.choice.price.toFixed(2)}
+            <tspan>+${event.choice.price.toFixed(2)}</tspan>
+            {event.choice.item_name && (
+              <tspan className="sale-pop__name" dx="10">
+                {event.choice.item_name}
+              </tspan>
+            )}
           </text>
         )
       })}

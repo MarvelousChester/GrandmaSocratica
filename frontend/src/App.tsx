@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { SegmentedControl } from '@mantine/core'
+import { SegmentedControl, Slider } from '@mantine/core'
 import { useLocalStorage } from '@mantine/hooks'
 import { BAKERY_INFO, CLOCK, formatTime, MENUS, newItemId, PANEL_ORDER } from './data'
 import { DayReport, type ReportView } from './DayReport'
@@ -36,42 +36,52 @@ function DayView({ day, view, onDone }: DayViewProps) {
         <People day={day} minute={minute} />
         <SalePops day={day} minute={minute} />
       </Scene>
-      <div className="overlay">
+      <div className="overlay overlay--day">
+        <div className="day-topbar">
+          <div className="day-topbar__time">
+            <div className="clock" aria-live="off">
+              {formatTime(minute)}
+            </div>
+            <div className="day-progress" role="progressbar" aria-valuenow={Math.round(progress * 100)}>
+              <div style={{ width: `${progress * 100}%` }} />
+            </div>
+          </div>
+          <LeadBar order={PANEL_ORDER} metrics={metrics} />
+        </div>
         {PANEL_ORDER.map((bakery, i) => (
           <MetricsPanel
             key={bakery}
             title={BAKERY_INFO[bakery].label}
             side={i === 0 ? 'left' : 'right'}
             fill={BAKERY_INFO[bakery].wall}
+            winnerColor={BAKERY_INFO[bakery].roof}
             metrics={metrics[bakery]}
             rival={metrics[bakery === left ? right : left]}
           />
         ))}
         <div className="center center--day">
-          <div className="clock" aria-live="off">
-            {formatTime(minute)}
-          </div>
-          <div className="day-progress" role="progressbar" aria-valuenow={Math.round(progress * 100)}>
-            <div style={{ width: `${progress * 100}%` }} />
-          </div>
-          <div className="speeds" role="group" aria-label="Speed">
-            {SPEED_STEPS.map((step) => (
-              <button
-                key={step}
-                type="button"
-                className="sketch speed"
-                data-active={step === multiplier || undefined}
-                onClick={() => setSpeed(step)}
-                disabled={finished}
-              >
-                {step}×
-              </button>
-            ))}
+          <div className="speed-control">
+            <span className="speed-control__value">{multiplier}×</span>
+            <Slider
+              aria-label="Playback speed"
+              value={SPEED_STEPS.indexOf(multiplier)}
+              onChange={(index) => setSpeed(SPEED_STEPS[index])}
+              min={0}
+              max={SPEED_STEPS.length - 1}
+              step={1}
+              marks={SPEED_STEPS.map((speed, index) => ({ value: index, label: `${speed}×` }))}
+              aria-valuetext={`${multiplier} times speed`}
+              disabled={finished}
+              color="#f8c9c9"
+              thumbSize={20}
+              size={12}
+              className="speed-control__slider"
+              label={null}
+            />
           </div>
           <button type="button" className="sketch control" onClick={skip} disabled={finished}>
             Skip day
           </button>
-          <LeadBar order={PANEL_ORDER} metrics={metrics} />
         </div>
       </div>
       <DayReport opened={finished} report={report} view={view} onClose={onDone} closeLabel="Back to menus" />
@@ -179,7 +189,7 @@ export default function App() {
             onChange={(v) => setView(v as ReportView)}
             data={[
               { value: 'grandma', label: 'Grandma' },
-              { value: 'detailed', label: 'Detailed' },
+              { value: 'detailed', label: 'Grandchild' },
             ]}
           />
         </div>

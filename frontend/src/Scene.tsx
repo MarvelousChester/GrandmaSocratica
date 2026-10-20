@@ -6,7 +6,6 @@ import type { Bakery } from './types'
 
 const SKY = '#b0d6fb'
 const SIDEWALK = '#f8d9ae'
-const ROAD = '#1f1f1f'
 
 // The background rects overshoot the viewBox by this much so they fill any screen shape.
 const BLEED = 4000
@@ -60,7 +59,6 @@ export function Scene({ children }: { children?: ReactNode }) {
 
         {children}
 
-        <rect x={-BLEED} y={1123} width={1700 + 2 * BLEED} height={BLEED} fill={ROAD} />
       </svg>
     </div>
   )

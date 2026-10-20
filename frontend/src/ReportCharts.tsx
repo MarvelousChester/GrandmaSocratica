@@ -83,13 +83,8 @@ export function HourlyChart({ report, markPeak = false }: HourlyProps) {
   )
 }
 
-interface HeatmapProps {
-  report: DayReport
-  counts?: boolean // print the number in each cell
-}
-
 /** Items down the side, hours across: the darker the cell, the more of that item sold then. */
-export function ItemHeatmap({ report, counts = false }: HeatmapProps) {
+export function ItemHeatmap({ report }: { report: DayReport }) {
   const max = Math.max(1, ...ORDER.flatMap((b) => report.bakeries[b].items.flatMap((i) => i.byHour)))
   return (
     <div className="heatmap" style={{ gridTemplateColumns: `fit-content(11em) repeat(${report.hours.length}, 1fr)` }}>
@@ -111,9 +106,7 @@ export function ItemHeatmap({ report, counts = false }: HeatmapProps) {
               className="heatmap__cell tip"
               data-tip={`${item.name}\n${formatHour(report.hours[i].hour)}: ${n} sold`}
               style={{ background: n ? `color-mix(in srgb, ${BAKERY_INFO[b].roof} ${Math.round(25 + (75 * n) / max)}%, white)` : '#fff' }}
-            >
-              {counts && n > 0 ? n : ''}
-            </span>
+            />
           )),
         ]),
       )}

@@ -1,4 +1,3 @@
-import { formatMoney } from './data'
 import type { Bakery, DayResult, IngredientUsage } from './types'
 
 const BAKERIES: Bakery[] = ['grandmas_bakeria', 'the_bakery']
@@ -137,18 +136,15 @@ export function buildReport(day: DayResult): DayReport {
 export const hourVisits = (h: HourRow) => h.sold.grandmas_bakeria + h.sold.the_bakery + h.walkaways
 
 /** The hour with the most visitors, or null on an empty day. */
-/** How the day went, told from Grandma's side: did she keep more than The Bakery? Profit, or sales without a ledger. */
-export function verdict(report: DayReport): string {
+/** Who won the day, using profit when available and sales otherwise. */
+export function verdict(report: DayReport): { winner: Bakery | null; lead: number; what: 'profit' | 'sales' } {
   const ours = report.bakeries.grandmas_bakeria
   const theirs = report.bakeries.the_bakery
-  const [lead, what] =
-    ours.profit !== null && theirs.profit !== null
-      ? [ours.profit - theirs.profit, 'profit']
-      : [ours.revenue - theirs.revenue, 'sales']
-  if (Math.abs(lead) < 0.005) return 'Neck and neck with The Bakery!'
-  return lead > 0
-    ? `Grandma's won the day by ${formatMoney(lead)} in ${what}!`
-    : `The Bakery beat us by ${formatMoney(-lead)} in ${what}. Let's tweak the menu!`
+  const hasProfit = ours.profit !== null && theirs.profit !== null
+  const what = hasProfit ? 'profit' : 'sales'
+  const lead = hasProfit ? ours.profit! - theirs.profit! : ours.revenue - theirs.revenue
+  if (Math.abs(lead) < 0.005) return { winner: null, lead: 0, what }
+  return { winner: lead > 0 ? 'grandmas_bakeria' : 'the_bakery', lead: Math.abs(lead), what }
 }
 
 export function busiestHour(report: DayReport): HourRow | null {

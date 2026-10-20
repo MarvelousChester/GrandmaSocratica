@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import { PencilIcon, PlusIcon, Rule, TrashIcon } from './Sketch'
+import { PlusIcon, Rule, TrashIcon } from './Sketch'
 import type { MenuItem } from './types'
 
 interface Props {
@@ -25,21 +25,23 @@ export function MenuPanel({ title, side, fill, items, onAdd, onEdit, onRemove }:
         {items.map((item) => (
           <li key={item.id}>
             <div className="row">
-              <span className="row__name">{item.name}</span>
-              <span className="row__price">${item.price.toFixed(2)}</span>
               <button
                 type="button"
-                className="icon-btn"
+                className="row__edit"
                 aria-label={`Edit ${item.name}`}
                 onClick={() => onEdit(item)}
               >
-                <PencilIcon />
+                <span className="row__name">{item.name}</span>
+                <span className="row__price">${item.price.toFixed(2)}</span>
               </button>
               <button
                 type="button"
                 className="icon-btn"
                 aria-label={`Remove ${item.name}`}
-                onClick={() => onRemove(item)}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  onRemove(item)
+                }}
               >
                 <TrashIcon />
               </button>

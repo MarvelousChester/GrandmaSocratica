@@ -11,11 +11,13 @@ export function TitleScreen({ onBegin }: { onBegin: () => void }) {
     <div className="title">
       <img className="title__logo" src={logo} alt="Grandma must win" />
       <p className="title__tagline">
-        A corporate chain opened up right next door. Set the two menus, open the
-        doors, and see who the town actually picks.
+        The corporate chain <span className="title__bakery-chain">The Bakery</span> opened up next door to{' '}
+        <span className="title__grandma-bakery">Grandma's Bakeria</span> with a suspiciously similar menu.
+        <br />
+        Optimize Grandma's costs and menu, and launch your attack!
       </p>
       <button type="button" className="sketch start" onClick={onBegin}>
-        Begin
+        BEGIN
       </button>
     </div>
   )

@@ -1,48 +1,90 @@
-import { Button, Group, Modal, Table, Tabs, Text } from '@mantine/core'
-import { formatMoney, formatPercent, humanize, REPORT_ORDER as ORDER, shop } from './data'
+import type { CSSProperties } from 'react'
+import { useState } from 'react'
+import { Button, Group, Modal, Select, Table, Tabs, Text, TextInput } from '@mantine/core'
+import { BAKERY_INFO, formatMoney, formatPercent, humanize, REPORT_ORDER as ORDER, shop } from './data'
 import { verdict, type DayReport as Report } from './report'
 import {
-  CrowdBars,
   HourlyChart,
   IngredientBars,
-  ItemBars,
   ItemHeatmap,
   ItemProfitBars,
   Legend,
-  MoneyBars,
-  ShareBar,
 } from './ReportCharts'
 import type { Bakery } from './types'
 
 export type ReportView = 'grandma' | 'detailed'
 
-/** The day at a glance, in pictures: share, takings, the day's rhythm, the crowd and the shelves. */
+function Verdict({ report }: { report: Report }) {
+  const result = verdict(report)
+  if (!result.winner) return <p className="report-verdict">Neck and neck with The Bakery!</p>
+
+  const color = BAKERY_INFO[result.winner].roof
+  const amount = formatMoney(result.lead)
+  return (
+    <p className="report-verdict">
+      {result.winner === 'grandmas_bakeria' ? (
+        <><span style={{ color }}>Grandma's</span> won the day by {amount} in {result.what}!</>
+      ) : (
+        <><span style={{ color }}>The Bakery</span> beat us by {amount} in {result.what}. Let's tweak the menu!</>
+      )}
+    </p>
+  )
+}
+
+/** A quick result and the three numbers that explain it. */
 function GrandmaView({ report }: { report: Report }) {
   return (
     <div className="report report--grandma">
-      <ShareBar report={report} />
-      <h4>Money</h4>
-      <MoneyBars report={report} />
-      <h4>Through the day</h4>
-      <HourlyChart report={report} markPeak />
-      <Legend walkaways />
-      <h4>Who came by</h4>
-      <CrowdBars report={report} />
-      <Legend walkaways />
-      <h4>What sold</h4>
-      <ItemBars report={report} />
-      {report.bakeries.grandmas_bakeria.ingredients.length > 0 && (
-        <>
-          <h4>Biggest ingredient costs</h4>
-          <IngredientBars report={report} />
-        </>
-      )}
+      <div className="grandma-scorecard">
+        {ORDER.map((bakery) => {
+          const result = report.bakeries[bakery]
+          return (
+            <section
+              key={bakery}
+              className="grandma-scorecard__bakery"
+              style={{ '--bakery-color': BAKERY_INFO[bakery].roof } as CSSProperties}
+            >
+              <h4>{shop(bakery)}</h4>
+              <dl>
+                <div>
+                  <dt>Orders</dt>
+                  <dd>{result.sold}</dd>
+                </div>
+                <div>
+                  <dt>Sales</dt>
+                  <dd>{formatMoney(result.revenue)}</dd>
+                </div>
+                <div>
+                  <dt>Profit</dt>
+                  <dd>{fmtOrDash(result.profit)}</dd>
+                </div>
+              </dl>
+            </section>
+          )
+        })}
+      </div>
     </div>
   )
 }
 
 /** Every figure the day produced, in tables. */
 function DetailedView({ report }: { report: Report }) {
+  const [itemSearch, setItemSearch] = useState('')
+  const [itemBakery, setItemBakery] = useState<'all' | Bakery>('all')
+  const [activeTab, setActiveTab] = useState<string | null>('money')
+  const query = itemSearch.trim().toLowerCase()
+  const filterItems = (bakery: Bakery) =>
+    itemBakery !== 'all' && itemBakery !== bakery
+      ? []
+      : report.bakeries[bakery].items.filter((item) => item.name.toLowerCase().includes(query))
+  const itemReport: Report = {
+    ...report,
+    bakeries: {
+      ...report.bakeries,
+      grandmas_bakeria: { ...report.bakeries.grandmas_bakeria, items: filterItems('grandmas_bakeria') },
+      the_bakery: { ...report.bakeries.the_bakery, items: filterItems('the_bakery') },
+    },
+  }
   const rows: [string, (b: Bakery) => string][] = [
     ['Sold', (b) => String(report.bakeries[b].sold)],
     ['Share of sales', (b) => formatPercent(report.bakeries[b].share)],
@@ -57,10 +99,10 @@ function DetailedView({ report }: { report: Report }) {
       },
     ],
   ]
-  const items = ORDER.flatMap((b) => report.bakeries[b].items)
+  const items = ORDER.flatMap((b) => itemReport.bakeries[b].items)
 
   return (
-    <Tabs defaultValue="money" className="report">
+    <Tabs value={activeTab} onChange={setActiveTab} className="report">
       <Tabs.List>
         <Tabs.Tab value="money">Money</Tabs.Tab>
         <Tabs.Tab value="items">Items</Tabs.Tab>
@@ -68,6 +110,28 @@ function DetailedView({ report }: { report: Report }) {
         <Tabs.Tab value="customers">Customers</Tabs.Tab>
         <Tabs.Tab value="ingredients">Ingredients</Tabs.Tab>
       </Tabs.List>
+
+      {(activeTab === 'items' || activeTab === 'timing') && (
+        <Group className="grandchild-filters" grow>
+          <TextInput
+            label="Search items"
+            placeholder="Type an item name"
+            value={itemSearch}
+            onChange={(event) => setItemSearch(event.currentTarget.value)}
+          />
+          <Select
+            label="Bakery"
+            value={itemBakery}
+            onChange={(value) => value && setItemBakery(value as 'all' | Bakery)}
+            data={[
+              { value: 'all', label: 'All bakeries' },
+              { value: 'grandmas_bakeria', label: "Grandma's Bakeria" },
+              { value: 'the_bakery', label: 'The Bakery' },
+            ]}
+            allowDeselect={false}
+          />
+        </Group>
+      )}
 
       <Tabs.Panel value="money" pt="md">
         <Table className="report-table">
@@ -97,7 +161,7 @@ function DetailedView({ report }: { report: Report }) {
 
       <Tabs.Panel value="items" pt="md">
         <h4>Profit per item</h4>
-        <ItemProfitBars report={report} />
+        <ItemProfitBars report={itemReport} />
         <Table className="report-table" mt="md">
           <Table.Thead>
             <Table.Tr>
@@ -129,11 +193,12 @@ function DetailedView({ report }: { report: Report }) {
             ))}
           </Table.Tbody>
         </Table>
+        {items.length === 0 && <Text c="dimmed" mt="sm">No items match those filters.</Text>}
       </Tabs.Panel>
 
       <Tabs.Panel value="timing" pt="md">
         <h4>Units sold per item, by hour</h4>
-        <ItemHeatmap report={report} counts />
+        <ItemHeatmap report={itemReport} />
       </Tabs.Panel>
 
       <Tabs.Panel value="customers" pt="md">
@@ -197,9 +262,6 @@ function DetailedView({ report }: { report: Report }) {
         </div>
       </Tabs.Panel>
 
-      <Text size="sm" c="dimmed" mt="md">
-        Seed {report.seed}
-      </Text>
     </Tabs>
   )
 }
@@ -231,7 +293,7 @@ export function DayReport({ opened, report, view, onClose, closeLabel }: Props) 
     >
       {report && (
         <>
-          <p className="report-verdict">{verdict(report)}</p>
+          <Verdict report={report} />
           {view === 'grandma' ? <GrandmaView report={report} /> : <DetailedView report={report} />}
         </>
       )}

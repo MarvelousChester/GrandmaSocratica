@@ -2,3 +2,5 @@ grandma.db
 __pycache__/
 *.py[cod]
 .venv/
+.vercel
+.env*

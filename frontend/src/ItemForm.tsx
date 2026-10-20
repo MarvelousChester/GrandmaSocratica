@@ -96,6 +96,10 @@ export function ItemForm({ item, submitLabel, onSave, onCancel }: Props) {
   const set = <K extends keyof Draft>(key: K, value: Draft[K]) =>
     setDraft((d) => ({ ...d, [key]: value }))
   const setFlavor = (patch: Partial<FlavorProfile>) => set('flavor', { ...draft.flavor, ...patch })
+  const numericPrice = toNumber(draft.price)
+  const numericPortion = toNumber(draft.portion_size_g)
+  const priceSliderMax = Math.max(30, Number.isFinite(numericPrice) ? numericPrice : 0)
+  const portionSliderMax = Math.max(2000, Number.isFinite(numericPortion) ? numericPortion : 0)
 
   /** The edited item, or null while the draft breaks a backend constraint. */
   const build = (): MenuItem | null => {
@@ -147,28 +151,58 @@ export function ItemForm({ item, submitLabel, onSave, onCancel }: Props) {
               autosize
               minRows={2}
             />
-            <Group grow align="flex-start">
-              <NumberInput
-                label="Price"
-                value={draft.price}
-                onChange={(v) => set('price', v)}
-                prefix="$"
-                min={0}
-                step={0.25}
-                decimalScale={2}
-                fixedDecimalScale
-                error={Number.isNaN(toNumber(draft.price)) ? 'Required' : undefined}
-              />
-              <NumberInput
-                label="Portion size"
-                value={draft.portion_size_g}
-                onChange={(v) => set('portion_size_g', v)}
-                suffix=" g"
-                min={1}
-                step={10}
-                allowDecimal={false}
-                error={Number.isNaN(toNumber(draft.portion_size_g)) ? 'Required' : undefined}
-              />
+            <Group grow align="flex-start" className="item-form__measures">
+              <div className="item-form__measure">
+                <NumberInput
+                  label="Price"
+                  value={draft.price}
+                  onChange={(v) => set('price', v)}
+                  prefix="$"
+                  min={0}
+                  step={0.25}
+                  decimalScale={2}
+                  fixedDecimalScale
+                  error={Number.isNaN(numericPrice) ? 'Required' : undefined}
+                />
+                <Slider
+                  aria-label="Price slider"
+                  value={Number.isFinite(numericPrice) ? numericPrice : 0}
+                  onChange={(v) => set('price', Number(v.toFixed(2)))}
+                  min={0}
+                  max={priceSliderMax}
+                  step={0.01}
+                  label={(v) => `$${v.toFixed(2)}`}
+                  color="#f8c9c9"
+                  thumbSize={20}
+                  size={12}
+                  className="item-form__slider"
+                />
+              </div>
+              <div className="item-form__measure">
+                <NumberInput
+                  label="Portion size"
+                  value={draft.portion_size_g}
+                  onChange={(v) => set('portion_size_g', v)}
+                  suffix=" g"
+                  min={1}
+                  step={10}
+                  allowDecimal={false}
+                  error={Number.isNaN(numericPortion) ? 'Required' : undefined}
+                />
+                <Slider
+                  aria-label="Portion size slider"
+                  value={Number.isFinite(numericPortion) ? numericPortion : 1}
+                  onChange={(v) => set('portion_size_g', Math.round(v))}
+                  min={1}
+                  max={portionSliderMax}
+                  step={1}
+                  label={(v) => `${Math.round(v)} g`}
+                  color="#f8c9c9"
+                  thumbSize={20}
+                  size={12}
+                  className="item-form__slider"
+                />
+              </div>
             </Group>
             <div>
               <Text size="sm" fw={500} mb={6}>
