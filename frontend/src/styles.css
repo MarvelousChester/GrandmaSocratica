@@ -1127,19 +1127,22 @@ button.control:disabled {
 }
 
 .cloud {
-  transform-box: view-box;
+  --cloud-scale: 1.75;
+  transform-box: fill-box;
+  transform-origin: center;
   animation: cloud-drift 135s linear infinite;
   pointer-events: none;
 }
 
 .cloud--two {
+  --cloud-scale: 2;
   animation-duration: 175s;
   animation-delay: -88s;
 }
 
 @keyframes cloud-drift {
-  from { transform: translateX(0); }
-  to { transform: translateX(120vw); }
+  from { transform: translateX(0) scale(var(--cloud-scale)); }
+  to { transform: translateX(120vw) scale(var(--cloud-scale)); }
 }
 
 .title {
