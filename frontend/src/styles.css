@@ -1152,6 +1152,18 @@ button.control:disabled {
   animation-delay: -128s;
 }
 
+.cloud--five {
+  --cloud-scale: 1.8;
+  animation-duration: 165s;
+  animation-delay: -34s;
+}
+
+.cloud--six {
+  --cloud-scale: 1.9;
+  animation-duration: 195s;
+  animation-delay: -112s;
+}
+
 @keyframes cloud-drift {
   from { transform: translateX(0) scale(var(--cloud-scale)); }
   to { transform: translateX(120vw) scale(var(--cloud-scale)); }
@@ -1203,7 +1215,7 @@ button.control:disabled {
 
 .title__action {
   position: absolute;
-  top: 66%;
+  top: 48%;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -1266,7 +1278,7 @@ button.control:disabled {
   }
 
   .title__action {
-    top: 73%;
+    top: 54%;
     width: min(22vw, 42vh, 360px);
   }
 }
