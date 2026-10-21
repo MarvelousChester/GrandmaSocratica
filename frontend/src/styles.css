@@ -1170,7 +1170,7 @@ button.control:disabled {
 }
 
 .title {
-  --title-logo-width: min(72vw, 60vh, 1100px);
+  --title-logo-width: min(72vw, 56vh, 1100px);
   position: absolute;
   inset: 0;
   display: flex;
@@ -1180,8 +1180,8 @@ button.control:disabled {
   box-sizing: border-box;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: clamp(12px, 2vh, 28px) clamp(16px, 4vw, 64px);
-  gap: clamp(16px, 2vh, 30px);
+  padding: clamp(12px, 1.3vh, 22px) clamp(16px, 4vw, 64px);
+  gap: clamp(10px, 1.3vh, 20px);
   text-align: center;
   color: var(--ink);
   transition: opacity 360ms ease, transform 360ms ease;
@@ -1214,14 +1214,11 @@ button.control:disabled {
 }
 
 .title__action {
-  position: absolute;
-  top: 48%;
-  left: 50%;
-  transform: translateX(-50%);
   display: flex;
   flex: 0 0 auto;
   justify-content: center;
   width: min(17vw, 38vh, 360px);
+  margin-top: clamp(8px, 1vh, 16px);
 }
 
 .title__tagline {
@@ -1274,11 +1271,10 @@ button.control:disabled {
 
   .title {
     --title-logo-width: min(90vw, 62vh, 900px);
-    gap: clamp(24px, 4.4vh, 58px);
+    gap: clamp(12px, 2.2vh, 30px);
   }
 
   .title__action {
-    top: 54%;
     width: min(22vw, 42vh, 360px);
   }
 }
