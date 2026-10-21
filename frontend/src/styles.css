@@ -1158,6 +1158,7 @@ button.control:disabled {
 }
 
 .title {
+  --title-logo-width: min(72vw, 60vh, 1100px);
   position: absolute;
   inset: 0;
   display: flex;
@@ -1167,8 +1168,8 @@ button.control:disabled {
   box-sizing: border-box;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: clamp(16px, 4vh, 48px) clamp(16px, 4vw, 64px);
-  gap: clamp(16px, 3vh, 36px);
+  padding: clamp(12px, 2vh, 28px) clamp(16px, 4vw, 64px);
+  gap: clamp(16px, 2vh, 30px);
   text-align: center;
   color: var(--ink);
   transition: opacity 360ms ease, transform 360ms ease;
@@ -1183,7 +1184,7 @@ button.control:disabled {
 .title__logo {
   /* Match the scene's responsive scale while keeping the logo the star. */
   flex: 0 0 auto;
-  width: min(72vw, 48vh, 1100px);
+  width: var(--title-logo-width);
   max-width: 100%;
   object-fit: contain;
   height: auto;
@@ -1196,15 +1197,19 @@ button.control:disabled {
   flex: 0 0 auto;
   flex-direction: column;
   align-items: center;
-  width: min(72ch, 82vw);
+  width: var(--title-logo-width);
   gap: 0;
 }
 
 .title__action {
+  position: absolute;
+  top: 66%;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   flex: 0 0 auto;
   justify-content: center;
-  width: 100%;
+  width: min(17vw, 38vh, 360px);
 }
 
 .title__tagline {
@@ -1228,7 +1233,7 @@ button.control:disabled {
 }
 
 .title button.start {
-  width: auto;
+  width: 100%;
   height: auto;
   min-height: clamp(46px, 5.4vh, 76px);
   padding: 0.25em 0.75em;
@@ -1237,12 +1242,12 @@ button.control:disabled {
 }
 
 @media (max-width: 700px) {
-  .title__copy {
-    width: min(72ch, 90vw);
+  .title {
+    --title-logo-width: min(90vw, 62vh, 900px);
   }
 
-  .title__logo {
-    width: min(90vw, 62vh, 900px);
+  .title__action {
+    width: min(36vw, 42vh, 260px);
   }
 }
 
@@ -1256,11 +1261,13 @@ button.control:disabled {
   }
 
   .title {
+    --title-logo-width: min(90vw, 62vh, 900px);
     gap: clamp(24px, 4.4vh, 58px);
   }
 
-  .title__logo {
-    width: min(90vw, 62vh, 900px);
+  .title__action {
+    top: 73%;
+    width: min(22vw, 42vh, 360px);
   }
 }
 
